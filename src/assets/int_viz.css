@@ -162,6 +162,18 @@ a {
 a:hover {
   color: #0FA0CE; }
 
+#shutdown {
+	display: inline-block;
+	float: right; 
+	clear: right;
+	width: 18px;
+	height: 18px;
+	font-size: 13px;
+	padding: 0px;
+	text-align: center;
+	background: #ccc;
+}
+
 
 /* Buttons
 –––––––––––––––––––––––––––––––––––––––––––––––––– */

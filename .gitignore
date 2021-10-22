@@ -1,2 +1,5 @@
 
 src/__pycache__/
+*.png
+data_tree_viz
+text_tree_viz
