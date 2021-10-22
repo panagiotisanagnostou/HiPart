@@ -41,7 +41,6 @@ def main(inputData):
     inputData : dePDDPcl.dePDDP object
         The dePDDP object that deems visualization.
     
-    app_layout(app=app, input_object=inputData)
     Returns
     -------
     manipullated : dePDDPcl.dePDDP object
