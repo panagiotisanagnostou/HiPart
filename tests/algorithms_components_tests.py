@@ -6,10 +6,10 @@ Created on Wed Oct 13 17:55:27 2021
 """
 
 import time
-import src.visualizations as viz
+import HIDIV.visualizations as viz
 
 from sklearn.datasets import make_blobs
-from src.dePDDPcl import dePDDP
+from HIDIV.dePDDP import dePDDP
 
 # Example data creation
 X, y = make_blobs(n_samples=1500, centers=10, cluster_std=1.2, random_state=41197)
@@ -33,5 +33,5 @@ viz.tree_text_viz(depddp, name="text_tree_viz", format="png", title="Dummy examp
 
 viz.tree_data_viz(depddp, name="data_tree_viz", title="Dummy example data splits", format="png", color_map="tab20", height=None, width=None, rootLabelActive=False, nodeLabels=True).view()
 
-import src.inteactive_visualization as iv
+import HIDIV.inteactive_visualization as iv
 iv.main(depddp)

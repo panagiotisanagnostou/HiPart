@@ -40,17 +40,18 @@ Z_grid = kpca.transform(X_grid)[:, 0].reshape(X1.shape)
 plt.contour(X1, X2, Z_grid, colors='grey', linewidths=1, origin='lower')
 
 
-from src.dePDDPcl import dePDDP
+from HIDIV.dePDDP import dePDDP
 
 clusternumber=2
 
 tic = time.perf_counter()
-outObj = dePDDP(reduction_method='kpca' , max_clusters_number = clusternumber, bandwidth_scale = 0.5, percentile = 0.2, **kPCA_params).fit_predict(X)
+outObj = dePDDP(decomposition_method='kpca' , max_clusters_number = clusternumber, bandwidth_scale = 0.5, percentile = 0.1, **kPCA_params).fit(X)
 toc = time.perf_counter()
 print(toc-tic)
 
-outObj.split_viz_with_gridspec().show()
-out_y = outObj.cluster_labels
+import HIDIV.visualizations as viz
+viz.split_visualization(outObj).show()
+out_y = outObj.labels_
 
 plt.title("Clusterd data")
 reds = out_y == 1
