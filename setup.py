@@ -17,7 +17,6 @@ setup(
     long_description_content_type="text/markdown",
     license="MIT License",
     packages=["HIDIV"],
-    package_dir={'': 'src'},
     project_urls={"Bug Tracker": "https://github.com/panagiotisanagnostou/HIDIV"},
     classifiers=[
         'Development Status :: 1 - Beta',
