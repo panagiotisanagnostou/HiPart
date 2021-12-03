@@ -1,37 +1,50 @@
 from setuptools import setup
 
-__version__ = '0.1.0'
+__version__ = "0.1.0"
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name='HIDIV',
+    name="HiPart",
     version=__version__,
-    url='https://github.com/panagiotisanagnostou/HIDIV',
-    author='Panagiotis Anagnostou',
-    author_email='panagno@uth.gr',
-    description='A hierarchical divisive clustering toolbox',
-    keywords=['data structure', 'tree', 'tools'],
+    url="https://github.com/panagiotisanagnostou/HiPart",
+    author="Panagiotis Anagnostou",
+    author_email="panagno@uth.gr",
+    description="A hierarchical divisive clustering toolbox",
+    keywords=["data structure", "tree", "tools"],
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT License",
-    packages=["HIDIV"],
-    project_urls={"Bug Tracker": "https://github.com/panagiotisanagnostou/HIDIV"},
-    classifiers=[
-        'Development Status :: 1 - Beta',
-        'Environment :: Console',
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        'Programming Language :: Python',
-        "Programming Language :: Python :: 3",
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+    package_dir={"": "src"},
+    packages=["HiPart"],
+    data_files=[("lib/site-packages/hipart/assets", ["src/HiPart/assets/int_viz.css"])],
+    python_requires=">=3.7",
+    install_requires=[
+        "numpy",
+        "treelib>=1.6",
+        "scipy",
+        "scikit-learn",
+        "statsmodels>=0.12",
+        "kdepy",
+        "matplotlib",
+        "plotly",
+        "dash>=2.0",
+        "pandas",
     ],
-    python_requires=">=3.6"
+    project_urls={"Bug Tracker": "https://github.com/panagiotisanagnostou/HiPart"},
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Environment :: Console",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Documentation :: Sphinx",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    ],
 )
