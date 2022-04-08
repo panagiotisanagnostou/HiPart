@@ -1,27 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Sep 21 12:03:13 2021
+Interactive visualization module for the algorithms members of the HiPart
+package that utilise one decomposition method to one dimention to split the
+data.
 
 @author: Panagiotis Anagnostou
 """
 
 import dash
 import HiPart
+import HiPart.__utility_functions as util
 import json
 import matplotlib
 import numpy as np
 import os
-import pandas as pd
 import pickle
+import plotly.subplots as subplots
 import plotly.express as px
 import plotly.graph_objects as go
+import signal
 import socket
+import statsmodels.api as sm
 import webbrowser
 
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output, State
-from flask import request
+from KDEpy import FFTKDE
 from HiPart.clustering import dePDDP
 from HiPart.clustering import iPDDP
 from HiPart.clustering import kM_PDDP
@@ -30,6 +35,7 @@ from tempfile import NamedTemporaryFile
 
 external_stylesheets = [os.path.dirname(HiPart.__file__) + "/assets/int_viz.css"]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+port = -1
 
 
 def main(inputData):
@@ -41,10 +47,10 @@ def main(inputData):
     inputData : dePDDP or iPDDP or kM_PDDP or PDDP object
         The object to be visualized.
 
-    Returns
-    -------
+    Returns (Curently not working correclty)
+    ----------------------------------------
     obj : dePDDP or iPDDP or kM_PDDP or PDDP object
-        The manipulated by the interactive visualization HIDIV object. The
+        The manipulated by the interactive visualization HiPart object. The
         object`s type depends on the input object.
 
     """
@@ -59,7 +65,7 @@ def main(inputData):
         raise TypeError(
             """inputData : can only be instances of classes that belong to
             PDDP based algoirthm ('dePDDP', 'iPDDP', 'kM-PDDP, PDDP') included
-            in HIDIV package."""
+            in HiPart package."""
         )
 
     # Create temp files for smooth execution of the interactive visualization
@@ -231,7 +237,8 @@ def Splitpoint_Manipulation_Callback(
     3. the apply button for the change to the new splitpoint (partial
        algorithm execution from the selected split).
 
-    The rest of the function's inputs are inputs that can't trigger this callback but their data are necessary for the execution of this callback.
+    The rest of the function's inputs are inputs that can't trigger this
+    callback but their data are necessary for the execution of this callback.
 
     Parameters
     ----------
@@ -287,7 +294,7 @@ def Splitpoint_Manipulation_Callback(
 
     # Basic check on the callback triger, based on the dash html elements ID.
     if callback_ID == "splitView":
-        data_matrix, splitpoint, internal_nodes, number_of_nodes = data_preparation(
+        data_matrix, splitpoint, internal_nodes, number_of_nodes = util.data_preparation(
             data["new_input_object"], split_number
         )
 
@@ -303,59 +310,28 @@ def Splitpoint_Manipulation_Callback(
             "cluster": [str(i) for i in range(len(np.unique(data_matrix["cluster"])))]
         }
         color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
-        colList = {str(i): convert_to_hex(color_map(i)) for i in range(color_map.N)}
+        colList = {str(i): util.convert_to_hex(color_map(i)) for i in range(color_map.N)}
 
-        # create scatter plot with the splitpoint shape
-        curent_figure = px.scatter(
-            data_matrix,
-            x="PC1",
-            y="PC2",
-            color="cluster",
-            hover_name="cluster",
-            category_orders=category_order,
-            color_discrete_map=colList,
-        )
-        curent_figure.add_shape(
-            type="line",
-            yref="y",
-            xref="x",
-            xsizemode="scaled",
-            ysizemode="scaled",
-            x0=splitpoint,
-            y0=data_matrix["PC2"].min() * 1.2,
-            x1=splitpoint,
-            y1=data_matrix["PC2"].max() * 1.2,
-            line=dict(color="red", width=1.5),
-        )
+        with open(data["new_input_object"], "rb") as obj_file:
+            obj = pickle.load(obj_file)
 
-        # reform the visualization
-        curent_figure.update_layout(width=850, height=650, plot_bgcolor="#fff")
-        curent_figure.update_traces(
-            mode="markers", marker=dict(size=4), hovertemplate=None, hoverinfo="skip",
-        )
-        curent_figure.update_xaxes(
-            fixedrange=True,
-            showgrid=True,
-            gridwidth=1,
-            gridcolor="#aaa",
-            zeroline=True,
-            zerolinewidth=1,
-            zerolinecolor="#aaa",
-        )
-        curent_figure.update_yaxes(
-            fixedrange=True,
-            showgrid=True,
-            gridwidth=1,
-            gridcolor="#aaa",
-            zeroline=True,
-            zerolinewidth=1,
-            zerolinecolor="#aaa",
-        )
+        # Check data compatibility with the function
+        if isinstance(obj, dePDDP):
+            curent_figure = make_scatter_n_hist(
+                data_matrix,
+                splitpoint,
+                obj.split_data_bandwidth_scale,
+                category_order,
+                colList,
+            )
+        else:
+            curent_figure = make_scatter_n_marginal_scatter(data_matrix, splitpoint, category_order, colList)
 
     elif callback_ID == "splitpoint_Manipulation":
         # reconstruct the already created figure as figure from dict
         curent_figure = go.Figure(
-            data=curent_figure["data"], layout=go.Layout(curent_figure["layout"]),
+            data=curent_figure["data"],
+            layout=go.Layout(curent_figure["layout"]),
         )
 
         # update the splitpoint shape location
@@ -376,13 +352,17 @@ def Splitpoint_Manipulation_Callback(
         with open(data["new_input_object"], "rb") as obj_file:
             obj = pickle.load(obj_file)
 
-        obj = recalculate_after_spchange(obj, split_number, splitpoint_position)
+        obj = recalculate_after_spchange(
+            obj,
+            split_number,
+            splitpoint_position
+        )
 
         with open(data["new_input_object"], "wb") as obj_file:
             pickle.dump(obj, obj_file)
 
         # reconstrauction of the figure and its slider from scrach
-        data_matrix, splitpoint, internal_nodes, number_of_nodes = data_preparation(
+        data_matrix, splitpoint, internal_nodes, number_of_nodes = util.data_preparation(
             data["new_input_object"], split_number
         )
 
@@ -398,59 +378,28 @@ def Splitpoint_Manipulation_Callback(
             "cluster": [str(i) for i in range(len(np.unique(data_matrix["cluster"])))]
         }
         color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
-        colList = {str(i): convert_to_hex(color_map(i)) for i in range(color_map.N)}
+        colList = {str(i): util.convert_to_hex(color_map(i)) for i in range(color_map.N)}
 
-        # create scatter plot with the splitpoint shape
-        curent_figure = px.scatter(
-            data_matrix,
-            x="PC1",
-            y="PC2",
-            color="cluster",
-            hover_name="cluster",
-            category_orders=category_order,
-            color_discrete_map=colList,
-        )
-        curent_figure.add_shape(
-            type="line",
-            yref="y",
-            xref="x",
-            xsizemode="scaled",
-            ysizemode="scaled",
-            x0=splitpoint,
-            y0=data_matrix["PC2"].min() * 1.2,
-            x1=splitpoint,
-            y1=data_matrix["PC2"].max() * 1.2,
-            line=dict(color="red", width=1.5),
-        )
+        with open(data["new_input_object"], "rb") as obj_file:
+            obj = pickle.load(obj_file)
 
-        # reform visualization
-        curent_figure.update_layout(width=850, height=650, plot_bgcolor="#fff")
-        curent_figure.update_traces(
-            mode="markers", marker=dict(size=4), hovertemplate=None, hoverinfo="skip"
-        )
-        curent_figure.update_xaxes(
-            fixedrange=True,
-            showgrid=True,
-            gridwidth=1,
-            gridcolor="#aaa",
-            zeroline=True,
-            zerolinewidth=1,
-            zerolinecolor="#aaa",
-        )
-        curent_figure.update_yaxes(
-            fixedrange=True,
-            showgrid=True,
-            gridwidth=1,
-            gridcolor="#aaa",
-            zeroline=True,
-            zerolinewidth=1,
-            zerolinecolor="#aaa",
-        )
+        # Check data compatibility with the function
+        if isinstance(obj, dePDDP):
+            curent_figure = make_scatter_n_hist(
+                data_matrix,
+                splitpoint,
+                obj.split_data_bandwidth_scale,
+                category_order,
+                colList,
+            )
+        else:
+            curent_figure = make_scatter_n_marginal_scatter(data_matrix, splitpoint, category_order, colList)
 
     else:
         # reconstruct the already created figure as figure from dict
         curent_figure = go.Figure(
-            data=curent_figure["data"], layout=go.Layout(curent_figure["layout"])
+            data=curent_figure["data"],
+            layout=go.Layout(curent_figure["layout"])
         )
 
         # ensure correct values for the sliders
@@ -501,12 +450,16 @@ def app_layout(app, tmpFileNames):
             html.Ul(
                 children=[
                     html.Li(
-                        dcc.Link("Clustgering results", href="/clustering_results"),
+                        dcc.Link(
+                            "Clustgering results",
+                            href="/clustering_results"
+                        ),
                         style={"display": "inline", "margin": "0px 5px"},
                     ),
                     html.Li(
                         dcc.Link(
-                            "Split Point Manipulation", href="/splitpoint_manipulation"
+                            "Split Point Manipulation",
+                            href="/splitpoint_manipulation"
                         ),
                         style={"display": "inline", "margin": "0px 5px"},
                     ),
@@ -536,10 +489,11 @@ def shutdown():
     """
     Server shutdown function, from visual environment.
     """
-    func = request.environ.get("werkzeug.server.shutdown")
-    if func is None:
-        raise RuntimeError("Not running with the Werkzeug Server")
-    func()
+    # func = request.environ.get("werkzeug.server.shutdown")
+    # if func is None:
+    #     raise RuntimeError("Not running with the Werkzeug Server")
+    # func()
+    os.kill(os.getpid(), signal.SIGBREAK)
 
 
 # %% home page
@@ -558,14 +512,14 @@ def Cluster_Scatter_Plot(object_path):
     """
 
     # get the necessary data for the visulization
-    data_matrix, _, _, number_of_nodes = data_preparation(object_path, 0)
+    data_matrix, _, _, number_of_nodes = util.data_preparation(object_path, 0)
 
     # create scatter plot with the splitpoint shape
     category_order = {
         "cluster": [str(i) for i in range(len(np.unique(data_matrix["cluster"])))]
     }
     color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
-    colList = {str(i): convert_to_hex(color_map(i)) for i in range(color_map.N)}
+    colList = {str(i): util.convert_to_hex(color_map(i)) for i in range(color_map.N)}
 
     # create scatter plot
     figure = px.scatter(
@@ -580,7 +534,10 @@ def Cluster_Scatter_Plot(object_path):
     # reform visualization
     figure.update_layout(width=850, height=650, plot_bgcolor="#fff")
     figure.update_traces(
-        mode="markers", marker=dict(size=4), hovertemplate=None, hoverinfo="skip"
+        mode="markers",
+        marker=dict(size=4),
+        hovertemplate=None,
+        hoverinfo="skip"
     )
     figure.update_xaxes(
         fixedrange=True,
@@ -603,10 +560,11 @@ def Cluster_Scatter_Plot(object_path):
 
     # Markdown description of the figure
     description = dcc.Markdown(
-        """
-        PCA visualization of the data with coloring on the extracted clusters
-        by the model.
-        """
+        util.message_center("des:main_cluser", object_path),
+        style={
+            "text-align": "left",
+            "margin": "-20px 0px 0px 0px",
+        }
     )
 
     return html.Div(
@@ -630,7 +588,7 @@ def Splitpoint_Manipulation(object_path):
     """
 
     # get the necessary data for the visulization
-    data_matrix, splitpoint, internal_nodes, number_of_nodes = data_preparation(
+    data_matrix, splitpoint, internal_nodes, number_of_nodes = util.data_preparation(
         object_path, 0
     )
 
@@ -639,60 +597,30 @@ def Splitpoint_Manipulation(object_path):
 
     # generate the colors to be used
     color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
-    colList = {str(i): convert_to_hex(color_map(i)) for i in range(color_map.N)}
+    colList = {str(i): util.convert_to_hex(color_map(i)) for i in range(color_map.N)}
 
-    # create scatter plot with the splitpoint shape
-    figure = px.scatter(
-        data_matrix,
-        x="PC1",
-        y="PC2",
-        color="cluster",
-        hover_name="cluster",
-        category_orders=category_order,
-        color_discrete_map=colList,
-    )
-    figure.add_shape(
-        type="line",
-        yref="y",
-        xref="x",
-        xsizemode="scaled",
-        ysizemode="scaled",
-        x0=splitpoint,
-        y0=data_matrix["PC2"].min() * 1.2,
-        x1=splitpoint,
-        y1=data_matrix["PC2"].max() * 1.2,
-        line=dict(color="red", width=1.5),
-    )
+    with open(object_path, "rb") as obj_file:
+        obj = pickle.load(obj_file)
 
-    # reform visualization
-    figure.update_layout(width=850, height=650, plot_bgcolor="#fff")
-    figure.update_traces(
-        mode="markers", marker=dict(size=4), hovertemplate=None, hoverinfo="skip"
-    )
-    figure.update_xaxes(
-        fixedrange=True,
-        showgrid=True,
-        gridwidth=1,
-        gridcolor="#aaa",
-        zeroline=True,
-        zerolinewidth=1,
-        zerolinecolor="#aaa",
-    )
-    figure.update_yaxes(
-        fixedrange=True,
-        showgrid=True,
-        gridwidth=1,
-        gridcolor="#aaa",
-        zeroline=True,
-        zerolinewidth=1,
-        zerolinecolor="#aaa",
-    )
+    # Check data compatibility with the function
+    if isinstance(obj, dePDDP):
+        figure = make_scatter_n_hist(
+            data_matrix,
+            splitpoint,
+            obj.split_data_bandwidth_scale,
+            category_order,
+            colList,
+        )
+    else:
+        figure = make_scatter_n_marginal_scatter(data_matrix, splitpoint, category_order, colList)
 
     # Markdown description of the figure
     description = dcc.Markdown(
-        """
-        Select the split and the splitpoint in order to manipulate one of the HIDIV algorithm`s substeps.
-        """
+        util.message_center("des:splitpoitn_man", object_path),
+        style={
+            "text-align": "left",
+            "margin": "-20px 0px 0px 0px",
+        }
     )
 
     # Create the split number slider
@@ -705,7 +633,7 @@ def Splitpoint_Manipulation(object_path):
                 max=len(internal_nodes) - 1,
                 value=0,
                 marks={str(i): str(i) for i in range(len(internal_nodes))},
-                step=None,
+                step=1,
             ),
         ],
         style={
@@ -720,9 +648,12 @@ def Splitpoint_Manipulation(object_path):
         id="splitpoint_Main",
         children=[
             dcc.Graph(
-                id="splitpoint_Scatter", figure=figure, config={"displayModeBar": False}
+                id="splitpoint_Scatter",
+                figure=figure,
+                config={"displayModeBar": False, "autosizable": True}
             )
         ],
+        style={"margin": "-20px 0px -30px 0px"},
     )
 
     # Create the splitpoint slider
@@ -733,15 +664,22 @@ def Splitpoint_Manipulation(object_path):
                 id="splitpoint_Manipulation",
                 min=data_matrix["PC1"].min() - 0.001,
                 max=data_matrix["PC1"].max() + 0.001,
-                step=0.0001,
+                marks={
+                    splitpoint: {
+                        'label': 'Original Splitpoint',
+                        'style': {'color': '#77b0b1'}
+                    }
+                },
+                step=0.001,
                 value=splitpoint,
+                included=False,
             ),
         ],
         style={
             "text-align": "left",
-            "width": "659px",
+            "width": "609px",
             "margin": "0px",
-            "padding": "0px 0px 0px 92px",
+            "padding": "25px 0px 0px 122px",
         },
     )
 
@@ -751,107 +689,276 @@ def Splitpoint_Manipulation(object_path):
     return html.Div([description, splitStep, scatter, splitSlider, applyButton])
 
 
-# %% Util Functions
-def data_preparation(object_path, splitVal):
+def make_scatter_n_hist(data_matrix, splitPoint, bandwidth_scale, category_order, colList):
     """
-    Generate the necessary daa for all the visualizations.
+    Create two plots that visualize the data on the second plot and on the
+    first give their density representation on the first principal component.
 
     Parameters
     ----------
-    object_path : str
-        The location of the temporary file containg the pickel dump of the
-        object we want to visualize.
-
-    """
-
-    # load the data from the temp files
-    with open(object_path, "rb") as obj_file:
-        tree = pickle.load(obj_file).tree
-
-    # Find the clusters from the algorithms tree
-    clusters = tree.leaves()
-    clusters = sorted(clusters, key=lambda x: x.identifier)
-
-    root = tree.get_node(0)
-
-    # match the points to their respective cluster
-    cluster_map = np.zeros(len(root.data["indices"]))
-    for i in clusters:
-        cluster_map[i.data["indices"]] = str(int(i.data["color_key"]))
-
-    # list of all the tree's nodes
-    dictionary_of_nodes = tree.nodes
-
-    # Search for the internal nodes (splits) of the tree with the use of the
-    # clusters determined above
-    number_of_nodes = len(list(dictionary_of_nodes.keys()))
-    leaf_node_list = [j.identifier for j in clusters]
-    internal_nodes = [i for i in range(number_of_nodes) if not (i in leaf_node_list)]
-
-    # When nothing din the tree but the root insert the root as internal
-    # node (tree theory)
-    if len(internal_nodes) == 0:
-        internal_nodes = [0]
-
-    # based on the splitVal imported find the node to split
-    node_to_visualize = (
-        tree.get_node(internal_nodes[splitVal])
-        if len(internal_nodes) != 0
-        else tree.get_node(0)
-    )
-
-    # create a data matix containg the 1st and 2nd principal components and
-    # each clusters respective color key
-    data_matrix = pd.DataFrame(
-        {
-            "PC1": node_to_visualize.data["projection"][:, 0],
-            "PC2": node_to_visualize.data["projection"][:, 1],
-            "cluster": cluster_map[node_to_visualize.data["indices"]],
-        }
-    )
-
-    data_matrix["cluster"] = data_matrix["cluster"].astype(int).astype(str)
-
-    # determine the splitpoint value
-    splitpoint = node_to_visualize.data["splitpoint"]
-
-    return data_matrix, splitpoint, internal_nodes, number_of_nodes
-
-
-def convert_to_hex(rgba_color):
-    """
-    Conver the color enconding from RGBa to hexadecimal for integration with
-    the CSS.
-
-    Parameters
-    ----------
-    rgba_color : tuple
-        A tuple of floats containing the RGBa values.
+    data_matrix : pandas.core.frame.DataFrame
+        The projection of the data on the first two Principal Components as
+        columns "PC1" and "PC2" and the final cluster each sample belong at
+        the end of the algorithm's execution as column "cluster".
+    splitPoint : int
+        The values of the point the data are split for this plot.
+    bandwidth_scale
+        Standard deviation scaler for the density aproximation. Allowed values
+        are in the (0,1).
+    category_order : dict
+        The order of witch to show the clusters, contained in the
+        visualization, on the legend of the plot.
+    colList : dict
+        A dictionary containing the color of each cluster (key) as RGBa tuple
+        (value).
 
     Returns
     -------
-    str
-        The hexadecimal value of the color in question.
+    fig : plotly.graph_objs._figure.Figure
+        The reulted figure of the function.
 
     """
 
-    red = int(rgba_color[0] * 255)
-    green = int(rgba_color[1] * 255)
-    blue = int(rgba_color[2] * 255)
+    bandwidth = sm.nonparametric.bandwidths.select_bandwidth(data_matrix["PC1"], "silverman", kernel=None)
+    s, e = FFTKDE(kernel="gaussian", bw=(bandwidth_scale * bandwidth)).fit(data_matrix["PC1"].to_numpy()).evaluate()
 
-    return "#{r:02x}{g:02x}{b:02x}".format(r=red, g=green, b=blue)
+    fig = subplots.make_subplots(
+        rows=2, cols=1,
+        row_heights=[0.15, 0.85],
+        vertical_spacing=0.02,
+        shared_yaxes=False,
+        shared_xaxes=True,
+    )
+
+    fig.add_trace(go.Scatter(
+        x=s, y=e,
+        mode="lines",
+        line=dict(color='royalblue', width=1),
+        name='PC1',
+        hovertemplate=None,
+        hoverinfo="skip",
+        showlegend=False
+    ), row=1, col=1)
+    fig.add_shape(
+        type="line",
+        yref="y", xref="x",
+        xsizemode="scaled",
+        ysizemode="scaled",
+        x0=splitPoint,
+        x1=splitPoint,
+        y0=-0.005,
+        y1=e.max()*1.2,
+        line=dict(color="red", width=1.5),
+        row=1, col=1,
+    )
+
+    main_figure = px.scatter(
+        data_matrix,
+        x="PC1", y="PC2",
+        color="cluster",
+        hover_name="cluster",
+        category_orders=category_order,
+        color_discrete_map=colList
+    )["data"]
+    for i in main_figure:
+        fig.add_trace(i, row=2, col=1)
+    fig.update_traces(
+        mode="markers",
+        marker=dict(size=4),
+        hovertemplate=None,
+        hoverinfo="skip",
+        row=2, col=1,
+    )
+    fig.add_shape(
+        type="line",
+        yref="y", xref="x",
+        xsizemode="scaled",
+        ysizemode="scaled",
+        x0=splitPoint,
+        x1=splitPoint,
+        y0=data_matrix["PC2"].min() * 1.2,
+        y1=data_matrix["PC2"].max() * 1.2,
+        line=dict(color="red", width=1.5),
+        row=2, col=1,
+    )
+
+    # reform visualization
+    fig.update_layout(
+        width=850, height=700,
+        plot_bgcolor="#fff",
+        margin={"t": 20, "b": 50},
+    )
+    fig.update_xaxes(
+        fixedrange=True,
+        showgrid=True,
+        gridwidth=1,
+        gridcolor="#aaa",
+        zeroline=True,
+        zerolinewidth=1,
+        zerolinecolor="#aaa",
+    )
+    fig.update_yaxes(
+        fixedrange=True,
+        showgrid=True,
+        gridwidth=1,
+        gridcolor="#aaa",
+        zeroline=True,
+        zerolinewidth=1,
+        zerolinecolor="#aaa",
+    )
+
+    return fig
 
 
-# %% Manipulation of algorithms results methods
-def recalculate_after_spchange(hidiv_object, split, splitpoint_value):
+def make_scatter_n_marginal_scatter(data_matrix, splitPoint, category_order, colList, centers=None):
     """
-    Given the serial number of the hidiv algorithm tree`s internal nodes and a
-    new splitpoint value recreate the results of the dePDDP algorithm with the
-    indicated change.
+    Create two plots that visualize the data on the second plot and on the
+    first give their presentation on the first principal component.
 
     Parameters
     ----------
-    hidiv_object : dePDDP or iPDDP or kM_PDDP or PDDP object
+    data_matrix : pandas.core.frame.DataFrame
+        The projection of the data on the first two Principal Components as
+        columns "PC1" and "PC2" and the final cluster each sample belong at
+        the end of the algorithm's execution as column "cluster".
+    splitPoint : int
+        The values of the point the data are split for this plot.
+    bandwidth_scale
+        Standard deviation scaler for the density aproximation. Allowed values
+        are in the (0,1).
+    category_order : dict
+        The order of witch to show the clusters, contained in the
+        visualization, on the legend of the plot.
+    colList : dict
+        A dictionary containing the color of each cluster (key) as RGBa tuple
+        (value).
+    centers : numpy.ndarray
+        The values of the k-means' centers for the clustering of the data
+        projected on the first principal component for each split, for the
+        kM-PDDP algorithm.
+
+    Returns
+    -------
+    fig : plotly.graph_objs._figure.Figure
+        The reulted figure of the function.
+
+    """
+
+    fig = subplots.make_subplots(
+        rows=2, cols=1,
+        row_heights=[0.15, 0.85],
+        vertical_spacing=0.02,
+        shared_yaxes=False,
+        shared_xaxes=True,
+    )
+
+    # Create the marginal scatter plot of the figure (projection on one
+    # principal component)
+    marginal_figure = px.scatter(
+        data_matrix,
+        x="PC1",
+        y=np.zeros(data_matrix["PC1"].shape[0]),
+        color="cluster",
+        hover_name="cluster",
+        category_orders=category_order,
+        color_discrete_map=colList,
+    )["data"]
+    for i in marginal_figure:
+        fig.add_trace(i, row=1, col=1)
+    fig.update_traces(
+        mode="markers",
+        marker=dict(size=5),
+        hovertemplate=None,
+        hoverinfo="skip",
+        showlegend=False,
+        row=1, col=1,
+    )
+    # If there are k-Means centers add them on the marginal scatter plot
+    if centers is not None:
+        fig.add_trace(go.Scatter(
+            x=centers,
+            y=np.zeros(2),
+            mode="markers",
+            marker=dict(symbol=22, color='darkblue', size=15),
+            name='centers',
+            hovertemplate=None,
+            hoverinfo="skip",
+            showlegend=False,
+        ), row=1, col=1)
+    fig.add_shape(
+        type="line",
+        yref="y", xref="x",
+        xsizemode="scaled",
+        ysizemode="scaled",
+        x0=splitPoint,
+        x1=splitPoint,
+        y0=-2.5, y1=2.5,
+        line=dict(color="red", width=1.5),
+        row=1, col=1,
+    )
+
+    # Create the main scatter plot of the figure
+    main_figure = px.scatter(
+        data_matrix,
+        x="PC1", y="PC2",
+        color="cluster",
+        hover_name="cluster",
+        category_orders=category_order,
+        color_discrete_map=colList,
+    )["data"]
+    for i in main_figure:
+        fig.add_trace(i, row=2, col=1)
+    fig.update_traces(
+        mode="markers", marker=dict(size=4),
+        hovertemplate=None, hoverinfo="skip",
+        row=2, col=1,
+    )
+    fig.add_shape(
+        type="line",
+        yref="y", xref="x",
+        xsizemode="scaled",
+        ysizemode="scaled",
+        x0=splitPoint,
+        x1=splitPoint,
+        y0=data_matrix["PC2"].min() * 1.2,
+        y1=data_matrix["PC2"].max() * 1.2,
+        line=dict(color="red", width=1.5),
+        row=2, col=1,
+    )
+
+    # Reform visualization
+    fig.update_layout(
+        width=850,
+        height=700,
+        plot_bgcolor="#fff",
+        margin={"t": 20, "b": 50}
+    )
+    fig.update_xaxes(
+        fixedrange=True, showgrid=True,
+        gridwidth=1, gridcolor="#aaa",
+        zeroline=True, zerolinewidth=1,
+        zerolinecolor="#aaa"
+    )
+    fig.update_yaxes(
+        fixedrange=True, showgrid=True,
+        gridwidth=1, gridcolor="#aaa",
+        zeroline=True, zerolinewidth=1,
+        zerolinecolor="#aaa"
+    )
+
+    return fig
+
+
+# %% Manipulation of algorithms results methods
+def recalculate_after_spchange(hipart_object, split, splitpoint_value):
+    """
+    Given the serial number of the HiPart algorithm tree`s internal nodes and a
+    new splitpoint value recreate the results of the HiPart member algorithm
+    with the indicated change.
+
+    Parameters
+    ----------
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP object
         The object that we want to manipulate on the premiss of this function.
     split : int
         The serial number of the dePDDP tree`s internal nodes.
@@ -860,13 +967,13 @@ def recalculate_after_spchange(hidiv_object, split, splitpoint_value):
 
     Returns
     -------
-    hidiv_object : dePDDP or iPDDP or kM_PDDP or PDDP object
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP object
         A dePDDP class type object, with complete results on the algorithm's
         analysis
 
     """
 
-    tree = hidiv_object.tree
+    tree = hipart_object.tree
 
     # find the cluster nodes
     clusters = tree.leaves()
@@ -907,25 +1014,25 @@ def recalculate_after_spchange(hidiv_object, split, splitpoint_value):
                 dictionary_of_nodes[i].data["split_permition"] = True
 
     # reset status variables for the code to execute
-    hidiv_object.node_ids = len(list(dictionary_of_nodes.keys())) - 1
-    hidiv_object.cluster_color = len(tree.leaves()) + 1
+    hipart_object.node_ids = len(list(dictionary_of_nodes.keys())) - 1
+    hipart_object.cluster_color = len(tree.leaves()) + 1
     tree.get_node(internal_nodes[split]).data["splitpoint"] = splitpoint_value
 
     # continue the algorithm`s execution from the point left
-    hidiv_object.tree = tree
-    hidiv_object.tree = partial_predict(hidiv_object)
+    hipart_object.tree = tree
+    hipart_object.tree = partial_predict(hipart_object)
 
-    return hidiv_object
+    return hipart_object
 
 
-def partial_predict(hidiv_object):
+def partial_predict(hipart_object):
     """
     Execute the steps of the algorithm dePDDP untill one of the two stopping
     creterion is not true.
 
     Parameters
     ----------
-    hidiv_object : dePDDP or iPDDP or kM_PDDP or PDDP object
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP object
         The object that we want to manipulated on the premiss of this function.
 
     Returns
@@ -935,19 +1042,19 @@ def partial_predict(hidiv_object):
 
     """
 
-    tree = hidiv_object.tree
+    tree = hipart_object.tree
 
     found_clusters = len(tree.leaves())
-    selected_node = hidiv_object.select_kid(tree.leaves())
+    selected_node = hipart_object.select_kid(tree.leaves())
 
     while (
-        selected_node is not None and found_clusters < hidiv_object.max_clusters_number
+        selected_node is not None and found_clusters < hipart_object.max_clusters_number
     ):  # (ST1) or (ST2)
 
-        hidiv_object.split_function(tree, selected_node)  # step (1)
+        hipart_object.split_function(tree, selected_node)  # step (1)
 
         # select the next kid for split based on the local minimum density
-        selected_node = hidiv_object.select_kid(tree.leaves())  # step (2)
+        selected_node = hipart_object.select_kid(tree.leaves())  # step (2)
         found_clusters = found_clusters + 1  # (ST1)
 
     return tree

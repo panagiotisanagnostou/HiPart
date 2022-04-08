@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Application of the Principal Direction Divisive Partitioning (PDDP) algorithm.
+Implementation of the clustering algorithms, members of the HiPart package.
 
 @author: Panagiotis Anagnostou
 """
@@ -78,6 +78,12 @@ class dePDDP:
 
         This function leads to the second Stopping criterion 2 of the
         algorithm.
+
+    References
+    ----------
+    Tasoulis, S. K., Tasoulis, D. K., & Plagianakos, V. P. (2010). Enhancing
+    principal direction divisive clustering. Pattern Recognition, 43(10), 3391-
+    3411.
 
     """
 
@@ -399,9 +405,9 @@ class dePDDP:
 
     @split_data_bandwidth_scale.setter
     def split_data_bandwidth_scale(self, v):
-        if v > 1.0 and v <= 0:
+        if v <= 0:
             raise ValueError(
-                "split_data_bandwidth_scale: Should be between (0,1) interval"
+                "split_data_bandwidth_scale: Should be > 0"
             )
         self._split_data_bandwidth_scale = v
 
@@ -527,6 +533,12 @@ class iPDDP:
 
         This function leads to the second Stopping criterion 2 of the
         algorithm.
+
+    References
+    ----------
+    Tasoulis, S. K., Tasoulis, D. K., & Plagianakos, V. P. (2010). Enhancing
+    principal direction divisive clustering. Pattern Recognition, 43(10), 3391-
+    3411.
 
     """
 
@@ -900,6 +912,8 @@ class kM_PDDP:
     min_sample_split : int, optional
         Minimum number of points each cluster should contain selected by the
         user.
+    random_seed : int, optional
+        The random sedd fed in the k-Means algorithm
     **decomposition_args :
         Arguments for each of the decomposition methods utilized by the HiPart
         package.
@@ -944,18 +958,26 @@ class kM_PDDP:
         This function leads to the second Stopping criterion 2 of the
         algorithm.
 
+    References
+    ----------
+    Zeimpekis, D., & Gallopoulos, E. (2008). Principal direction divisive
+    partitioning with kernels and k-means steering. In Survey of Text Mining
+    II (pp. 45-64). Springer, London.
+
     """
 
     def __init__(
         self,
         decomposition_method="pca",
         max_clusters_number=100,
-        min_sample_split=5,
+        min_sample_split=15,
+        random_seed=None,
         **decomposition_args
     ):
         self.decomposition_method = decomposition_method
         self.max_clusters_number = max_clusters_number
         self.min_sample_split = min_sample_split
+        self.random_seed = random_seed
         self.decomposition_args = decomposition_args
 
     def fit(self, X):
@@ -1167,7 +1189,7 @@ class kM_PDDP:
             )
             one_dimention = np.array([[i] for i in two_dimentions[:, 0]])
 
-            model = KMeans(n_clusters=2)
+            model = KMeans(n_clusters=2, random_state=self.random_seed)
             model.fit(one_dimention)
             labels = model.predict(one_dimention)
             centers = model.cluster_centers_
@@ -1248,6 +1270,16 @@ class kM_PDDP:
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._min_sample_split = v
+
+    @property
+    def random_seed(self):
+        return self._random_seed
+
+    @random_seed.setter
+    def random_seed(self, v):
+        if v is not None and (not isinstance(v, int)):
+            raise ValueError("min_sample_split: Invalid value it should be int and > 1")
+        self._random_seed = v
 
     @property
     def tree(self):
@@ -1351,6 +1383,11 @@ class PDDP:
 
         This function leads to the second Stopping criterion 2 of the
         algorithm.
+
+    References
+    ----------
+    Boley, D. (1998). Principal direction divisive partitioning. Data mining
+    and knowledge discovery, 2(4), 325-344.
 
     """
 
@@ -1704,6 +1741,8 @@ class bicecting_kmeans:
     min_sample_split : int, optional
         Minimum number of points each cluster should contain selected by the
         user.
+    random_seed : int, optional
+        The random sedd fed in the k-Means algorithm
     output_matrix : numpy.ndarray
         Model's step by step execution output.
     labels_ : numpy.ndarray
@@ -1740,11 +1779,19 @@ class bicecting_kmeans:
         the leave is chosen to be splited. And calculation of the spliting
         criterion.
 
+    References
+    ----------
+    Savaresi, S. M., & Boley, D. L. (2001, April). On the performance of
+    bisecting K-means and PDDP. In Proceedings of the 2001 SIAM International
+    Conference on Data Mining (pp. 1-14). Society for Industrial and Applied
+    Mathematics.
+
     """
 
-    def __init__(self, max_clusters_number=100, min_sample_split=5):
+    def __init__(self, max_clusters_number=100, min_sample_split=5, random_seed=None):
         self.max_clusters_number = max_clusters_number
         self.min_sample_split = min_sample_split
+        self.random_seed = random_seed
 
     def fit(self, X):
         """
@@ -1944,7 +1991,7 @@ class bicecting_kmeans:
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
 
-            model = KMeans(n_clusters=2)
+            model = KMeans(n_clusters=2, random_state=self.random_seed)
             model.fit(data_matrix)
             labels = model.predict(data_matrix)
             centers = model.cluster_centers_
@@ -1998,6 +2045,16 @@ class bicecting_kmeans:
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._min_sample_split = v
+
+    @property
+    def random_seed(self):
+        return self._random_seed
+
+    @random_seed.setter
+    def random_seed(self, v):
+        if v is not None and (not isinstance(v, int)):
+            raise ValueError("min_sample_split: Invalid value it should be int and > 1")
+        self._random_seed = v
 
     @property
     def tree(self):
