@@ -84,7 +84,7 @@ def split_visualization(hipart_object, color_map="tab20"):
     """
 
     # Check data compatibility with the function
-    if isinstance(hipart_object, dePDDP) or isinstance(hipart_object, improoved_dePDDP) or isinstance(hipart_object, v1):
+    if isinstance(hipart_object, dePDDP):
         with_hist = True
         with_marginal_scatter = False
         grid_size = 4

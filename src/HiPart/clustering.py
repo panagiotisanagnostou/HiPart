@@ -42,42 +42,6 @@ class dePDDP:
     labels_ :
         Extracted clusters from the algorithm
 
-    Methodes
-    --------
-    fit(X)
-        Execute the dePDDP algorithm and return all the execution data in the
-        form of a dePDDP class object.
-
-    fit_predict(X)
-        Execute the dePDDP algorithm and return the results of the execution
-        in the form of labels.
-
-    split_fuction(tree, selected_node):
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
-
-    select_kid(leaves)
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the nescesary cause for the stopping criterion
-        ST1.
-
-    calculate_node_data(indices, data_matrix, key)
-        Calculation of the projections onto the Principal Components with the
-        utilization of the "Principal Components Analysis" or the "Kernel
-        Principal Components Analysis" or the "Indipented Componend Analysis"
-        methods.
-
-        Determination of the projection's density and search for its local
-        minima. The lowest local minimum point within the allowed sample
-        percentiles of the projection's density representation is selected as
-        the split point.
-
-        This function leads to the second Stopping criterion 2 of the
-        algorithm.
-
     References
     ----------
     Tasoulis, S. K., Tasoulis, D. K., & Plagianakos, V. P. (2010). Enhancing
@@ -377,11 +341,11 @@ class dePDDP:
         }
 
     @property
-    def decomposition_method(self):
+    def _decomposition_method(self):
         return self._decomposition_method
 
-    @decomposition_method.setter
-    def decomposition_method(self, v):
+    @_decomposition_method.setter
+    def _decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
                 "decomposition_method: " + str(v) + ": Unknown decomposition method!"
@@ -389,21 +353,21 @@ class dePDDP:
         self._decomposition_method = v
 
     @property
-    def max_clusters_number(self):
+    def _max_clusters_number(self):
         return self._max_clusters_number
 
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
+    @_max_clusters_number.setter
+    def _max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def split_data_bandwidth_scale(self):
+    def _split_data_bandwidth_scale(self):
         return self._split_data_bandwidth_scale
 
-    @split_data_bandwidth_scale.setter
-    def split_data_bandwidth_scale(self, v):
+    @_split_data_bandwidth_scale.setter
+    def _split_data_bandwidth_scale(self, v):
         if v <= 0:
             raise ValueError(
                 "split_data_bandwidth_scale: Should be > 0"
@@ -411,21 +375,21 @@ class dePDDP:
         self._split_data_bandwidth_scale = v
 
     @property
-    def percentile(self):
+    def _percentile(self):
         return self._percentile
 
-    @percentile.setter
-    def percentile(self, v):
+    @_percentile.setter
+    def _percentile(self, v):
         if v >= 0.5 and v < 0:
             raise ValueError("percentile: Should be between [0,0.5) interval")
         self._percentile = v
 
     @property
-    def min_sample_split(self):
+    def _min_sample_split(self):
         return self._min_sample_split
 
-    @min_sample_split.setter
-    def min_sample_split(self, v):
+    @_min_sample_split.setter
+    def _min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._min_sample_split = v
@@ -499,39 +463,6 @@ class iPDDP:
         Model's step by step execution output.
     labels_ :
         Extracted clusters from the algorithm.
-
-    Methodes
-    --------
-    fit(X)
-        Execute the iPDDP algorithm and return all the execution data in the
-        form of a iPDDP class object.
-
-    fit_predict(X)
-        Execute the iPDDP algorithm and return the results of the execution in
-        the form of labels.
-
-    split_fuction(tree, selected_node):
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
-
-    select_kid(leaves)
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the nescesary cause for the stopping criterion
-        ST1.
-
-    calculate_node_data(indices, data_matrix, key)
-        Calculation of the projections on to the first 2 Components with the
-        utilization of the "Principal Components Analysis", "Kernel Principal
-        Components Analysis" or "Independent Component Analysis" methods.
-
-        Determination of the projection's maximum distance between to
-        consecutive and choses it as the splitpoint for this node.
-
-        This function leads to the second Stopping criterion 2 of the
-        algorithm.
 
     References
     ----------
@@ -811,11 +742,11 @@ class iPDDP:
         }
 
     @property
-    def decomposition_method(self):
+    def _decomposition_method(self):
         return self._decomposition_method
 
-    @decomposition_method.setter
-    def decomposition_method(self, v):
+    @_decomposition_method.setter
+    def _decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
                 "decomposition_method: " + str(v) + ": Unknown decomposition method!"
@@ -823,31 +754,31 @@ class iPDDP:
         self._decomposition_method = v
 
     @property
-    def max_clusters_number(self):
+    def _max_clusters_number(self):
         return self._max_clusters_number
 
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
+    @_max_clusters_number.setter
+    def _max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def percentile(self):
+    def _percentile(self):
         return self._percentile
 
-    @percentile.setter
-    def percentile(self, v):
+    @_percentile.setter
+    def _percentile(self, v):
         if v >= 0.5 and v < 0:
             raise ValueError("percentile: Should be between [0,0.5) interval")
         self._percentile = v
 
     @property
-    def min_sample_split(self):
+    def _min_sample_split(self):
         return self._min_sample_split
 
-    @min_sample_split.setter
-    def min_sample_split(self, v):
+    @_min_sample_split.setter
+    def _min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._min_sample_split = v
@@ -920,42 +851,6 @@ class kM_PDDP:
         Model's step by step execution output.
     labels_ :
         Extracted clusters from the algorithm.
-
-    Methodes
-    --------
-    fit(X)
-        Execute the kM-PDDP algorithm and return all the execution data in the
-        form of a kM-PDDP class object.
-
-    fit_predict(X)
-        Execute the kM-PDDP algorithm and return the results of the execution
-        in the form of labels.
-
-    split_fuction(tree, selected_node):
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
-
-        Because python passes by refference data this function doesn't need a
-        return statment.
-
-    select_kid(leaves)
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the nescesary cause for the stopping criterion
-        ST1.
-
-    calculate_node_data(indices, data_matrix, key)
-        Calculation of the projections on to the first 2 Components with the
-        utilization of the "Principal Components Analysis", "Kernel Principal
-        Components Analysis" or "Independent Component Analysis" methods.
-
-        Determination of the projection's clusters by utilizing the binary
-        k-means clustering algorithm.
-
-        This function leads to the second Stopping criterion 2 of the
-        algorithm.
 
     References
     ----------
@@ -1239,11 +1134,11 @@ class kM_PDDP:
         }
 
     @property
-    def decomposition_method(self):
+    def _decomposition_method(self):
         return self._decomposition_method
 
-    @decomposition_method.setter
-    def decomposition_method(self, v):
+    @_decomposition_method.setter
+    def _decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
                 "decomposition_method: " + str(v) + ": Unknown decomposition method!"
@@ -1251,31 +1146,31 @@ class kM_PDDP:
         self._decomposition_method = v
 
     @property
-    def max_clusters_number(self):
+    def _max_clusters_number(self):
         return self._max_clusters_number
 
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
+    @_max_clusters_number.setter
+    def _max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def min_sample_split(self):
+    def _min_sample_split(self):
         return self._min_sample_split
 
-    @min_sample_split.setter
-    def min_sample_split(self, v):
+    @_min_sample_split.setter
+    def _min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._min_sample_split = v
 
     @property
-    def random_seed(self):
+    def _random_seed(self):
         return self._random_seed
 
-    @random_seed.setter
-    def random_seed(self, v):
+    @_random_seed.setter
+    def _random_seed(self, v):
         if v is not None and (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._random_seed = v
@@ -1346,42 +1241,6 @@ class PDDP:
         Model's step by step execution output.
     labels_ :
         Extracted clusters from the algorithm.
-
-    Methodes
-    --------
-    fit(X)
-        Execute the PDDP algorithm and return all the execution data in the
-        form of a PDDP class object.
-
-    fit_predict(X)
-        Execute the PDDP algorithm and return the results of the execution in
-        the form of labels.
-
-    split_fuction(tree, selected_node):
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
-
-        Because python passes by refference data this function doesn't need a
-        return statment.
-
-    select_kid(leaves)
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the nescesary cause for the stopping criterion
-        ST1.
-
-    calculate_node_data(indices, data_matrix, key)
-        Calculation of the projections on to the first 2 Components with the
-        utilization of the "Principal Components Analysis", "Kernel Principal
-        Components Analysis" or "Independent Component Analysis" methods.
-
-        Determination of the projection's clusters by utilizing the binary
-        k-means clustering algorithm.
-
-        This function leads to the second Stopping criterion 2 of the
-        algorithm.
 
     References
     ----------
@@ -1653,11 +1512,11 @@ class PDDP:
         }
 
     @property
-    def decomposition_method(self):
+    def _decomposition_method(self):
         return self._decomposition_method
 
-    @decomposition_method.setter
-    def decomposition_method(self, v):
+    @_decomposition_method.setter
+    def _decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
                 "decomposition_method: " + str(v) + ": Unknown decomposition method!"
@@ -1665,21 +1524,21 @@ class PDDP:
         self._decomposition_method = v
 
     @property
-    def max_clusters_number(self):
+    def _max_clusters_number(self):
         return self._max_clusters_number
 
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
+    @_max_clusters_number.setter
+    def _max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def min_sample_split(self):
+    def _min_sample_split(self):
         return self._min_sample_split
 
-    @min_sample_split.setter
-    def min_sample_split(self, v):
+    @_min_sample_split.setter
+    def _min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._min_sample_split = v
@@ -1746,37 +1605,6 @@ class bicecting_kmeans:
         Model's step by step execution output.
     labels_ : numpy.ndarray
         Extracted clusters from the algorithm.
-
-    Methodes
-    --------
-    fit(X)
-        Execute the bicecting_kmeans algorithm and return all the execution
-        data in the form of a bicecting_kmeans class object.
-
-    fit_predict(X)
-        Execute the bicecting_kmeans algorithm and return the results of the
-        execution in the form of cluster labels.
-
-    split_fuction(tree, selected_node):
-        Split the indicated node by clustering the data with a binary k-menas
-        clustering algorithm.
-
-        Because python passes by refference data this function doesn't need a
-        return statment.
-
-    select_kid(leaves)
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the nescesary data for further execution of the
-        algorithm.
-
-    calculate_node_data(indices, data_matrix, key)
-        Execution of the binary k-Means algorithm on the samples presented by
-        the data_matrix. The two resulted clusters are the two new clusters if
-        the leave is chosen to be splited. And calculation of the spliting
-        criterion.
 
     References
     ----------
@@ -2026,31 +1854,31 @@ class bicecting_kmeans:
         }
 
     @property
-    def max_clusters_number(self):
+    def _max_clusters_number(self):
         return self._max_clusters_number
 
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
+    @_max_clusters_number.setter
+    def _max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def min_sample_split(self):
+    def _min_sample_split(self):
         return self._min_sample_split
 
-    @min_sample_split.setter
-    def min_sample_split(self, v):
+    @_min_sample_split.setter
+    def _min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._min_sample_split = v
 
     @property
-    def random_seed(self):
+    def _random_seed(self):
         return self._random_seed
 
-    @random_seed.setter
-    def random_seed(self, v):
+    @_random_seed.setter
+    def _random_seed(self, v):
         if v is not None and (not isinstance(v, int)):
             raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._random_seed = v
