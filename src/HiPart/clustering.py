@@ -2,7 +2,6 @@
 """
 Implementation of the clustering algorithms, members of the HiPart package.
 
-@author: Panagiotis Anagnostou
 """
 
 import HiPart.__utility_functions as util
