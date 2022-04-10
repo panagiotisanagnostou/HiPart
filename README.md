@@ -1,5 +1,5 @@
 HiPart: Hierarchical divisive clustering toolbox
-------------------------------------------------
+================================================
 HiPart is a package created for the implementation of hierarchical divisive Clustering algorithms. Even among this family of algorithms, its specialty is algorithms with the highest time performance. It is a package with similar execution principles as the scikit-learn package. It also provides two types of static visualizations for all the algorithms executed in the package and interactive visualization for the manipulation of the PDDP based algorithms' split-point for each of the splits those algorithms generated from the input data.
 
 Installation
