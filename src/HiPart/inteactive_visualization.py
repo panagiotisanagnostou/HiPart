@@ -4,7 +4,6 @@ Interactive visualization module for the algorithms members of the HiPart
 package that utilise one decomposition method to one dimention to split the
 data.
 
-@author: Panagiotis Anagnostou
 """
 
 import dash

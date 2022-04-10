@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct 12 11:57:37 2021
+Implementation modue for the static visualization of the algorithms implemented
+in the HiPart package.
 
-@author: Panagiotis Anagnostou
 """
 
 import HiPart.__utility_functions as util
@@ -21,8 +21,6 @@ from HiPart.clustering import dePDDP
 from HiPart.clustering import iPDDP
 from HiPart.clustering import kM_PDDP
 from HiPart.clustering import PDDP
-from HiPart.improoved_dePDDP_v2 import improoved_dePDDP
-from HiPart.improoved_dePDDP import improoved_dePDDP as v1
 
 
 def split_visualization(hipart_object, color_map="tab20"):
