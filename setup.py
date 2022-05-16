@@ -1,9 +1,9 @@
 from setuptools import setup
 
-__version__ = "0.1.2"
-
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
+
+__version__ = "0.1.9"
 
 setup(
     name="HiPart",
@@ -18,8 +18,8 @@ setup(
     license="MIT License",
     package_dir={"": "src"},
     packages=["HiPart"],
-    data_files=[("lib/site-packages/hipart/assets", ["src/HiPart/assets/int_viz.css"])],
-    python_requires=">=3.7",
+    include_package_data=True,
+    python_requires=">=3.6",
     install_requires=[
         "numpy",
         "treelib>=1.6",
@@ -36,14 +36,18 @@ setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
+        "Environment :: Web Environment",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Documentation :: Sphinx",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],

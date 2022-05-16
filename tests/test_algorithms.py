@@ -53,6 +53,7 @@ class Test_Validate_Execution(TestCase):
      
         matrix_test = bicecting_kmeans(
             max_clusters_number=3,
+            random_seed=self.ran_state,
         ).fit(self.test_data["data"]).output_matrix
         self.assertEqual(np.sum(matrix_test == matrix_control), 300)
 
