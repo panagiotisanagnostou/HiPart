@@ -1,10 +1,12 @@
+*/__pycache__/
+*/*/__pycache__/
+*/.ipynb_checkpoints
+*.png
+*.pdf
 dist/
-src/HiPart/__pycache__/
-src/HiPart.egg-info/
-src/__pycache__/
+src/HiPart.egg-info
 docs/_build/
 docs/_templates/
 docs/_static/
-*.png
 data_tree_viz
 text_tree_viz
