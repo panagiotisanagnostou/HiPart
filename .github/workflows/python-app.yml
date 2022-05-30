@@ -1,0 +1,48 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+  
+    name: Run on ${{ matrix.os }} with Python ${{ matrix.version }}
+    
+    strategy:
+      matrix:
+        os: ["macos-latest", "ubuntu-latest", "windows-latest"]
+        version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.version }}
+    - name: Install dependencies and package
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade build
+        python -m build
+        pip install flake8 unittest2 dist/HiPart-0.1.11-py3-none-any.whl
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with unittest
+      run: |
+        cd tests
+        python -m unittest test_algorithms.py
