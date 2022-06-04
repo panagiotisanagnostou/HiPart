@@ -5,8 +5,6 @@ in the HiPart package.
 
 """
 
-import copy
-import nupy as np
 import HiPart.__utility_functions as util
 import math
 import matplotlib.gridspec as gridspec
@@ -59,7 +57,7 @@ def split_visualization(hipart_object, color_map="tab20"):
 
     Parameters
     ----------
-    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or bicecting_kmeans object
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or bicecting_kmeans
         The object member of HiPart package that we want to manipulate on the
         premiss of this function.
     color_map : string
@@ -270,34 +268,41 @@ def split_visualization(hipart_object, color_map="tab20"):
             ) if i == 0 else ax.title.set_text("Split no. " + str(i + 1))
 
     plt.subplots_adjust(wspace=0.2, hspace=0.6)
-    return plt
+    return fig
 
 
 def dendrogram_visualization(hipart_object, **dendrogram_parameters):
     """
-    Create a dendrogram visualization of the divive clustering based on the
-    HiPart`s alogrith execution.
+    Create a dendrogram visualization of the divisive clustering based on the
+    HiPart`s algorithm execution. The characteristic of this dendrogram is that
+    the distance of the clusters is not the one depicted on the graph, but it
+    represents the distance of each node from the base of the tree, also known
+    as leaves.
 
     Parameters
     ----------
-    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or bicecting_kmeans object
-        The object member of HiPart package that we want to manipulate on the
-        premiss of this function.
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or bicecting_kmeans
+        The object member of the HiPart package that we want to manipulate on
+        the premiss of this function.
     **dendrogram_parameters : dict
         All the parameters the scipy.cluster.hierarchy.dendrogram function can
-        take except the color_treshold parameter.
+        take except the color_treshold parameter. With the exception of the
+        "color_threshold" parameter. This parameter takes a default threshold
+        because, in the linkage, we do not calculate the actual distance of the
+        found clusters but only their hierarchy.
 
     Raises
     ------
     TypeError
-        If the hipart_object is not a member of the HiPart package raise an
-        error for the possibility of unexpected errors that will be raised if
-        the elements of the object are not correctly structured.
+        If the hipart_object is not a member of the HiPart package, the
+        function raises a "TypeError" error. The error is raised for the
+        possibility of unexpected faults if the elements of the hipart_object
+        are not correctly structured.
 
     Returns
     -------
     dn : dict
-        A dictionary of data structures computed to render the dendrogram.
+        A dictionary of data structures created to render the dendrogram.
 
     """
 
@@ -310,21 +315,26 @@ def dendrogram_visualization(hipart_object, **dendrogram_parameters):
     ):
         raise TypeError("can only process objects of the 'HiPart' package.")
 
-    Z = create_linkage(hipart_object.tree)
+    Z = util.create_linkage(hipart_object.tree)
     dn = dendrogram(Z, color_threshold=0.3, **dendrogram_parameters)
 
     return dn
 
 
-def create_linkage(tree_in):
+def linkage(hipart_object):
     """
-    Create the linkage matrix for the encoding of the divisive clustring tree
-    creatred by the member algorithms of the HiPart package.
+    Create the linkage of the data based on the divisive hierarchical
+    clustering for the members of the HiParts package. The linkage's
+    characteristic is that the cluster distance on the third column of the
+    linkage is not the distance of the clusters with each other, but it
+    represents the distance of each node from the base of the tree, also
+    known as leaves.
 
     Parameters
     ----------
-    tree_in : treelib.tree.Tree
-        A divisive tree from on of the HiPart algorithm package.
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or bicecting_kmeans
+        The object member of HiPart package that we want to manipulate on the
+        premiss of this function.
 
     Returns
     -------
@@ -333,72 +343,13 @@ def create_linkage(tree_in):
 
     """
 
-    tree = copy.deepcopy(tree_in)
+    if not (
+        isinstance(hipart_object, dePDDP)
+        or isinstance(hipart_object, iPDDP)
+        or isinstance(hipart_object, kM_PDDP)
+        or isinstance(hipart_object, PDDP)
+        or isinstance(hipart_object, bicecting_kmeans)
+    ):
+        raise TypeError("can only process objects of the 'HiPart' package.")
 
-    # extract the path to leaves (clusters) so the distance between the
-    # clusters on the tree can be assessed
-    path_to_leaves = tree.paths_to_leaves()
-
-    # The depth of the tree that we will use
-    max_distance = np.max([len(i) for i in path_to_leaves])
-    # The total number of samples the data of the tree contain
-    samples_number = len(tree.get_node(tree.root).data["indices"])
-    # The indicator for the next free node of the linkage tree we are creating
-    dendrogram_counts = samples_number
-
-    # Initialize the linkage matrix
-    Z = np.array([[0, 0, 0, 0]])
-    # Loop through the nodes of the algorithm`s execution tree and do the
-    # necessary connections
-    # The loop finishes the execution on the node with ID 0 which is always
-    # the root of the algorithm execution tree
-    for i in range(len(tree.nodes) - 1, -1, -1):
-        # If the node is a leaf of the algorithm`s execution tree connect all
-        # the samples of the node on same level untile only one node remains
-        if tree.get_node(i).is_leaf():
-            if not tree.get_node(i).data["dendrogram_check"]:
-                # Set all the samples of the included in the node/cluster as
-                # unlinked nodes on the dendrogram tree
-                tree.get_node(i).data["unlinked_nodes"] = tree.get_node(
-                    i
-                ).data["indices"]
-                # Create the dendrograms subtree and update the algorithm tree
-                # node`s data and the index for the next free node
-                (
-                    cluster_linkage,
-                    tree.get_node(i).data,
-                    dendrogram_counts,
-                ) = util.linkage_data_maestro(
-                    tree.get_node(i),
-                    dendrogram_counts, 0.2
-                )
-                dendrogram_counts += 1
-                Z = np.vstack((Z, cluster_linkage))
-        else:
-            if not tree.get_node(i).data["dendrogram_check"]:
-                # Connect the children of the algorithm tree internal node to
-                # a new node on the dendrogram tree
-                children = tree.children(i)
-                Z = np.vstack(
-                    [Z, [
-                        children[-1].data["unlinked_nodes"][0],
-                        children[-2].data["unlinked_nodes"][0],
-                        max_distance - util._get_node_depth(path_to_leaves, i),
-                        children[-1].data["counts"] + children[-2].data["counts"],
-                    ]]
-                )
-                # Update of the data of the algorithm execution tree node
-                tree.get_node(
-                    i
-                ).data["dendromgram_indicator"] = dendrogram_counts
-                tree.get_node(i).data["counts"] = (
-                    children[-1].data["counts"] + children[-2].data["counts"]
-                )
-                tree.get_node(i).data["unlinked_nodes"] = [dendrogram_counts]
-                dendrogram_counts += 1
-
-    # Remove the first row of the linkage matrix bacause it is the
-    # initalixation`s row of zeros
-    Z = Z[1:, :]
-
-    return Z
+    return util.create_linkage(hipart_object.tree)

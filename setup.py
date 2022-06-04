@@ -3,7 +3,7 @@ from setuptools import setup
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-__version__ = "0.1.11"
+__version__ = "0.1.13"
 
 setup(
     name="HiPart",
@@ -32,7 +32,9 @@ setup(
         "dash>=2.0",
         "pandas",
     ],
-    project_urls={"Bug Tracker": "https://github.com/panagiotisanagnostou/HiPart"},
+    project_urls={
+        "Bug Tracker": "https://github.com/panagiotisanagnostou/HiPart",
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",

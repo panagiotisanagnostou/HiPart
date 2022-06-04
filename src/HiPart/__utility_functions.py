@@ -5,6 +5,7 @@ Utility fuctions of the HiPart package.
 @author: Panagiotis Anagnostou
 """
 
+import copy
 import json
 import math
 import matplotlib
@@ -442,6 +443,94 @@ def _get_node_depth(path_to_leaves, i):
             depth = path[np.where(path <= i)].size
             break
     return depth
+
+
+def create_linkage(tree_in):
+    """
+    Create the linkage matrix for the encoding of the divisive clustring tree
+    creatred by the member algorithms of the HiPart package.
+
+    Parameters
+    ----------
+    tree_in : treelib.tree.Tree
+        A divisive tree from on of the HiPart algorithm package.
+
+    Returns
+    -------
+    Z : numpy.ndarray
+        The divisive clustering encoded as a linkage matrix.
+
+    """
+
+    tree = copy.deepcopy(tree_in)
+
+    # extract the path to leaves (clusters) so the distance between the
+    # clusters on the tree can be assessed
+    path_to_leaves = tree.paths_to_leaves()
+
+    # The depth of the tree that we will use
+    max_distance = np.max([len(i) for i in path_to_leaves])
+    # The total number of samples the data of the tree contain
+    samples_number = len(tree.get_node(tree.root).data["indices"])
+    # The indicator for the next free node of the linkage tree we are creating
+    dendrogram_counts = samples_number
+
+    # Initialize the linkage matrix
+    Z = np.array([[0, 0, 0, 0]])
+    # Loop through the nodes of the algorithm`s execution tree and do the
+    # necessary connections
+    # The loop finishes the execution on the node with ID 0 which is always
+    # the root of the algorithm execution tree
+    for i in range(len(tree.nodes) - 1, -1, -1):
+        # If the node is a leaf of the algorithm`s execution tree connect all
+        # the samples of the node on same level untile only one node remains
+        if tree.get_node(i).is_leaf():
+            if not tree.get_node(i).data["dendrogram_check"]:
+                # Set all the samples of the included in the node/cluster as
+                # unlinked nodes on the dendrogram tree
+                tree.get_node(i).data["unlinked_nodes"] = tree.get_node(
+                    i
+                ).data["indices"]
+                # Create the dendrograms subtree and update the algorithm tree
+                # node`s data and the index for the next free node
+                (
+                    cluster_linkage,
+                    tree.get_node(i).data,
+                    dendrogram_counts,
+                ) = linkage_data_maestro(
+                    tree.get_node(i),
+                    dendrogram_counts, 0.2
+                )
+                dendrogram_counts += 1
+                Z = np.vstack((Z, cluster_linkage))
+        else:
+            if not tree.get_node(i).data["dendrogram_check"]:
+                # Connect the children of the algorithm tree internal node to
+                # a new node on the dendrogram tree
+                children = tree.children(i)
+                Z = np.vstack(
+                    [Z, [
+                        children[-1].data["unlinked_nodes"][0],
+                        children[-2].data["unlinked_nodes"][0],
+                        max_distance - _get_node_depth(path_to_leaves, i),
+                        children[-1].data["counts"] + children[-2].data["counts"],
+                    ]]
+                )
+                # Update of the data of the algorithm execution tree node
+                tree.get_node(
+                    i
+                ).data["dendromgram_indicator"] = dendrogram_counts
+                tree.get_node(i).data["counts"] = (
+                    children[-1].data["counts"] + children[-2].data["counts"]
+                )
+                tree.get_node(i).data["unlinked_nodes"] = [dendrogram_counts]
+                dendrogram_counts += 1
+
+    # Remove the first row of the linkage matrix bacause it is the
+    # initalixation`s row of zeros
+    Z = Z[1:, :]
+
+    return Z
 
 
 def linkage_data_maestro(node, dendrogram_counts, distance):

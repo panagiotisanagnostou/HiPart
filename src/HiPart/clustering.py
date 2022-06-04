@@ -17,28 +17,35 @@ class dePDDP:
     """
     Class dePDDP. It executes the dePDDP algorithm.
 
+    References
+    ----------
+    Tasoulis, S. K., Tasoulis, D. K., & Plagianakos, V. P. (2010). Enhancing
+    principal direction divisive clustering. Pattern Recognition, 43(10), 3391-
+    3411.
+
     Parameters
     ----------
     decomposition_method : str, optional
         One of the ('pca', 'kpca', 'ica') supported decomposition methods used
         as kernel for the dePDDP algorithm.
     max_clusters_number : int, optional
-        Desired maximum number of clusters for the algorithm.
+        Desired maximum number of clusters to find the dePDDP algorithm.
     split_data_bandwidth_scale : float, optional
-        Standard deviation scaler for the density aproximation. Allowed values
-        are in the (0,1).
+        Standard deviation scaler for the density aproximation.
     percentile : float, optional
-        The peprcentile of the entirety of the dataset in which datasplits are
-        allowed. [0,0.5) values are allowed.
+        The peprcentile distance from the dataset's edge in which a split can
+        not occur. [0,0.5) values are allowed.
     min_sample_split : int, optional
-        Minimum number of points each cluster should contain selected by the
-        user.
+        The minimum number of points needed in a cluster for a split to occur.
     visualization_utility : bool, optional
-        If True generate the necessary data needed by the visualization
-        utilities of the package.
+        If (True) generate the data needed by the visualization utilities of
+        the package othrerwise, if false the split_visualization and
+        interactive_visualization of the package can not be created.
     **decomposition_args :
-        Arguments for each of the decomposition methods utilized by the
-        HiPart package.
+        Arguments for each of the decomposition methods ("PCA" as "pca",
+        "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
+        package, as documented in the scikit-learn package, from which they are
+        implemented.
 
     Attributes
     ----------
@@ -46,12 +53,6 @@ class dePDDP:
         Model's step by step execution output.
     labels_ :
         Extracted clusters from the algorithm
-
-    References
-    ----------
-    Tasoulis, S. K., Tasoulis, D. K., & Plagianakos, V. P. (2010). Enhancing
-    principal direction divisive clustering. Pattern Recognition, 43(10), 3391-
-    3411.
 
     """
 
@@ -81,7 +82,8 @@ class dePDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix (must check and return an error if not).
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
@@ -139,12 +141,13 @@ class dePDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            data matrix (numpy array, must check and return an error if not).
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
         labels_ : numpy.ndarray
-            The execution labels extracted labels from the dePDDP algorithm.
+            Extracted clusters from the algorithm.
 
         """
 
@@ -258,7 +261,7 @@ class dePDDP:
         """
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
-        Principal Components Analysis" or the "Indipented Componend Analysis"
+        Principal Components Analysis" or the "Indipented Component Analysis"
         methods.
 
         Determination of the projection's density and search for its local
@@ -360,11 +363,11 @@ class dePDDP:
         }
 
     @property
-    def _decomposition_method(self):
+    def decomposition_method(self):
         return self._decomposition_method
 
-    @_decomposition_method.setter
-    def _decomposition_method(self, v):
+    @decomposition_method.setter
+    def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
                 "decomposition_method: "
@@ -374,22 +377,22 @@ class dePDDP:
         self._decomposition_method = v
 
     @property
-    def _max_clusters_number(self):
+    def max_clusters_number(self):
         return self._max_clusters_number
 
-    @_max_clusters_number.setter
-    def _max_clusters_number(self, v):
+    @max_clusters_number.setter
+    def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def _split_data_bandwidth_scale(self):
+    def split_data_bandwidth_scale(self):
         return self._split_data_bandwidth_scale
 
-    @_split_data_bandwidth_scale.setter
-    def _split_data_bandwidth_scale(self, v):
+    @split_data_bandwidth_scale.setter
+    def split_data_bandwidth_scale(self, v):
         if v <= 0:
             raise ValueError(
                 "split_data_bandwidth_scale: Should be > 0"
@@ -397,21 +400,21 @@ class dePDDP:
         self._split_data_bandwidth_scale = v
 
     @property
-    def _percentile(self):
+    def percentile(self):
         return self._percentile
 
-    @_percentile.setter
-    def _percentile(self, v):
-        if v >= 0.5 and v < 0:
+    @percentile.setter
+    def percentile(self, v):
+        if v >= 0.5 or v < 0:
             raise ValueError("percentile: Should be between [0,0.5) interval")
         self._percentile = v
 
     @property
-    def _min_sample_split(self):
+    def min_sample_split(self):
         return self._min_sample_split
 
-    @_min_sample_split.setter
-    def _min_sample_split(self, v):
+    @min_sample_split.setter
+    def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
@@ -466,6 +469,12 @@ class iPDDP:
     """
     Class iPDDP. It executes the iPDDP algorithm.
 
+    References
+    ----------
+    Tasoulis, S. K., Tasoulis, D. K., & Plagianakos, V. P. (2010). Enhancing
+    principal direction divisive clustering. Pattern Recognition, 43(10), 3391-
+    3411.
+
     Parameters
     ----------
     decomposition_method : str, optional
@@ -474,17 +483,19 @@ class iPDDP:
     max_clusters_number : int, optional
         Desired maximum number of clusters for the algorithm.
     percentile : float, optional
-        The peprcentile of the entirety of the dataset in which datasplits are
-        allowed. [0,0.5) values are allowed.
+        The peprcentile distance from the dataset's edge in which a split can
+        not occur. [0,0.5) values are allowed.
     min_sample_split : int, optional
-        Minimum number of points each cluster should contain selected by the
-        user.
+        The minimum number of points needed in a cluster for a split to occur.
     visualization_utility : bool, optional
-        If True generate the necessary data needed by the visualization
-        utilities of the package.
+        If (True) generate the data needed by the visualization utilities of
+        the package othrerwise, if false the split_visualization and
+        interactive_visualization of the package can not be created.
     **decomposition_args :
-        Arguments for each of the decomposition methods utilized by the HiPart
-        package.
+        Arguments for each of the decomposition methods ("PCA" as "pca",
+        "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
+        package, as documented in the scikit-learn package, from which they are
+        implemented.
 
     Attributes
     ----------
@@ -492,12 +503,6 @@ class iPDDP:
         Model's step by step execution output.
     labels_ :
         Extracted clusters from the algorithm.
-
-    References
-    ----------
-    Tasoulis, S. K., Tasoulis, D. K., & Plagianakos, V. P. (2010). Enhancing
-    principal direction divisive clustering. Pattern Recognition, 43(10), 3391-
-    3411.
 
     """
 
@@ -525,7 +530,8 @@ class iPDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix (must check and return an error if not).
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
@@ -584,12 +590,13 @@ class iPDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix (numpy array, must check and return an error if not).
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
         labels_ : numpy.ndarray
-            The execution labels extracted labels from the iPDDP algorithm.
+            Extracted clusters from the algorithm.
 
         """
 
@@ -597,8 +604,8 @@ class iPDDP:
 
     def split_function(self, tree, selected_node):
         """
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
+        Split the indicated node on the maximum gap between two consecutive
+        points of the data projected on the first principal component.
 
         Because python passes by refference data this function doesn't need a
         return statment.
@@ -706,12 +713,13 @@ class iPDDP:
 
     def calculate_node_data(self, indices, data_matrix, key):
         """
-        Calculation of the projections on to the first 2 Components with the
-        utilization of the "Principal Components Analysis", "Kernel Principal
-        Components Analysis" or "Independent Component Analysis" methods.
+        Calculation of the projections onto the Principal Components with the
+        utilization of the "Principal Components Analysis" or the "Kernel
+        Principal Components Analysis" or the "Indipented Component Analysis"
+        methods.
 
         Determination of the projection's maximum distance between to
-        consecutive and choses it as the splitpoint for this node.
+        consecutive points and choses it as the splitpoint for this node.
 
         This function leads to the second Stopping criterion 2 of the
         algorithm.
@@ -788,11 +796,11 @@ class iPDDP:
         }
 
     @property
-    def _decomposition_method(self):
+    def decomposition_method(self):
         return self._decomposition_method
 
-    @_decomposition_method.setter
-    def _decomposition_method(self, v):
+    @decomposition_method.setter
+    def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
                 "decomposition_method: "
@@ -802,32 +810,32 @@ class iPDDP:
         self._decomposition_method = v
 
     @property
-    def _max_clusters_number(self):
+    def max_clusters_number(self):
         return self._max_clusters_number
 
-    @_max_clusters_number.setter
-    def _max_clusters_number(self, v):
+    @max_clusters_number.setter
+    def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def _percentile(self):
+    def percentile(self):
         return self._percentile
 
-    @_percentile.setter
-    def _percentile(self, v):
-        if v >= 0.5 and v < 0:
+    @percentile.setter
+    def percentile(self, v):
+        if v >= 0.5 or v < 0:
             raise ValueError("percentile: Should be between [0,0.5) interval")
         self._percentile = v
 
     @property
-    def _min_sample_split(self):
+    def min_sample_split(self):
         return self._min_sample_split
 
-    @_min_sample_split.setter
-    def _min_sample_split(self, v):
+    @min_sample_split.setter
+    def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
@@ -882,6 +890,12 @@ class kM_PDDP:
     """
     Class kM-PDDP. It executes the kM-PDDP algorithm.
 
+    References
+    ----------
+    Zeimpekis, D., & Gallopoulos, E. (2008). Principal direction divisive
+    partitioning with kernels and k-means steering. In Survey of Text Mining
+    II (pp. 45-64). Springer, London.
+
     Parameters
     ----------
     decomposition_method : str, optional
@@ -890,16 +904,18 @@ class kM_PDDP:
     max_clusters_number : int, optional
         Desired maximum number of clusters for the algorithm.
     min_sample_split : int, optional
-        Minimum number of points each cluster should contain selected by the
-        user.
+        The minimum number of points needed in a cluster for a split to occur.
     visualization_utility : bool, optional
-        If True generate the necessary data needed by the visualization
-        utilities of the package.
+        If (True) generate the data needed by the visualization utilities of
+        the package othrerwise, if false the split_visualization and
+        interactive_visualization of the package can not be created.
     random_seed : int, optional
         The random sedd fed in the k-Means algorithm
     **decomposition_args :
-        Arguments for each of the decomposition methods utilized by the HiPart
-        package.
+        Arguments for each of the decomposition methods ("PCA" as "pca",
+        "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
+        package, as documented in the scikit-learn package, from which they are
+        implemented.
 
     Attributes
     ----------
@@ -907,12 +923,6 @@ class kM_PDDP:
         Model's step by step execution output.
     labels_ :
         Extracted clusters from the algorithm.
-
-    References
-    ----------
-    Zeimpekis, D., & Gallopoulos, E. (2008). Principal direction divisive
-    partitioning with kernels and k-means steering. In Survey of Text Mining
-    II (pp. 45-64). Springer, London.
 
     """
 
@@ -928,19 +938,20 @@ class kM_PDDP:
         self.decomposition_method = decomposition_method
         self.max_clusters_number = max_clusters_number
         self.min_sample_split = min_sample_split
-        self.visualization_utility = visualization_utility,
+        self.visualization_utility = visualization_utility
         self.random_seed = random_seed
         self.decomposition_args = decomposition_args
 
     def fit(self, X):
         """
         Execute the kM-PDDP algorithm and return all the execution data in the
-        form of a kM-PDDP class object.
+        form of a kM_PDDP class object.
 
         Parameters
         ----------
         X: numpy.ndarray
-            data matrix (must check and return an error if not)
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
@@ -1000,12 +1011,13 @@ class kM_PDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix (numpy array, must check and return an error if not).
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
         labels_ : numpy.ndarray
-            The execution labels extracted labels from the kM-PDDP algorithm.
+            Extracted clusters from the algorithm.
 
         """
 
@@ -1013,8 +1025,8 @@ class kM_PDDP:
 
     def split_function(self, tree, selected_node):
         """
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
+        Split the indicated node based on the binary k-Means clustering of the
+        node's data projected on one dimention with the dicomposition method.
 
         Because python passes by refference data this function doesn't need a
         return statment.
@@ -1115,9 +1127,10 @@ class kM_PDDP:
 
     def calculate_node_data(self, indices, data_matrix, key):
         """
-        Calculation of the projections on to the first 2 Components with the
-        utilization of the "Principal Components Analysis", "Kernel Principal
-        Components Analysis" or "Independent Component Analysis" methods.
+        Calculation of the projections onto the Principal Components with the
+        utilization of the "Principal Components Analysis" or the "Kernel
+        Principal Components Analysis" or the "Indipented Component Analysis"
+        methods.
 
         Determination of the projection's clusters by utilizing the binary
         k-means clustering algorithm.
@@ -1201,11 +1214,11 @@ class kM_PDDP:
         }
 
     @property
-    def _decomposition_method(self):
+    def decomposition_method(self):
         return self._decomposition_method
 
-    @_decomposition_method.setter
-    def _decomposition_method(self, v):
+    @decomposition_method.setter
+    def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
                 "decomposition_method: "
@@ -1215,33 +1228,33 @@ class kM_PDDP:
         self._decomposition_method = v
 
     @property
-    def _max_clusters_number(self):
+    def max_clusters_number(self):
         return self._max_clusters_number
 
-    @_max_clusters_number.setter
-    def _max_clusters_number(self, v):
+    @max_clusters_number.setter
+    def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def _min_sample_split(self):
+    def min_sample_split(self):
         return self._min_sample_split
 
-    @_min_sample_split.setter
-    def _min_sample_split(self, v):
+    @min_sample_split.setter
+    def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
         self._min_sample_split = v
 
     @property
-    def _random_seed(self):
+    def random_seed(self):
         return self._random_seed
 
-    @_random_seed.setter
-    def _random_seed(self, v):
+    @random_seed.setter
+    def random_seed(self, v):
         if v is not None and (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
@@ -1296,6 +1309,11 @@ class PDDP:
     """
     Class PDDP. It executes the PDDP algorithm.
 
+    References
+    ----------
+    Boley, D. (1998). Principal direction divisive partitioning. Data mining
+    and knowledge discovery, 2(4), 325-344.
+
     Parameters
     ----------
     decomposition_method : str, optional
@@ -1304,14 +1322,16 @@ class PDDP:
     max_clusters_number : int, optional
         Desired maximum number of clusters for the algorithm.
     min_sample_split : int, optional
-        Minimum number of points each cluster should contain selected by the
-        user.
+        The minimum number of points needed in a cluster for a split to occur.
     visualization_utility : bool, optional
-        If True generate the necessary data needed by the visualization
-        utilities of the package.
+        If (True) generate the data needed by the visualization utilities of
+        the package othrerwise, if false the split_visualization and
+        interactive_visualization of the package can not be created.
     **decomposition_args :
-        arguments for each of the decomposition methods utilized by the HiPart
-        package.
+        Arguments for each of the decomposition methods ("PCA" as "pca",
+        "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
+        package, as documented in the scikit-learn package, from which they are
+        implemented.
 
     Attributes
     ----------
@@ -1319,11 +1339,6 @@ class PDDP:
         Model's step by step execution output.
     labels_ :
         Extracted clusters from the algorithm.
-
-    References
-    ----------
-    Boley, D. (1998). Principal direction divisive partitioning. Data mining
-    and knowledge discovery, 2(4), 325-344.
 
     """
 
@@ -1409,12 +1424,13 @@ class PDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix (numpy array, must check and return an error if not).
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
         labels_ : numpy.ndarray
-            The execution labels extracted labels from the PDDP algorithm.
+            Extracted clusters from the algorithm.
 
         """
 
@@ -1422,8 +1438,8 @@ class PDDP:
 
     def split_function(self, tree, selected_node):
         """
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
+        Split the indicated node on the minimum of the median of the data
+        projected on the first principal component.
 
         Because python passes by refference data this function doesn't need a
         return statment.
@@ -1533,12 +1549,13 @@ class PDDP:
 
     def calculate_node_data(self, indices, data_matrix, key):
         """
-        Calculation of the projections on to the first 2 Components with the
-        utilization of the "Principal Components Analysis", "Kernel Principal
-        Components Analysis" or "Independent Component Analysis" methods.
+        Calculation of the projections onto the Principal Components with the
+        utilization of the "Principal Components Analysis" or the "Kernel
+        Principal Components Analysis" or the "Indipented Component Analysis"
+        methods.
 
-        Determination of the projection's clusters by utilizing the binary
-        k-means clustering algorithm.
+        The projection's clusters are split on the median pf the projected
+        data.
 
         This function leads to the second Stopping criterion 2 of the
         algorithm.
@@ -1604,11 +1621,11 @@ class PDDP:
         }
 
     @property
-    def _decomposition_method(self):
+    def decomposition_method(self):
         return self._decomposition_method
 
-    @_decomposition_method.setter
-    def _decomposition_method(self, v):
+    @decomposition_method.setter
+    def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
                 "decomposition_method: "
@@ -1618,22 +1635,22 @@ class PDDP:
         self._decomposition_method = v
 
     @property
-    def _max_clusters_number(self):
+    def max_clusters_number(self):
         return self._max_clusters_number
 
-    @_max_clusters_number.setter
-    def _max_clusters_number(self, v):
+    @max_clusters_number.setter
+    def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def _min_sample_split(self):
+    def min_sample_split(self):
         return self._min_sample_split
 
-    @_min_sample_split.setter
-    def _min_sample_split(self, v):
+    @min_sample_split.setter
+    def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
@@ -1688,13 +1705,19 @@ class bicecting_kmeans:
     """
     Class bicecting_kmeans. It executes the bisectiong k-Means algorithm.
 
+    References
+    ----------
+    Savaresi, S. M., & Boley, D. L. (2001, April). On the performance of
+    bisecting K-means and PDDP. In Proceedings of the 2001 SIAM International
+    Conference on Data Mining (pp. 1-14). Society for Industrial and Applied
+    Mathematics.
+
     Parameters
     ----------
     max_clusters_number : int, optional
         Desired maximum number of clusters for the algorithm.
     min_sample_split : int, optional
-        Minimum number of points each cluster should contain selected by the
-        user.
+        The minimum number of points needed in a cluster for a split to occur.
     random_seed : int, optional
         The random sedd fed in the k-Means algorithm.
 
@@ -1704,13 +1727,6 @@ class bicecting_kmeans:
         Model's step by step execution output.
     labels_ : numpy.ndarray
         Extracted clusters from the algorithm.
-
-    References
-    ----------
-    Savaresi, S. M., & Boley, D. L. (2001, April). On the performance of
-    bisecting K-means and PDDP. In Proceedings of the 2001 SIAM International
-    Conference on Data Mining (pp. 1-14). Society for Industrial and Applied
-    Mathematics.
 
     """
 
@@ -1732,7 +1748,8 @@ class bicecting_kmeans:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix (numpy array, must check and return an error if not).
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
@@ -1791,13 +1808,13 @@ class bicecting_kmeans:
         Parameters
         ----------
         X : numpy.ndarray
-            data matrix (numpy array, must check and return an error if not)
+            Data matrix with the samples on the rows and the avriables on the
+            columns.
 
         Returns
         -------
         labels_ : numpy.ndarray
-            The execution labels extracted labels from the bicecting_kmeans
-            algorithm.
+            Extracted clusters from the algorithm.
 
         """
 
@@ -1908,7 +1925,7 @@ class bicecting_kmeans:
         """
         Execution of the binary k-Means algorithm on the samples presented by
         the data_matrix. The two resulted clusters are the two new clusters if
-        the leave is chosen to be splited. And calculation of the spliting
+        the leaf is chosen to be splited. And calculation of the spliting
         criterion.
 
         Parameters
@@ -1965,33 +1982,33 @@ class bicecting_kmeans:
         }
 
     @property
-    def _max_clusters_number(self):
+    def max_clusters_number(self):
         return self._max_clusters_number
 
-    @_max_clusters_number.setter
-    def _max_clusters_number(self, v):
+    @max_clusters_number.setter
+    def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
-    def _min_sample_split(self):
+    def min_sample_split(self):
         return self._min_sample_split
 
-    @_min_sample_split.setter
-    def _min_sample_split(self, v):
+    @min_sample_split.setter
+    def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")
         self._min_sample_split = v
 
     @property
-    def _random_seed(self):
+    def random_seed(self):
         return self._random_seed
 
-    @_random_seed.setter
-    def _random_seed(self, v):
+    @random_seed.setter
+    def random_seed(self, v):
         if v is not None and (not isinstance(v, int)):
             raise ValueError("min_sample_split: "
                              + "Invalid value it should be int and > 1")

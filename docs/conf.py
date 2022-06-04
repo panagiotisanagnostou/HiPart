@@ -17,12 +17,12 @@ sys.path.insert(0, os.path.abspath('../src/'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'HiPart'
+project = 'HiPart Documentation'
 copyright = '2022, Panagiotis Anagnostou'
 author = 'Panagiotis Anagnostou'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.8'
+release = '0.1.13'
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,7 +31,7 @@ release = '0.1.8'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-	'sphinx.ext.autodoc',
+    'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
