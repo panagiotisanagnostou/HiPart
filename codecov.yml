@@ -1,0 +1,27 @@
+# Docs ref: https://docs.codecov.io/docs/codecovyml-reference
+# Validation check: $ curl --data-binary @codecov.yml https://codecov.io/validate
+
+codecov:
+  bot: "codecov-io"
+  strict_yaml_branch: "yaml-config"
+
+coverage:
+  precision: 2
+  round: down
+  range: "54...77"
+  status:
+    project:
+      default:
+        target: 74%
+        threshold: 1%
+    patch: off
+
+# # https://docs.codecov.io/docs/ignoring-paths
+# ignore:
+#   - "HiPart/inteactive_visualization.py"
+
+# https://docs.codecov.io/docs/pull-request-comments
+comment:
+  layout: header, diff, sunburst, uncovered
+  behavior: default
+  require_changes: true  # if true: only post the comment if coverage changes
