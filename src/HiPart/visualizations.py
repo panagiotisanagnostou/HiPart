@@ -268,7 +268,7 @@ def split_visualization(hipart_object, color_map="tab20"):
             ) if i == 0 else ax.title.set_text("Split no. " + str(i + 1))
 
     plt.subplots_adjust(wspace=0.2, hspace=0.6)
-    return fig
+    return plt
 
 
 def dendrogram_visualization(hipart_object, **dendrogram_parameters):
