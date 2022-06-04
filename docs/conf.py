@@ -12,8 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src/'))
-
+sys.path.insert(0, os.path.abspath('../src'))
 
 # -- Project information -----------------------------------------------------
 
@@ -22,7 +21,7 @@ copyright = '2022, Panagiotis Anagnostou'
 author = 'Panagiotis Anagnostou'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.14'
+release = '0.1.15'
 
 # -- General configuration ---------------------------------------------------
 
