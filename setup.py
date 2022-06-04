@@ -3,7 +3,7 @@ from setuptools import setup
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 setup(
     name="HiPart",
@@ -25,7 +25,7 @@ setup(
         "treelib>=1.6",
         "scipy",
         "scikit-learn",
-        "statsmodels>=0.12",
+        "statsmodels>=0.13",
         "kdepy",
         "matplotlib",
         "plotly",

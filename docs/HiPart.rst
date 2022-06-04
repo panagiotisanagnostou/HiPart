@@ -9,7 +9,6 @@ HiPart.clustering module
 
 .. automodule:: HiPart.clustering
    :members:
-   :undoc-members:
    :show-inheritance:
 
 HiPart.inteactive\_visualization module

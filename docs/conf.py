@@ -17,13 +17,12 @@ sys.path.insert(0, os.path.abspath('../src/'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'HiPart Documentation'
+project = 'HiPart'
 copyright = '2022, Panagiotis Anagnostou'
 author = 'Panagiotis Anagnostou'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.13'
-
+release = '0.1.14'
 
 # -- General configuration ---------------------------------------------------
 
@@ -60,7 +59,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
