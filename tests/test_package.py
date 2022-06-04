@@ -441,9 +441,11 @@ def test_split_visualization_plot_1(datadir):
         data_import = pickle.load(inf)
 
     clustering = dePDDP(max_clusters_number=5).fit(data_import["data"])
-    new_plot = viz.split_visualization(clustering)
-
-    assert isinstance(new_plot, matplotlib.figure.Figure)
+    try:
+        viz.split_visualization(clustering)
+        assert True
+    except Exception:
+        assert False
 
 
 def test_split_visualization_plot_2(datadir):
@@ -451,9 +453,11 @@ def test_split_visualization_plot_2(datadir):
         data_import = pickle.load(inf)
 
     clustering = PDDP(max_clusters_number=5).fit(data_import["data"])
-    new_plot = viz.split_visualization(clustering)
-
-    assert isinstance(new_plot, matplotlib.figure.Figure)
+    try:
+        viz.split_visualization(clustering)
+        assert True
+    except Exception:
+        assert False
 
 
 def test_split_visualization_plot_3(datadir):
@@ -463,9 +467,11 @@ def test_split_visualization_plot_3(datadir):
     clustering = bicecting_kmeans(
         max_clusters_number=5,
     ).fit(data_import["data"])
-    new_plot = viz.split_visualization(clustering)
-
-    assert isinstance(new_plot, matplotlib.figure.Figure)
+    try:
+        viz.split_visualization(clustering)
+        assert True
+    except Exception:
+        assert False
 
 
 def test_split_visualization_plot_4(datadir):
@@ -473,9 +479,11 @@ def test_split_visualization_plot_4(datadir):
         data_import = pickle.load(inf)
 
     clustering = kM_PDDP(max_clusters_number=5).fit(data_import["data"])
-    new_plot = viz.split_visualization(clustering)
-
-    assert isinstance(new_plot, matplotlib.figure.Figure)
+    try:
+        viz.split_visualization(clustering)
+        assert True
+    except Exception:
+        assert False
 
 
 def test_split_visualization_plot_5(datadir):
@@ -483,9 +491,11 @@ def test_split_visualization_plot_5(datadir):
         data_import = pickle.load(inf)
 
     clustering = iPDDP(max_clusters_number=5).fit(data_import["data"])
-    new_plot = viz.split_visualization(clustering)
-
-    assert isinstance(new_plot, matplotlib.figure.Figure)
+    try:
+        viz.split_visualization(clustering)
+        assert True
+    except Exception:
+        assert False
 
 
 def test_split_visualization_plot_6(datadir):
@@ -493,9 +503,11 @@ def test_split_visualization_plot_6(datadir):
         data_import = pickle.load(inf)
 
     clustering = iPDDP(max_clusters_number=7).fit(data_import["data"])
-    new_plot = viz.split_visualization(clustering)
-
-    assert isinstance(new_plot, matplotlib.figure.Figure)
+    try:
+        viz.split_visualization(clustering)
+        assert True
+    except Exception:
+        assert False
 
 
 def test_split_visualization_plot_7(datadir):
@@ -503,9 +515,11 @@ def test_split_visualization_plot_7(datadir):
         data_import = pickle.load(inf)
 
     clustering = iPDDP(max_clusters_number=2).fit(data_import["data"])
-    new_plot = viz.split_visualization(clustering)
-
-    assert isinstance(new_plot, matplotlib.figure.Figure)
+    try:
+        viz.split_visualization(clustering)
+        assert True
+    except Exception:
+        assert False
 
 
 def test_split_visualization_TypeError(datadir):
