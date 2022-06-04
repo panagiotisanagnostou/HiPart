@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import matplotlib.pyplot as plt
-import time
-import HiPart.inteactive_visualization as int_viz
-import HiPart.visualizations as viz
-
 from HiPart.clustering import bicecting_kmeans
 from HiPart.clustering import dePDDP
 from HiPart.clustering import iPDDP
@@ -14,19 +7,26 @@ from sklearn.datasets import make_blobs
 from sklearn.metrics import adjusted_rand_score as ari
 from sklearn.metrics import normalized_mutual_info_score as nmi
 
+import matplotlib.pyplot as plt
+import time
+import HiPart.visualizations as viz
+
+
 # %% Example data creation
-clusters = 6
+# number of cluster in the data
+clusters = 5
 
 X, y = make_blobs(
     n_samples=1500,
-    centers=8,
-    cluster_std=0.5,
-    random_state=41179,
+    centers=5,
+    cluster_std=.8,
+    random_state=123,
 )
 print("Example data shape: {}\n".format(X.shape))
 
 
 # %% dePDDP algorithm execution
+# timer for the execution time in the form of tic-toc
 tic = time.perf_counter()
 depddp = dePDDP(
     decomposition_method="pca",
@@ -36,6 +36,7 @@ depddp = dePDDP(
 ).fit(X)
 toc = time.perf_counter()
 
+# results evaluation in terms of execution time, MNI and ARI metrics
 print("depddp_time= {val:.5f}".format(val=toc-tic))
 print("depddp_mni= {val:.5f}".format(val=nmi(y, depddp.labels_)))
 print("depddp_ari= {val:.5f}\n".format(val=ari(y, depddp.labels_)))
@@ -46,11 +47,68 @@ viz.split_visualization(depddp).show()
 dn = viz.dendrogram_visualization(depddp)
 plt.show()
 
-# interactive visualization
-int_viz.main(depddp)
+
+# %% iPDDP algorithm execution
+# timer for the execution time in the form of tic-toc
+tic = time.perf_counter()
+ipddp = iPDDP(
+    decomposition_method="pca", max_clusters_number=clusters, percentile=0.1
+).fit(X)
+toc = time.perf_counter()
+
+# results evaluation in terms of execution time, MNI and ARI metrics
+print("ipddp_time= {val:.5f}".format(val=toc-tic))
+print("ipddp_mni= {val:.5f}".format(val=nmi(y, ipddp.labels_)))
+print("ipddp_ari= {val:.5f}\n".format(val=ari(y, ipddp.labels_)))
+
+# scatter visualization
+viz.split_visualization(ipddp).show()
+# dendrogram
+dn = viz.dendrogram_visualization(ipddp)
+plt.show()
+
+
+# %% kMeans-PDDP algorithm execution
+# timer for the execution time in the form of tic-toc
+tic = time.perf_counter()
+kmpddp = kM_PDDP(
+    decomposition_method="pca",
+    max_clusters_number=clusters,
+).fit(X)
+toc = time.perf_counter()
+
+# results evaluation in terms of execution time, MNI and ARI metrics
+print("kmpddp_time= {val:.5f}".format(val=toc-tic))
+print("kmpddp_mni= {val:.5f}".format(val=nmi(y, kmpddp.labels_)))
+print("kmpddp_ari= {val:.5f}\n".format(val=ari(y, kmpddp.labels_)))
+
+# scatter visualization
+viz.split_visualization(kmpddp).show()
+# dendrogram
+dn = viz.dendrogram_visualization(kmpddp)
+plt.show()
+
+
+# %% PDDP algorithm execution
+# timer for the execution time in the form of tic-toc
+tic = time.perf_counter()
+pddp = PDDP(decomposition_method="pca", max_clusters_number=clusters).fit(X)
+toc = time.perf_counter()
+
+# results evaluation in terms of execution time, MNI and ARI metrics
+print("pddp_time= {val:.5f}".format(val=toc-tic))
+print("pddp_mni= {val:.5f}".format(val=nmi(y, pddp.labels_)))
+print("pddp_ari= {val:.5f}\n".format(val=ari(y, pddp.labels_)))
+
+# scatter visualization
+viz.split_visualization(pddp).show()
+# dendrogram
+dn = viz.dendrogram_visualization(pddp)
+plt.show()
 
 
 # %% Bisecting kMeans algorithm execution
+# timer for the execution time in the form of tic-toc
 tic = time.perf_counter()
 bikmeans = bicecting_kmeans(max_clusters_number=clusters).fit(X)
 toc = time.perf_counter()
@@ -64,67 +122,3 @@ viz.split_visualization(bikmeans).show()
 # dendrogram
 dn = viz.dendrogram_visualization(bikmeans)
 plt.show()
-
-# bisecting kMeans is not supported by the interactive visualization
-
-
-# %% kMeans-PDDP algorithm execution
-tic = time.perf_counter()
-kmpddp = kM_PDDP(
-    decomposition_method="pca",
-    max_clusters_number=clusters,
-).fit(X)
-toc = time.perf_counter()
-
-print("kmpddp_time= {val:.5f}".format(val=toc-tic))
-print("kmpddp_mni= {val:.5f}".format(val=nmi(y, kmpddp.labels_)))
-print("kmpddp_ari= {val:.5f}\n".format(val=ari(y, kmpddp.labels_)))
-
-# scatter visualization
-viz.split_visualization(kmpddp).show()
-# dendrogram
-dn = viz.dendrogram_visualization(kmpddp)
-plt.show()
-
-# interactive visualization
-int_viz.main(kmpddp)
-
-
-# %% PDDP algorithm execution
-tic = time.perf_counter()
-pddp = PDDP(decomposition_method="pca", max_clusters_number=clusters).fit(X)
-toc = time.perf_counter()
-
-print("pddp_time= {val:.5f}".format(val=toc-tic))
-print("pddp_mni= {val:.5f}".format(val=nmi(y, pddp.labels_)))
-print("pddp_ari= {val:.5f}\n".format(val=ari(y, pddp.labels_)))
-
-# scatter visualization
-viz.split_visualization(pddp).show()
-# dendrogram
-dn = viz.dendrogram_visualization(pddp)
-plt.show()
-
-# interactive visualization
-int_viz.main(pddp)
-
-
-# %% iPDDP algorithm execution
-tic = time.perf_counter()
-ipddp = iPDDP(
-    decomposition_method="pca", max_clusters_number=clusters, percentile=0.1
-).fit(X)
-toc = time.perf_counter()
-
-print("ipddp_time= {val:.5f}".format(val=toc-tic))
-print("ipddp_mni= {val:.5f}".format(val=nmi(y, ipddp.labels_)))
-print("ipddp_ari= {val:.5f}\n".format(val=ari(y, ipddp.labels_)))
-
-# scatter visualization
-viz.split_visualization(ipddp).show()
-# dendrogram
-dn = viz.dendrogram_visualization(ipddp)
-plt.show()
-
-# interactive visualization
-int_viz.main(ipddp)
