@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Paper dendrogram figure generation.
 
@@ -8,7 +7,6 @@ Paper dendrogram figure generation.
 from HiPart.clustering import dePDDP
 from scipy.cluster import hierarchy
 
-import h5py
 import HiPart.__utility_functions as util
 import HiPart.visualizations as viz
 import matplotlib
@@ -16,25 +14,6 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-
-def h5file(data_folder, name):
-    print("\n", name)
-
-    f = h5py.File(data_folder + name + ".h5", "r")
-    inData = f["data"]["matrix"][:].transpose()
-    inTarget = f["class"]["categories"][:]
-    inTarget = np.int32(inTarget) - 1
-
-    if inData.shape[0] != len(inTarget):
-        inData = inData.transpose()
-        if inData.shape[0] != len(inTarget):
-            print("Data ", name, "error! Pls Check!")
-            f.close()
-            return
-    f.close()
-
-    return inData, inTarget
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Results generator.
 
@@ -15,65 +14,44 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+
+def evaluate(X, y, name):
+    print(X.shape)
+
+    results = util.execute_evaluation(X=X, y=y)
+
+    with open("result_dict.dump", "rb") as ind:
+        all_results = pickle.load(ind)
+
+    all_results[name + str(X.shape)] = results
+    del X, y
+
+    with open("result_dict.dump", "wb") as out:
+        pickle.dump(all_results, out)
+
+    gc.collect()
+
+
 if __name__ == "__main__":
     # %% Analyze Baron dataset
     name = "DRComparison-Baron"
     X, y = util.h5file("data/", name)
 
-    print(X.shape)
+    evaluate(X, y, name)
 
-    results = util.execute_evaluation(X=X, y=y)
-
-    with open("result_dict.dump", "rb") as ind:
-        all_results = pickle.load(ind)
-
-    all_results[name + str(X.shape)] = results
-    del X, y
-
-    with open("result_dict.dump", "wb") as out:
-        pickle.dump(all_results, out)
-
-    gc.collect()
-
-    # %% Analyze Baron dataset
+    # %% Analyze Deng dataset
     name = "mat-Deng"
     X, y = util.h5file("data/", name)
 
-    print(X.shape)
+    evaluate(X, y, name)
 
-    results = util.execute_evaluation(X=X, y=y)
-
-    with open("result_dict.dump", "rb") as ind:
-        all_results = pickle.load(ind)
-
-    all_results[name + str(X.shape)] = results
-    del X, y
-
-    with open("result_dict.dump", "wb") as out:
-        pickle.dump(all_results, out)
-
-    gc.collect()
-
-    # %% Analyze Baron dataset
+    # %% Analyze Chen dataset
     name = "scRNAseq-ChenBrainData"
     X, y = util.h5file("data/", name)
 
-    print(X.shape)
+    evaluate(X, y, name)
 
-    results = util.execute_evaluation(X=X, y=y)
-
-    with open("result_dict.dump", "rb") as ind:
-        all_results = pickle.load(ind)
-
-    all_results[name + str(X.shape)] = results
-    del X, y
-
-    with open("result_dict.dump", "wb") as out:
-        pickle.dump(all_results, out)
-
-    gc.collect()
-
-    # %% Analyze cancer dataset
+    # %% Analyze Cancer dataset
     X = pd.read_csv("./data/cancer/data.csv", index_col=0, header=0)
     X = np.asarray(X, dtype="float64")
     y = pd.read_csv("./data/cancer/labels.csv", index_col=0, header=0)
@@ -81,58 +59,22 @@ if __name__ == "__main__":
     y["Class"] = y.Class.cat.codes
     y = np.asarray(y).transpose()[0]
 
-    print("\ncancer")
-    print(X.shape)
+    print("\nCancer")
 
-    results = util.execute_evaluation(X=X, y=y)
+    evaluate(X, y, name)
 
-    with open("result_dict.dump", "rb") as ind:
-        all_results = pickle.load(ind)
-
-    all_results["cancer " + str(X.shape)] = results
-    del X, y
-
-    with open("result_dict.dump", "wb") as out:
-        pickle.dump(all_results, out)
-
-    gc.collect()
-
-    # %% Analyze usps dataset
+    # %% Analyze USPS dataset
     X = np.array(pd.read_csv("data/USPS-data", sep=";").applymap(lambda x: re.sub(",", ".", x))).astype(dtype="float32")
     y = np.array(pd.read_csv("data/USPS-class")).transpose()[0]
 
-    print("\nusps")
-    print(X.shape)
+    print("\nUSPS")
 
-    results = util.execute_evaluation(X=X, y=y)
+    evaluate(X, y, name)
 
-    with open("result_dict.dump", "rb") as ind:
-        all_results = pickle.load(ind)
-
-    all_results["usps " + str(X.shape)] = results
-    del X, y
-
-    with open("result_dict.dump", "wb") as out:
-        pickle.dump(all_results, out)
-
-    gc.collect()
-
-    # %% Analyze bbc dataset
+    # %% Analyze BBC dataset
     X = np.array(pd.read_csv("data/bbc_data.csv", header=None))
     y = np.array(pd.read_csv("data/bbc_class.csv")).transpose()[0]
 
-    print("\nbbc")
-    print(X.shape)
+    print("\nBBC")
 
-    results = util.execute_evaluation(X=X, y=y)
-
-    with open("result_dict.dump", "rb") as ind:
-        all_results = pickle.load(ind)
-
-    all_results["bbc " + str(X.shape)] = results
-    del X, y
-
-    with open("result_dict.dump", "wb") as out:
-        pickle.dump(all_results, out)
-
-    gc.collect()
+    evaluate(X, y, name)
