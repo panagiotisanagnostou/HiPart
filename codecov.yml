@@ -8,17 +8,15 @@ codecov:
 coverage:
   precision: 2
   round: down
-  range: "54...77"
+  range: "54...77"   # because the interactive_visualization module can not be
+                     # checked by convensional means but need visual check the
+                     # acceptable limits of test coverage are lowered  
   status:
     project:
       default:
         target: 74%
         threshold: 1%
     patch: off
-
-# # https://docs.codecov.io/docs/ignoring-paths
-# ignore:
-#   - "HiPart/inteactive_visualization.py"
 
 # https://docs.codecov.io/docs/pull-request-comments
 comment:
