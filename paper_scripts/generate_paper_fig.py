@@ -18,12 +18,17 @@ import pandas as pd
 
 if __name__ == "__main__":
     # laod the data
-    X = pd.read_csv("./data/cancer/data.csv", index_col=0, header=0)
-    X = np.asarray(X, dtype="float64")
-    y = pd.read_csv("./data/cancer/labels.csv", index_col=0, header=0)
-    y["Class"] = pd.Categorical(y["Class"])
-    y["Class"] = y.Class.cat.codes
-    y = np.asarray(y).transpose()[0]
+    X = pd.read_csv(
+        filepath_or_buffer="./data/cancer/data.csv",
+        index_col=0,
+        header=0,
+    ).astype("float64").to_numpy()
+    y = pd.read_csv(
+        filepath_or_buffer="./data/cancer/labels.csv",
+        index_col=0,
+        header=0,
+        dtype="category"
+    ).Class.cat.codes.to_numpy()
 
     print("\ncancer")
     print(X.shape)
