@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from distutils import dir_util
+from HiPart import __utility_functions as util
 from HiPart import visualizations as viz
 from HiPart.clustering import dePDDP
 from HiPart.clustering import iPDDP
@@ -7,7 +8,6 @@ from HiPart.clustering import kM_PDDP
 from HiPart.clustering import PDDP
 from HiPart.clustering import bicecting_kmeans
 
-import matplotlib
 import numpy as np
 import os
 import pickle

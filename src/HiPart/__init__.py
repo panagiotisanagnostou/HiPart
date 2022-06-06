@@ -18,7 +18,7 @@ from KDEpy.NaiveKDE import NaiveKDE
 from KDEpy.TreeKDE import TreeKDE
 from KDEpy.FFTKDE import FFTKDE
 
-__version__ = "0.1.15"
+__version__ = "0.1.16"
 __author__ = "Panagiotis Anagnostou"
 
 TreeKDE = TreeKDE
