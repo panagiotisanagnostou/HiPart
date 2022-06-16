@@ -11,7 +11,7 @@ HiPart is a package created for the implementation of hierarchical divisive clus
 
 Installation
 ------------
-For the installation of the package, the only necessary actions and requirements are a version of Python higher or equal to 3.6 and the execution of the following command.
+For the installation of the package, the only necessary actions and requirements are a version of Python higher or equal to 3.7 and the execution of the following command.
 
 ```bash
 pip install HiPart
