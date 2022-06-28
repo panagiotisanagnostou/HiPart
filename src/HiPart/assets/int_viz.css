@@ -18,6 +18,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 /* Table of contents
 ––––––––––––––––––––––––––––––––––––––––––––––––––
 - Grid
@@ -45,6 +46,7 @@ SOFTWARE.
   padding: 0 20px;
   box-sizing: border-box; 
 }
+
 .column,
 .columns {
   width: 100%;
@@ -63,8 +65,10 @@ SOFTWARE.
 /* For devices larger than 550px */
 @media (min-width: 550px) {
   .container { width: 80%; }
+
   .column,
   .columns { margin-left: 4%; }
+
   .column:first-child,
   .columns:first-child { margin-left: 0; }
 
@@ -77,10 +81,13 @@ SOFTWARE.
   .six.columns { width: 48%; }
   .seven.columns { width: 56.6666666667%; }
   .eight.columns { width: 65.3333333333%; }
-  .nine.columns { width: 74.0%; }
+  .nine.columns { width: 74%; }
   .ten.columns { width: 82.6666666667%; }
   .eleven.columns { width: 91.3333333333%; }
-  .twelve.columns { width: 100%; margin-left: 0; }
+  .twelve.columns { 
+	width: 100%;
+	margin-left: 0; 
+  }
 
   .one-third.column { width: 30.6666666667%; }
   .two-thirds.column { width: 65.3333333333%; }
@@ -90,29 +97,40 @@ SOFTWARE.
   /* Offsets */
   .offset-by-one.column,
   .offset-by-one.columns { margin-left: 8.66666666667%; }
+
   .offset-by-two.column,
   .offset-by-two.columns { margin-left: 17.3333333333%; }
+
   .offset-by-three.column,
   .offset-by-three.columns { margin-left: 26%; }
+
   .offset-by-four.column,
   .offset-by-four.columns { margin-left: 34.6666666667%; }
+
   .offset-by-five.column,
   .offset-by-five.columns { margin-left: 43.3333333333%; }
+
   .offset-by-six.column,
   .offset-by-six.columns { margin-left: 52%; }
+
   .offset-by-seven.column,
   .offset-by-seven.columns { margin-left: 60.6666666667%; }
+
   .offset-by-eight.column,
   .offset-by-eight.columns { margin-left: 69.3333333333%; }
+
   .offset-by-nine.column,
   .offset-by-nine.columns { margin-left: 78.0%; }
+
   .offset-by-ten.column,
   .offset-by-ten.columns { margin-left: 86.6666666667%; }
+
   .offset-by-eleven.column,
   .offset-by-eleven.columns { margin-left: 95.3333333333%; }
 
   .offset-by-one-third.column,
   .offset-by-one-third.columns { margin-left: 34.6666666667%; }
+
   .offset-by-two-thirds.column,
   .offset-by-two-thirds.columns { margin-left: 69.3333333333%; }
 
@@ -128,6 +146,7 @@ SOFTWARE.
 html is set to 62.5% so that all the REM measurements throughout Skeleton
 are based on 10px sizing. So basically 1.5rem = 15px :) */
 html { font-size: 62.5%; }
+
 body {
   font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
   line-height: 1.6;
@@ -149,7 +168,14 @@ h6 {
   margin-bottom: 0;
   font-weight: 450;
 }
-h1 { font-size: 4.5rem; line-height: 1.2;  letter-spacing: -.1rem; margin-bottom: 2rem; }
+
+h1 {
+  font-size: 4.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.1rem;
+  margin-bottom: 2rem;
+}
+
 h2 {
   font-size: 3.6rem;
   line-height: 1.25;
@@ -157,29 +183,33 @@ h2 {
   margin-bottom: 1.8rem;
   margin-top: 1.8rem;
 }
+
 h3 {
-  font-size: 3.0rem;
+  font-size: 3rem;
   line-height: 1.3;
   letter-spacing: -.1rem;
   margin-bottom: 1.5rem;
   margin-top: 1.5rem;
 }
+
 h4 {
   font-size: 2.6rem;
   line-height: 1.35;
-  letter-spacing: -.08rem;
+  letter-spacing: -0.08rem;
   margin-bottom: 1.2rem;
   margin-top: 1.2rem;
 }
+
 h5 {
   font-size: 2.2rem;
   line-height: 1.5;
-  letter-spacing: -.05rem;
+  letter-spacing: -0.05rem;
   margin-bottom: 0.6rem;
   margin-top: 0.6rem;
 }
+
 h6 {
-  font-size: 2.0rem;
+  font-size: 2rem;
   line-height: 1.6;
   letter-spacing: 0;
   margin-bottom: 0.75rem;
@@ -196,7 +226,7 @@ blockquote {
   padding-left: 1rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  margin-left: 0rem;
+  margin-left: 0;
 }
 
 
@@ -206,11 +236,11 @@ a {
   color: #444;
   background: #eee;
   border: 0.18rem solid;
-  border-radius:  10px;
+  border-radius: 10px;
   padding: 10px 35px;
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: .08rem;
+  letter-spacing: 0.08rem;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
@@ -222,12 +252,12 @@ a:hover {
 
 #shutdown {
   display: inline-block;
-  float: right; 
+  float: right;
   clear: right;
   width: 18px;
   height: 18px;
   font-size: 13px;
-  padding: 0px;
+  padding: 0;
   text-align: center;
   background: #ccc;
 }
@@ -242,6 +272,7 @@ input[type="reset"],
 input[type="button"] {
   display: inline-block;
   height: 36px;
+  margin-bottom: 0;
   padding: 0 30px;
   color: #444;
   text-align: center;
@@ -318,7 +349,7 @@ select {
   box-shadow: none;
   box-sizing: border-box;
   font-family: inherit;
-  font-size: inherit; /*https://stackoverflow.com/questions/6080413/why-doesnt-input-inherit-the-font-from-body*/
+  font-size: inherit; /* https://stackoverflow.com/questions/6080413/why-doesnt-input-inherit-the-font-from-body */
 }
 
 /* Removes awkward default styles on some inputs for iOS */
@@ -339,7 +370,9 @@ textarea {
   min-height: 65px;
   padding-top: 6px;
   padding-bottom: 6px;
+  margin-bottom: 0;
 }
+
 input[type="email"]:focus,
 input[type="number"]:focus,
 input[type="search"]:focus,
@@ -356,7 +389,7 @@ select:focus {
 label,
 legend {
   display: block;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 fieldset {
@@ -386,7 +419,8 @@ ol {
   list-style: decimal inside;
 }
 
-ol, ul {
+ol,
+ul {
   padding-left: 0;
   margin-top: 0;
 }
@@ -431,16 +465,10 @@ td:last-child:not(.CalendarDay) {
 
 /* Spacing
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
-button,
-.button {
-  margin-bottom: 0rem;
-}
-
 input,
-textarea,
 select,
 fieldset {
-  margin-bottom: 0rem;
+  margin-bottom: 0;
 }
 
 pre,
@@ -448,7 +476,7 @@ dl,
 figure,
 table,
 form {
-  margin-bottom: 0rem;
+  margin-bottom: 0;
 }
 
 p,
@@ -468,6 +496,7 @@ ol {
   max-width: 100%;
   box-sizing: border-box;
 }
+
 .u-pull-right {
   float: right;
 }
@@ -491,8 +520,8 @@ hr {
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
 /* Self Clearing Goodness */
-.container:after,
-.row:after,
+.container::after,
+.row::after,
 .u-cf {
   content: "";
   display: table;
