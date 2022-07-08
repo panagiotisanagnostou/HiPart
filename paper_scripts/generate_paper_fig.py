@@ -27,6 +27,7 @@ from HiPart.clustering import dePDDP
 from scipy.cluster import hierarchy
 
 import HiPart.__utility_functions as util
+import HiPart.inteactive_visualization as iv
 import HiPart.visualizations as viz
 import matplotlib
 import matplotlib.gridspec as gridspec
@@ -62,7 +63,7 @@ if __name__ == "__main__":
 
     # color map
     color_map = matplotlib.cm.get_cmap("tab20", 14)
-    color_list = [util.convert_to_hex(color_map(i)) for i in range(color_map.N)]
+    color_list = [iv._convert_to_hex(color_map(i)) for i in range(color_map.N)]
 
     # initialize pyplot rcParams
     plt.rcParams["figure.figsize"] = [4, 4.5]
