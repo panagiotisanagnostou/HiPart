@@ -11,10 +11,10 @@ HiPart.clustering module
    :members:
    :show-inheritance:
 
-HiPart.inteactive\_visualization module
+HiPart.interactive\_visualization module
 ---------------------------------------
 
-.. automodule:: HiPart.inteactive_visualization
+.. automodule:: HiPart.interactive_visualization
    :members:
    :undoc-members:
    :show-inheritance:
