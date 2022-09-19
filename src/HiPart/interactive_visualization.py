@@ -235,6 +235,7 @@ def display_menu(pathname, data):
     Output("splitpoint_Manipulation", "value"),
     Output("splitpoint_Manipulation", "min"),
     Output("splitpoint_Manipulation", "max"),
+    Output("splitpoint_Manipulation", "marks"),
     State("cache_dump", "data"),
     State("splitpoint_Scatter", "figure"),
     Input("splitView", "value"),
@@ -243,6 +244,7 @@ def display_menu(pathname, data):
     Input("splitpoint_Manipulation", "value"),
     State("splitpoint_Manipulation", "min"),
     State("splitpoint_Manipulation", "max"),
+    State("splitpoint_Manipulation", "marks"),
     Input("splitpoint_Man_apply", "n_clicks"),
     prevent_initial_call=True,
 )
@@ -255,6 +257,7 @@ def Splitpoint_Manipulation_Callback(
     splitpoint_position,
     splitpoint_minimum,
     splitpoint_max,
+    splitpoint_marks,
     apply_button,
 ):
     """
@@ -338,6 +341,12 @@ def Splitpoint_Manipulation_Callback(
 
         splitPMin = data_matrix["PC1"].min()
         splitPMax = data_matrix["PC1"].max()
+        splitPMarks = {
+            splitpoint: {
+                'label': 'Generated Splitpoint',
+                'style': {'color': '#77b0b1'}
+            }
+        }
 
         # create visualization points
         category_order = {
@@ -387,6 +396,7 @@ def Splitpoint_Manipulation_Callback(
         splitpoint = splitpoint_position
         splitPMin = splitpoint_minimum
         splitPMax = splitpoint_max
+        splitPMarks = splitpoint_marks
 
     elif callback_ID == "splitpoint_Man_apply":
         # execution of the splitpoint manipulation algorithmically
@@ -413,6 +423,12 @@ def Splitpoint_Manipulation_Callback(
 
         splitPMin = data_matrix["PC1"].min()
         splitPMax = data_matrix["PC1"].max()
+        splitPMarks = {
+            splitpoint: {
+                'label': 'Generated Splitpoint',
+                'style': {'color': '#77b0b1'}
+            }
+        }
 
         # create visualization points
         category_order = {
@@ -457,6 +473,7 @@ def Splitpoint_Manipulation_Callback(
         splitpoint = splitpoint_position
         splitPMin = splitpoint_minimum
         splitPMax = splitpoint_max
+        splitPMarks = splitpoint_marks
 
     return (
         dcc.Graph(
@@ -469,6 +486,7 @@ def Splitpoint_Manipulation_Callback(
         splitpoint,
         splitPMin,
         splitPMax,
+        splitPMarks,
     )
 
 
@@ -580,7 +598,7 @@ def _Splitpoint_Manipulation(object_path):
                 max=data_matrix["PC1"].max() + 0.001,
                 marks={
                     splitpoint: {
-                        'label': 'Original Splitpoint',
+                        'label': 'Generated Splitpoint',
                         'style': {'color': '#77b0b1'}
                     }
                 },
