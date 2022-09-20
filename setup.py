@@ -1,11 +1,11 @@
-from setuptools import setup
+import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-__version__ = "0.1.17"
+__version__ = "0.1.18"
 
-setup(
+setuptools.setup(
     name="HiPart",
     version=__version__,
     url="https://github.com/panagiotisanagnostou/HiPart",

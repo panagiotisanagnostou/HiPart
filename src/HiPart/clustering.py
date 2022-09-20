@@ -49,15 +49,15 @@ class dePDDP:
     max_clusters_number : int, optional
         Desired maximum number of clusters to find the dePDDP algorithm.
     split_data_bandwidth_scale : float, optional
-        Standard deviation scaler for the density aproximation.
+        Standard deviation scaler for the density approximation.
     percentile : float, optional
-        The peprcentile distance from the dataset's edge in which a split can
+        The percentile distance from the dataset's edge in which a split can
         not occur. [0,0.5) values are allowed.
     min_sample_split : int, optional
         The minimum number of points needed in a cluster for a split to occur.
     visualization_utility : bool, optional
         If (True) generate the data needed by the visualization utilities of
-        the package othrerwise, if false the split_visualization and
+        the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
     **decomposition_args :
         Arguments for each of the decomposition methods ("PCA" as "pca",
@@ -100,7 +100,7 @@ class dePDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -127,14 +127,14 @@ class dePDDP:
             identifier=self.node_ids,
             data=self.calculate_node_data(indices, self.X, self.cluster_color),
         )
-        # inidcator for the next node to split
+        # indicator for the next node to split
         selected_node = 0
 
         # if no possibility of split exists on the data     # (ST2)
         if not tree.get_node(0).data["split_permition"]:
             raise RuntimeError("cannot split the data at all!!!")
 
-        # Initialize the ST1 stopping critirion counter that count the number
+        # Initialize the ST1 stopping criterion counter that count the number
         # of clusters                                       # (ST1)
         found_clusters = 1
         while (
@@ -159,7 +159,7 @@ class dePDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -176,8 +176,8 @@ class dePDDP:
         Split the indicated node on the minimum of the local minimum density
         of the data projected on the first principal component.
 
-        Because python passes by refference data this function doesn't need a
-        return statment.
+        Because python passes by reference data this function doesn't need a
+        return statement.
 
         Parameters
         ----------
@@ -187,7 +187,7 @@ class dePDDP:
 
         Returns
         -------
-            There no returns in this function. The results of this funciton
+            There no returns in this function. The results of this function
             pass to execution by utilizing the python's pass-by-reference
             nature.
 
@@ -195,14 +195,14 @@ class dePDDP:
         node = tree.get_node(selected_node)
         node.data["split_permition"] = False
 
-        # left child indecies extracted from the nodes splitpoint and the
-        # indecies included in the parent node
+        # left child indices extracted from the nodes split-point and the
+        # indices included in the parent node
         left_kid_index = node.data["indices"][
             np.where(
                 node.data["projection"][:, 0] < node.data["splitpoint"]
             )[0]
         ]
-        # right child indecies
+        # right child indices
         right_kid_index = node.data["indices"][
             np.where(
                 node.data["projection"][:, 0] >= node.data["splitpoint"]
@@ -239,7 +239,7 @@ class dePDDP:
         leaves select the next leave to split based on the algorithm's
         specifications.
 
-        This function creates the nescesary cause for the stopping criterion
+        This function creates the necessary cause for the stopping criterion
         ST1.
 
         Parameters
@@ -279,7 +279,7 @@ class dePDDP:
         """
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
-        Principal Components Analysis" or the "Indipented Component Analysis"
+        Principal Components Analysis" or the "Independent Component Analysis"
         methods.
 
         Determination of the projection's density and search for its local
@@ -302,7 +302,7 @@ class dePDDP:
         Returns
         -------
         data : dict
-            The necesary data for each node which are spliting point.
+            The necessary data for each node which are splitting point.
 
         """
         # if the number of samples
@@ -316,12 +316,12 @@ class dePDDP:
             )
             one_dimension = projection[:, 0]
 
-            # calculate the standared deviation of the data
+            # calculate the standard deviation of the data
             bandwidth = sm.nonparametric.bandwidths.select_bandwidth(
                 one_dimension, "silverman", kernel=None
             )
 
-            # calculate the density function on the 1st Princpal Component
+            # calculate the density function on the 1st Principal Component
             # x_ticks: projection points on the 1st PC
             # evaluation: the density of the projections on the 1st PC
             x_ticks, evaluation = (
@@ -452,7 +452,7 @@ class dePDDP:
         output_matrix = [np.zeros(np.size(self.X, 0))]
         for i in ndDict:
             if not ndDict[i].is_leaf():
-                # create output cluster spliting matrix
+                # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[
                     self.tree.children(i)[0].data["indices"]
@@ -501,13 +501,13 @@ class iPDDP:
     max_clusters_number : int, optional
         Desired maximum number of clusters for the algorithm.
     percentile : float, optional
-        The peprcentile distance from the dataset's edge in which a split can
+        The percentile distance from the dataset's edge in which a split can
         not occur. [0,0.5) values are allowed.
     min_sample_split : int, optional
         The minimum number of points needed in a cluster for a split to occur.
     visualization_utility : bool, optional
         If (True) generate the data needed by the visualization utilities of
-        the package othrerwise, if false the split_visualization and
+        the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
     **decomposition_args :
         Arguments for each of the decomposition methods ("PCA" as "pca",
@@ -548,7 +548,7 @@ class iPDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -575,14 +575,14 @@ class iPDDP:
             identifier=self.node_ids,
             data=self.calculate_node_data(indices, self.X, self.cluster_color),
         )
-        # inidcator for the next node to split
+        # indicator for the next node to split
         selected_node = 0
 
         # if no possibility of split exists on the data     # (ST2)
         if not tree.get_node(0).data["split_permition"]:
             raise RuntimeError("cannot split the data at all!!!")
 
-        # Initialize the ST1 stopping critirion counter that count the number
+        # Initialize the ST1 stopping criterion counter that count the number
         # of clusters                                       # (ST1)
         found_clusters = 1
         while (
@@ -608,7 +608,7 @@ class iPDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -625,8 +625,8 @@ class iPDDP:
         Split the indicated node on the maximum gap between two consecutive
         points of the data projected on the first principal component.
 
-        Because python passes by refference data this function doesn't need a
-        return statment.
+        Because python passes by reference data this function doesn't need a
+        return statement.
 
         Parameters
         ----------
@@ -636,7 +636,7 @@ class iPDDP:
 
         Returns
         -------
-            There no returns in this function. The results of this funciton
+            There no returns in this function. The results of this function
             pass to execution by utilizing the python's pass-by-reference
             nature.
 
@@ -645,14 +645,14 @@ class iPDDP:
         node = tree.get_node(selected_node)
         node.data["split_permition"] = False
 
-        # left child indecies extracted from the nodes splitpoint and the
-        # indecies included in the parent node
+        # left child indices extracted from the nodes split-point and the
+        # indices included in the parent node
         left_kid_index = node.data["indices"][
             np.where(
                 node.data["projection"][:, 0] < node.data["splitpoint"]
             )[0]
         ]
-        # right child indecies
+        # right child indices
         right_kid_index = node.data["indices"][
             np.where(
                 node.data["projection"][:, 0] >= node.data["splitpoint"]
@@ -691,7 +691,7 @@ class iPDDP:
         leaves select the next leave to split based on the algorithm's
         specifications.
 
-        This function creates the nescesary cause for the stopping criterion
+        This function creates the necessary cause for the stopping criterion
         ST1.
 
         Parameters
@@ -733,11 +733,11 @@ class iPDDP:
         """
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
-        Principal Components Analysis" or the "Indipented Component Analysis"
+        Principal Components Analysis" or the "Independent Component Analysis"
         methods.
 
         Determination of the projection's maximum distance between to
-        consecutive points and choses it as the splitpoint for this node.
+        consecutive points and chooses it as the split-point for this node.
 
         This function leads to the second Stopping criterion 2 of the
         algorithm.
@@ -754,7 +754,7 @@ class iPDDP:
         Returns
         -------
         data : dict
-            The necesary data for each node which are spliting point.
+            The necessary data for each node which are splitting point.
 
         """
 
@@ -873,7 +873,7 @@ class iPDDP:
         output_matrix = [np.zeros(np.size(self.X, 0))]
         for i in ndDict:
             if not ndDict[i].is_leaf():
-                # create output cluster spliting matrix
+                # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[
                     self.tree.children(i)[0].data["indices"]
@@ -917,7 +917,7 @@ class kM_PDDP:
     Parameters
     ----------
     decomposition_method : str, optional
-        One of the supported dimentionality reduction methods used as kernel
+        One of the supported dimensionality reduction methods used as kernel
         for the kM-PDDP algorithm.
     max_clusters_number : int, optional
         Desired maximum number of clusters for the algorithm.
@@ -925,10 +925,10 @@ class kM_PDDP:
         The minimum number of points needed in a cluster for a split to occur.
     visualization_utility : bool, optional
         If (True) generate the data needed by the visualization utilities of
-        the package othrerwise, if false the split_visualization and
+        the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
     random_seed : int, optional
-        The random sedd fed in the k-Means algorithm
+        The random seed fed in the k-Means algorithm
     **decomposition_args :
         Arguments for each of the decomposition methods ("PCA" as "pca",
         "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
@@ -968,7 +968,7 @@ class kM_PDDP:
         Parameters
         ----------
         X: numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -995,7 +995,7 @@ class kM_PDDP:
             identifier=self.node_ids,
             data=self.calculate_node_data(indices, self.X, self.cluster_color),
         )
-        # inidcator for the next node to split
+        # indicator for the next node to split
         selected_node = 0
 
         # if no possibility of split exists on the data     # (ST2)
@@ -1003,7 +1003,7 @@ class kM_PDDP:
             print("cannot split at all")
             return self
 
-        # Initialize the ST1 stopping critirion counter that count the number
+        # Initialize the ST1 stopping criterion counter that count the number
         # of clusters
         found_clusters = 1
         # (ST1) or (ST2)
@@ -1029,7 +1029,7 @@ class kM_PDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -1044,10 +1044,10 @@ class kM_PDDP:
     def split_function(self, tree, selected_node):
         """
         Split the indicated node based on the binary k-Means clustering of the
-        node's data projected on one dimention with the dicomposition method.
+        node's data projected on one dimension with the decomposition method.
 
-        Because python passes by refference data this function doesn't need a
-        return statment.
+        Because python passes by reference data this function doesn't need a
+        return statement.
 
         Parameters
         ----------
@@ -1057,7 +1057,7 @@ class kM_PDDP:
 
         Returns
         -------
-            There no returns in this function. The results of this funciton
+            There no returns in this function. The results of this function
             pass to execution by utilizing the python's pass-by-reference
             nature.
 
@@ -1066,10 +1066,10 @@ class kM_PDDP:
         node = tree.get_node(selected_node)
         node.data["split_permition"] = False
 
-        # left child indecies extracted from the nodes splitpoint and the
-        # indecies included in the parent node
+        # left child indices extracted from the nodes split-point and the
+        # indices included in the parent node
         left_kid_index = node.data["left_indeces"]
-        # right child indecies
+        # right child indices
         right_kid_index = node.data["right_indeces"]
 
         # Nodes and data creation for the children
@@ -1104,7 +1104,7 @@ class kM_PDDP:
         leaves select the next leave to split based on the algorithm's
         specifications.
 
-        This function creates the nescesary cause for the stopping criterion
+        This function creates the necessary cause for the stopping criterion
         ST1.
 
         Parameters
@@ -1147,7 +1147,7 @@ class kM_PDDP:
         """
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
-        Principal Components Analysis" or the "Indipented Component Analysis"
+        Principal Components Analysis" or the "Independent Component Analysis"
         methods.
 
         Determination of the projection's clusters by utilizing the binary
@@ -1168,7 +1168,7 @@ class kM_PDDP:
         Returns
         -------
         data : dict
-            The necesary data for each node which are spliting point
+            The necessary data for each node which are splitting point
 
         """
         # if the number of samples
@@ -1292,7 +1292,7 @@ class kM_PDDP:
         output_matrix = [np.zeros(np.size(self.X, 0))]
         for i in ndDict:
             if not ndDict[i].is_leaf():
-                # create output cluster spliting matrix
+                # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[
                     self.tree.children(i)[0].data["indices"]
@@ -1335,7 +1335,7 @@ class PDDP:
     Parameters
     ----------
     decomposition_method : str, optional
-        One of the supported dimentionality reduction methods used as kernel
+        One of the supported dimensionality reduction methods used as kernel
         for the PDDP algorithm.
     max_clusters_number : int, optional
         Desired maximum number of clusters for the algorithm.
@@ -1343,7 +1343,7 @@ class PDDP:
         The minimum number of points needed in a cluster for a split to occur.
     visualization_utility : bool, optional
         If (True) generate the data needed by the visualization utilities of
-        the package othrerwise, if false the split_visualization and
+        the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
     **decomposition_args :
         Arguments for each of the decomposition methods ("PCA" as "pca",
@@ -1409,7 +1409,7 @@ class PDDP:
             identifier=self.node_ids,
             data=self.calculate_node_data(indices, self.X, self.cluster_color),
         )
-        # inidcator for the next node to split
+        # indicator for the next node to split
         selected_node = 0
 
         # if no possibility of split exists on the data     # (ST2)
@@ -1417,7 +1417,7 @@ class PDDP:
             print("cannot split at all")
             return self
 
-        # Initialize the ST1 stopping critirion counter that count the number
+        # Initialize the ST1 stopping criterion counter that count the number
         # of clusters                                       # (ST1)
         found_clusters = 1
         while (
@@ -1442,7 +1442,7 @@ class PDDP:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -1459,8 +1459,8 @@ class PDDP:
         Split the indicated node on the minimum of the median of the data
         projected on the first principal component.
 
-        Because python passes by refference data this function doesn't need a
-        return statment.
+        Because python passes by reference data this function doesn't need a
+        return statement.
 
         Parameters
         ----------
@@ -1470,7 +1470,7 @@ class PDDP:
 
         Returns
         -------
-            There no returns in this function. The results of this funciton
+            There no returns in this function. The results of this function
             pass to execution by utilizing the python's pass-by-reference
             nature.
 
@@ -1479,14 +1479,14 @@ class PDDP:
         node = tree.get_node(selected_node)
         node.data["split_permition"] = False
 
-        # left child indecies extracted from the nodes splitpoint and the
-        # indecies included in the parent node
+        # left child indices extracted from the nodes split-point and the
+        # indices included in the parent node
         left_kid_index = node.data["indices"][
             np.where(
                 node.data["projection"][:, 0] < node.data["splitpoint"]
             )[0]
         ]
-        # right child indecies
+        # right child indices
         right_kid_index = node.data["indices"][
             np.where(
                 node.data["projection"][:, 0] >= node.data["splitpoint"]
@@ -1525,7 +1525,7 @@ class PDDP:
         leaves select the next leave to split based on the algorithm's
         specifications.
 
-        This function creates the nescesary cause for the stopping criterion
+        This function creates the necessary cause for the stopping criterion
         ST1.
 
         Parameters
@@ -1569,7 +1569,7 @@ class PDDP:
         """
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
-        Principal Components Analysis" or the "Indipented Component Analysis"
+        Principal Components Analysis" or the "Independent Component Analysis"
         methods.
 
         The projection's clusters are split on the median pf the projected
@@ -1592,7 +1592,7 @@ class PDDP:
         Returns
         -------
         data : dictionary
-            The necesary data for each node which are spliting point.
+            The necessary data for each node which are splitting point.
 
         """
 
@@ -1688,7 +1688,7 @@ class PDDP:
         output_matrix = [np.zeros(np.size(self.X, 0))]
         for i in ndDict:
             if not ndDict[i].is_leaf():
-                # create output cluster spliting matrix
+                # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[
                     self.tree.children(i)[0].data["indices"]
@@ -1721,7 +1721,7 @@ class PDDP:
 
 class bicecting_kmeans:
     """
-    Class bicecting_kmeans. It executes the bisectiong k-Means algorithm.
+    Class bicecting_kmeans. It executes the bisecting k-Means algorithm.
 
     References
     ----------
@@ -1737,7 +1737,7 @@ class bicecting_kmeans:
     min_sample_split : int, optional
         The minimum number of points needed in a cluster for a split to occur.
     random_seed : int, optional
-        The random sedd fed in the k-Means algorithm.
+        The random seed fed in the k-Means algorithm.
 
     Attributes
     ----------
@@ -1766,7 +1766,7 @@ class bicecting_kmeans:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -1793,7 +1793,7 @@ class bicecting_kmeans:
             identifier=self.node_ids,
             data=self.calculate_node_data(indices, self.X, self.cluster_color),
         )
-        # inidcator for the next node to split
+        # indicator for the next node to split
         selected_node = 0
 
         # if no possibility of split exists on the data
@@ -1801,7 +1801,7 @@ class bicecting_kmeans:
             print("cannot split at all")
             return self
 
-        # Initialize the ST1 stopping critirion counter that count the number
+        # Initialize the ST1 stopping criterion counter that count the number
         # of clusters.
         found_clusters = 1
         while (
@@ -1826,7 +1826,7 @@ class bicecting_kmeans:
         Parameters
         ----------
         X : numpy.ndarray
-            Data matrix with the samples on the rows and the avriables on the
+            Data matrix with the samples on the rows and the variables on the
             columns.
 
         Returns
@@ -1840,11 +1840,11 @@ class bicecting_kmeans:
 
     def split_function(self, tree, selected_node):
         """
-        Split the indicated node by clustering the data with a binary k-menas
+        Split the indicated node by clustering the data with a binary k-means
         clustering algorithm.
 
-        Because python passes by refference data this function doesn't need a
-        return statment.
+        Because python passes by reference data this function doesn't need a
+        return statement.
 
         Parameters
         ----------
@@ -1854,7 +1854,7 @@ class bicecting_kmeans:
 
         Returns
         -------
-            There is no returns in this function. The results of this funciton
+            There is no returns in this function. The results of this function
             pass to execution by utilizing the python's pass-by-reference
             nature.
 
@@ -1862,11 +1862,11 @@ class bicecting_kmeans:
         node = tree.get_node(selected_node)
         node.data["split_permition"] = False
 
-        # left child indecies extracted from the nodes splitpoint and the
-        # indecies included in the parent node
+        # left child indices extracted from the nodes split-point and the
+        # indices included in the parent node
         left_kid_index = node.data["left_indeces"]
 
-        # right child indecies
+        # right child indices
         right_kid_index = node.data["right_indeces"]
 
         # Nodes and data creation for the children
@@ -1901,7 +1901,7 @@ class bicecting_kmeans:
         leaves select the next leave to split based on the algorithm's
         specifications.
 
-        This function creates the nescesary data for further execution of the
+        This function creates the necessary data for further execution of the
         algorithm.
 
         Parameters
@@ -1943,7 +1943,7 @@ class bicecting_kmeans:
         """
         Execution of the binary k-Means algorithm on the samples presented by
         the data_matrix. The two resulted clusters are the two new clusters if
-        the leaf is chosen to be splited. And calculation of the spliting
+        the leaf is chosen to be splitted. And calculation of the splitting
         criterion.
 
         Parameters
@@ -1958,7 +1958,7 @@ class bicecting_kmeans:
         Returns
         -------
         data : dict
-            The necesary data for each node which are spliting point.
+            The necessary data for each node which are splitting point.
 
         """
         # if the number of samples
@@ -2046,7 +2046,7 @@ class bicecting_kmeans:
         output_matrix = [np.zeros(np.size(self.X, 0))]
         for i in ndDict:
             if not ndDict[i].is_leaf():
-                # create output cluster spliting matrix
+                # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[
                     self.tree.children(i)[0].data["indices"]
