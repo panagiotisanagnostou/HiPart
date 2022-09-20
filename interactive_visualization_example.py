@@ -1,7 +1,7 @@
 from HiPart.clustering import dePDDP
 from sklearn.datasets import make_blobs
 
-import HiPart.inteactive_visualization as int_viz
+import HiPart.interactive_visualization as int_viz
 
 # Example data creation
 clusters = 5

@@ -18,7 +18,7 @@ coverage:
 
 # https://docs.codecov.io/docs/ignoring-paths
 ignore:
-  - "src/HiPart/inteactive_visualization.py"
+  - "src/HiPart/interactive_visualization.py"
   # because the interactive_visualization module can not be
   # checked by convensional means but need visual check the
   # acceptable limits of test coverage are lowered  
