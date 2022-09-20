@@ -19,7 +19,7 @@
 # SOFTWARE.
 """
 Interactive visualization module for the algorithms members of the HiPart
-package that utilise one decomposition method to one dimention to split the
+package that utilise one decomposition method to one dimension to split the
 data.
 
 """
@@ -66,7 +66,7 @@ def main(inputData):
     inputData : dePDDP or iPDDP or kM_PDDP or PDDP object
         The object to be visualized.
 
-    Returns (Curently not working correclty)
+    Returns (Currently not working correctly)
     ----------------------------------------
     obj : dePDDP or iPDDP or kM_PDDP or PDDP object
         The manipulated by the interactive visualization HiPart object. The
@@ -74,7 +74,7 @@ def main(inputData):
 
     """
 
-    # Compatibillity check of the input data with the interactive visualization
+    # Compatibility check of the input data with the interactive visualization
     if not (
         isinstance(inputData, dePDDP)
         or isinstance(inputData, iPDDP)
@@ -83,13 +83,13 @@ def main(inputData):
     ):
         raise TypeError(
             """inputData : can only be instances of classes that belong to
-            PDDP based algoirthm ('dePDDP', 'iPDDP', 'kM-PDDP, PDDP') included
+            PDDP based algorithm ('dePDDP', 'iPDDP', 'kM-PDDP, PDDP') included
             in HiPart package."""
         )
 
     if not inputData.visualization_utility:
         raise ValueError(
-            """The visulaization of the data cannot be achived because the
+            """The visualization of the data cannot be achieved because the
             visualization_utility is False."""
         )
 
@@ -265,8 +265,8 @@ def Splitpoint_Manipulation_Callback(
     triggers are:
 
     1. the change in the split of the data.
-    2. the changes in the splitpoint.
-    3. the apply button for the change to the new splitpoint (partial
+    2. the changes in the split-point.
+    3. the apply button for the change to the new split-point (partial
        algorithm execution from the selected split).
 
     The rest of the function's inputs are inputs that can't trigger this
@@ -289,14 +289,14 @@ def Splitpoint_Manipulation_Callback(
         The split number is the key of the dictionary and the assigned value
         is the value of the dictionary.
     splitpoint_position : float
-        The current position of the shape represents the splitpoint of the
-        currently selected split, extracted from the splitpoint slider.
+        The current position of the shape represents the split-point of the
+        currently selected split, extracted from the split-point slider.
     splitpoint_minimum : float
-        The minimum value that can be assigned to the splitpoint, extracted
-        from the splitpoint slider.
+        The minimum value that can be assigned to the split-point, extracted
+        from the split-point slider.
     splitpoint_max : float
-        The maximum value that can be assigned to the splitpoint, extracted
-        from the splitpoint slider.
+        The maximum value that can be assigned to the split-point, extracted
+        from the split-point slider.
     apply_button : int
         The number of clicks of the apply button (Not needed in the function`s
         execution, but necessary for the callback definition).
@@ -304,17 +304,17 @@ def Splitpoint_Manipulation_Callback(
     Returns
     -------
     figure : dash.dcc.Graph
-        A figure that can be intergraded at dash`s Html components.
+        A figure that can be integrated at dash`s Html components.
     splitMax : float
         The new value for the maximum split number.
     splitMarks : float
         The changed marks the spit can utilize as values.
     splitpoint : float
-        The newly generated splitpoint by the callback.
+        The newly generated split-point by the callback.
     splitPMin : int
-        The minimum value the splitpoint can take.
+        The minimum value the split-point can take.
     splitPMax : int
-        The maximum value the splitpoint can take.
+        The maximum value the split-point can take.
 
     """
 
@@ -324,7 +324,7 @@ def Splitpoint_Manipulation_Callback(
     # load cashed temp files
     data = json.loads(data)
 
-    # Basic check on the callback triger, based on the dash html elements ID.
+    # Basic check on the callback trigger, based on the dash html elements ID.
     if callback_ID == "splitView":
         (
             data_matrix,
@@ -343,7 +343,7 @@ def Splitpoint_Manipulation_Callback(
         splitPMax = data_matrix["PC1"].max()
         splitPMarks = {
             splitpoint: {
-                'label': 'Generated Splitpoint',
+                'label': 'Generated Split-point',
                 'style': {'color': '#77b0b1'}
             }
         }
@@ -399,7 +399,7 @@ def Splitpoint_Manipulation_Callback(
         splitPMarks = splitpoint_marks
 
     elif callback_ID == "splitpoint_Man_apply":
-        # execution of the splitpoint manipulation algorithmically
+        # execution of the split-point manipulation algorithmically
         with open(data["new_input_object"], "rb") as obj_file:
             obj = pickle.load(obj_file)
 
@@ -412,7 +412,7 @@ def Splitpoint_Manipulation_Callback(
         with open(data["new_input_object"], "wb") as obj_file:
             pickle.dump(obj, obj_file)
 
-        # reconstrauction of the figure and its slider from scrach
+        # reconstruction of the figure and its slider from scratch
         data_matrix, splitpoint, internal_nodes, number_of_nodes = _data_preparation(
             data["new_input_object"], split_number
         )
@@ -425,7 +425,7 @@ def Splitpoint_Manipulation_Callback(
         splitPMax = data_matrix["PC1"].max()
         splitPMarks = {
             splitpoint: {
-                'label': 'Generated Splitpoint',
+                'label': 'Generated Split-point',
                 'style': {'color': '#77b0b1'}
             }
         }
@@ -490,22 +490,22 @@ def Splitpoint_Manipulation_Callback(
     )
 
 
-# %% Splitpoint Manipulation page
+# %% Split-point Manipulation page
 def _Splitpoint_Manipulation(object_path):
     """
-    Scatter plot with splitpoint visualization creation function. This
+    Scatter plot with split-point visualization creation function. This
     function is used on the initial visualization of the data and can be
     accessed throughout the execution of the interactive visualization server.
 
     Parameters
     ----------
     object_path : str
-        The location of the temporary file containing the pickel dump of the
+        The location of the temporary file containing the pickle dump of the
         object we want to visualize.
 
     """
 
-    # get the necessary data for the visulization
+    # get the necessary data for the visualization
     (
         data_matrix,
         splitpoint,
@@ -588,7 +588,7 @@ def _Splitpoint_Manipulation(object_path):
         style={"margin": "-20px 0px -30px 0px"},
     )
 
-    # Create the splitpoint slider
+    # Create the split-point slider
     splitSlider = html.Div(
         [
             "Select splitpoint: ",
@@ -615,7 +615,7 @@ def _Splitpoint_Manipulation(object_path):
         },
     )
 
-    # Create the apply button for the dmanipulation of the splitpoint
+    # Create the apply button for the manipulation of the split-point
     applyButton = html.Button("Apply", id="splitpoint_Man_apply", n_clicks=0)
 
     return html.Div([
@@ -627,7 +627,7 @@ def _Splitpoint_Manipulation(object_path):
     ])
 
 
-# %% Utilities of the insteractive visualization
+# %% Utilities of the interactive visualization
 def _data_preparation(object_path, splitVal):
     """
     Generate the necessary data for all the visualizations.
@@ -635,7 +635,7 @@ def _data_preparation(object_path, splitVal):
     Parameters
     ----------
     object_path : str
-        The location of the temporary file containg the pickel dump of the
+        The location of the temporary file containing the pickle dump of the
         object we want to visualize.
     splitVal : int
         The serial number of split that want to extract data from.
@@ -687,7 +687,7 @@ def _data_preparation(object_path, splitVal):
         else tree.get_node(0)
     )
 
-    # create a data matix containg the 1st and 2nd principal components and
+    # create a data matrix containing the 1st and 2nd principal components and
     # each clusters respective color key
     data_matrix = pd.DataFrame(
         {
@@ -699,7 +699,7 @@ def _data_preparation(object_path, splitVal):
 
     data_matrix["cluster"] = data_matrix["cluster"].astype(int).astype(str)
 
-    # determine the splitpoint value
+    # determine the split-point value
     splitpoint = node_to_visualize.data["splitpoint"]
 
     return data_matrix, splitpoint, internal_nodes, number_of_nodes
@@ -707,7 +707,7 @@ def _data_preparation(object_path, splitVal):
 
 def _convert_to_hex(rgba_color):
     """
-    Conver the color enconding from RGBa to hexadecimal for integration with
+    Convert the color encoding from RGBa to hexadecimal for integration with
     the CSS.
 
     Parameters
@@ -731,8 +731,8 @@ def _convert_to_hex(rgba_color):
 
 def _message_center(message_id, object_path):
     """
-    This function is responsible for saving and returning all the messages sawn
-    on the interactive visualization.
+    This function is responsible for saving and returning all the messages seen
+    in the interactive visualization.
 
     Parameters
     ----------
@@ -740,7 +740,7 @@ def _message_center(message_id, object_path):
         The absolute path of the object the interactive visualization
         visualizes.
     message_id : TYPE
-        The id of the messege to be returned.
+        The id of the message to be returned.
 
     Returns
     -------
@@ -756,7 +756,7 @@ def _message_center(message_id, object_path):
 
     if message_id == "des:main_cluser":
         msg = """
-        ### """ + obj_name + """: Basic viualization
+        ### """ + obj_name + """: Basic visualization
 
         This is the basic visualization for the clustering of the input data.
         This figure is generated by visualizing the first two components of the
@@ -848,7 +848,7 @@ def app_layout(app, tmpFileNames):
                 children=[
                     html.Li(
                         dcc.Link(
-                            "Clustgering results",
+                            "Clustering results",
                             href="/clustering_results"
                         ),
                         style={"display": "inline", "margin": "0px 5px"},
@@ -902,12 +902,12 @@ def _Cluster_Scatter_Plot(object_path):
     Parameters
     ----------
     object_path : str
-        The location of the temporary file containing the pickel dump of the
+        The location of the temporary file containing the pickle dump of the
         object we want to visualize.
     
     """
     
-    # get the necessary data for the visulization
+    # get the necessary data for the visualization
     (
         data_matrix,
         _,
@@ -915,7 +915,7 @@ def _Cluster_Scatter_Plot(object_path):
         number_of_nodes,
     ) = _data_preparation(object_path, 0)
     
-    # create scatter plot with the splitpoint shape
+    # create scatter plot with the split-point shape
     category_order = {
         "cluster": [
             str(i) for i in range(len(np.unique(data_matrix["cluster"])))
@@ -1001,7 +1001,7 @@ def _int_make_scatter_n_hist(
     splitPoint : int
         The values of the point the data are split for this plot.
     bandwidth_scale
-        Standard deviation scaler for the density aproximation. Allowed values
+        Standard deviation scaler for the density approximation. Allowed values
         are in the (0,1).
     category_order : dict
         The order of witch to show the clusters, contained in the
@@ -1135,7 +1135,7 @@ def _int_make_scatter_n_marginal_scatter(
     splitPoint : int
         The values of the point the data are split for this plot.
     bandwidth_scale
-        Standard deviation scaler for the density aproximation. Allowed values
+        Standard deviation scaler for the density approximation. Allowed values
         are in the (0,1).
     category_order : dict
         The order of witch to show the clusters, contained in the
@@ -1264,7 +1264,7 @@ def _int_make_scatter_n_marginal_scatter(
 def _recalculate_after_spchange(hipart_object, split, splitpoint_value):
     """
     Given the serial number of the HiPart algorithm tree`s internal nodes and a
-    new splitpoint value recreate the results of the HiPart member algorithm
+    new split-point value recreate the results of the HiPart member algorithm
     with the indicated change.
 
     Parameters
@@ -1274,7 +1274,7 @@ def _recalculate_after_spchange(hipart_object, split, splitpoint_value):
     split : int
         The serial number of the dePDDP tree`s internal nodes.
     splitpoint_value : float
-        New splitpoint value.
+        New split-point value.
 
     Returns
     -------
@@ -1318,7 +1318,7 @@ def _recalculate_after_spchange(hipart_object, split, splitpoint_value):
                 else:
                     tree.remove_node(node_keys[i])
 
-    # change the split permition of all the internal nodes to True so the
+    # change the split permission of all the internal nodes to True so the
     # algorithm can execute correctly
     dictionary_of_nodes = tree.nodes
     for i in dictionary_of_nodes:
@@ -1340,18 +1340,18 @@ def _recalculate_after_spchange(hipart_object, split, splitpoint_value):
 
 def _partial_predict(hipart_object):
     """
-    Execute the steps of the algorithm dePDDP untill one of the two stopping
-    creterion is not true.
+    Execute the steps of the algorithm dePDDP until one of the two stopping
+    criterion is not true.
 
     Parameters
     ----------
     hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP object
-        The object that we want to manipulated on the premiss of this function.
+        The object that we want to manipulate on the premiss of this function.
 
     Returns
     -------
     tree : treelib.Tree
-        The newlly created tree after the execution of the algorithm.
+        The newly created tree after the execution of the algorithm.
 
     """
 

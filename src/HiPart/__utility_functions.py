@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """
-Utility fuctions of the HiPart package.
+Utility functions of the HiPart package.
 
 @author: Panagiotis Anagnostou
 """
@@ -89,7 +89,7 @@ def execute_decomposition_method(
         two_dimensions = ica.fit_transform(data_matrix)
     else:
         raise ValueError(
-            ": The dicomposition method ("
+            ": The decomposition method ("
             + decomposition_method
             + ") is not supported!"
         )
@@ -130,7 +130,7 @@ def center_data(data):
         warnings.warn(
             """Numerical issues were encountered when centering the data and
             might not be solved. Dataset may contain too large values. You may
-            need to prescale your features."""
+            need to pre-scale your features."""
         )
         centered -= mean_1
 
@@ -197,8 +197,6 @@ def make_scatter_n_hist(
         The projection of the data on the first two Principal Components.
     pr_col : numpy.ndarray object
         An array containing the color of each sample as RGBa tuple.
-    show_split : bool, optional
-        Show the split line in the subplot. The default is True.
 
     Returns
     -------
@@ -434,8 +432,8 @@ def _get_node_depth(path_to_leaves, i):
     Parameters
     ----------
     path_to_leaves : list
-        List of lists containg all the paths to the leaves of the tree.
-    i : TYPE
+        A list of lists containing all the paths to the leaves of the tree.
+    i : int
         The node the path of which we want to find.
 
     Returns
@@ -455,8 +453,8 @@ def _get_node_depth(path_to_leaves, i):
 
 def create_linkage(tree_in):
     """
-    Create the linkage matrix for the encoding of the divisive clustring tree
-    creatred by the member algorithms of the HiPart package.
+    Create the linkage matrix for the encoding of the divisive clustering tree
+    created by the member algorithms of the HiPart package.
 
     Parameters
     ----------
@@ -491,7 +489,7 @@ def create_linkage(tree_in):
     # the root of the algorithm execution tree
     for i in range(len(tree.nodes) - 1, -1, -1):
         # If the node is a leaf of the algorithm`s execution tree connect all
-        # the samples of the node on same level untile only one node remains
+        # the samples of the node on same level until only one node remains
         if tree.get_node(i).is_leaf():
             if not tree.get_node(i).data["dendrogram_check"]:
                 # Set all the samples of the included in the node/cluster as
@@ -499,7 +497,7 @@ def create_linkage(tree_in):
                 tree.get_node(i).data["unlinked_nodes"] = tree.get_node(
                     i
                 ).data["indices"]
-                # Create the dendrograms subtree and update the algorithm tree
+                # Create the dendrogram`s subtree and update the algorithm tree
                 # node`s data and the index for the next free node
                 (
                     cluster_linkage,
@@ -534,8 +532,8 @@ def create_linkage(tree_in):
                 tree.get_node(i).data["unlinked_nodes"] = [dendrogram_counts]
                 dendrogram_counts += 1
 
-    # Remove the first row of the linkage matrix bacause it is the
-    # initalixation`s row of zeros
+    # Remove the first row of the linkage matrix because it is the
+    # initialization`s row of zeros
     Z = Z[1:, :]
 
     return Z
@@ -554,7 +552,7 @@ def linkage_data_maestro(node, dendrogram_counts, distance):
         The algorim tree node we want to create a subtree for the dendrogram
         tree from.
     dendrogram_counts : int
-        The next free node of the dendrgram subtree.
+        The next free node of the dendrogram subtree.
     distance : float
         The distance the dendrogram subtree have.
 
@@ -643,7 +641,7 @@ def create_cluster_linkage(points, samples_count, node_indicator, distance):
         )
         counts = Z[:, 3]
 
-        # Add the last unlinked node`s sub tree
+        # Add the last unlinked node`s subtree
         Z = np.vstack(
             [Z, [
                 forever_alone,
@@ -711,5 +709,3 @@ def create_the_connections(points, samples_count, node_indicator, distance):
         distance,
         samples_count,
     )), elements // 2
-
-
