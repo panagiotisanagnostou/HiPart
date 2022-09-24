@@ -7,7 +7,7 @@
 
 HiPart: Hierarchical divisive clustering toolbox
 ================================================
-HiPart is a package created for the implementation of hierarchical divisive clustering algorithms. Even among this family of algorithms, its specialty is high-performance algorithms for high-dimensional big data. It is a package with similar execution principles as the scikit-learn package. It also provides two types of static visualizations for all the algorithms executed in the package, with the addition of linkage generation for the divisive hierarchical clustering structure. Finally, the package provides an interactive visualization for manipulating the PDDP-based algorithms' split-point for each of the splits those algorithms generated from the clustering process.
+This repository presents the HiPart package, an open-source native python library that provides efficient and interpret-able implementations of divisive hierarchical clustering algorithms. HiPart supports interactive visualizations for the manipulation of the execution steps allowing the direct intervention of the clustering outcome. This package is highly suited for Big Data applications as the focus has been given to the computational efficiency of the implemented clustering methodologies. The dependencies used are either Python build-in packages or highly maintained stable external packages. The software is provided under the MIT license.
 
 Installation
 ------------
@@ -35,6 +35,21 @@ Users can find complete execution examples for all the algorithms of the HiPart 
 Documentation
 -------------
 The full documentation of the package can be found [here](https://hipart.readthedocs.io).
+
+Citation
+--------
+
+~~~~
+@misc{https://doi.org/10.48550/arxiv.2209.08680,
+  doi = {10.48550/ARXIV.2209.08680},
+  url = {https://arxiv.org/abs/2209.08680},
+  author = {Anagnostou, Panagiotis and Tasoulis, Sotiris and Plagianakos, Vassilis and Tasoulis, Dimitris},
+  keywords = {Machine Learning (stat.ML), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  title = {HiPart: Hierarchical Divisive Clustering Toolbox},
+  publisher = {arXiv},
+  year = {2022},
+}
+~~~~
 
 Collaborators
 -------------
