@@ -51,6 +51,10 @@ Citation
 }
 ~~~~
 
+Acknowledgments
+---------------
+This project has received funding from the Hellenic Foundation for Research and Innovation (HFRI), under grant agreement No 1901.
+
 Collaborators
 -------------
 Dimitris Tasoulis [:email:](d.tasoulis@thesignalgroup.com)
