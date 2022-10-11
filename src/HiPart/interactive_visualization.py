@@ -609,9 +609,9 @@ def _Splitpoint_Manipulation(object_path):
         ],
         style={
             "text-align": "left",
-            "width": "609px",
+            "width": "627px",
             "margin": "0px",
-            "padding": "25px 0px 0px 122px",
+            "padding": "25px 0px 0px 112px",
         },
     )
 
@@ -640,7 +640,7 @@ def _data_preparation(object_path, splitVal):
     splitVal : int
         The serial number of split that want to extract data from.
 
-    Returns
+    ReturnsHiPart: Interactive Visualisation
     -------
     data_matrix : pandas.core.frame.DataFrame
     splitpoint : int
@@ -1038,7 +1038,7 @@ def _int_make_scatter_n_hist(
     fig.add_trace(go.Scatter(
         x=s, y=e,
         mode="lines",
-        line=dict(color='royalblue', width=1),
+        line=dict(color='royalblue', width=1.3),
         name='PC1',
         hovertemplate=None,
         hoverinfo="skip",
