@@ -33,7 +33,6 @@ SOFTWARE.
 - Spacing
 - Utilities
 - Clearing
-- Media Queries
 */
 
 /* Grid
@@ -85,8 +84,8 @@ SOFTWARE.
   .ten.columns { width: 82.6666666667%; }
   .eleven.columns { width: 91.3333333333%; }
   .twelve.columns { 
-	width: 100%;
-	margin-left: 0; 
+	  width: 100%;
+	  margin-left: 0; 
   }
 
   .one-third.column { width: 30.6666666667%; }
@@ -120,7 +119,7 @@ SOFTWARE.
   .offset-by-eight.columns { margin-left: 69.3333333333%; }
 
   .offset-by-nine.column,
-  .offset-by-nine.columns { margin-left: 78.0%; }
+  .offset-by-nine.columns { margin-left: 78%; }
 
   .offset-by-ten.column,
   .offset-by-ten.columns { margin-left: 86.6666666667%; }
@@ -167,20 +166,21 @@ h5,
 h6 {
   margin-top: 0;
   margin-bottom: 0;
-  font-weight: 450;
+  font-weight: 500;
 }
 
 h1 {
   font-size: 4.5rem;
   line-height: 1.2;
   letter-spacing: -0.1rem;
+  text-shadow: 0.13rem 0.08rem #999;
   margin-bottom: 2rem;
 }
 
 h2 {
   font-size: 3.6rem;
   line-height: 1.25;
-  letter-spacing: -.1rem;
+  letter-spacing: -0.1rem;
   margin-bottom: 1.8rem;
   margin-top: 1.8rem;
 }
@@ -188,7 +188,7 @@ h2 {
 h3 {
   font-size: 3rem;
   line-height: 1.3;
-  letter-spacing: -.1rem;
+  letter-spacing: -0.1rem;
   margin-bottom: 1.5rem;
   margin-top: 1.5rem;
 }
@@ -234,35 +234,39 @@ blockquote {
 /* Links
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 a {
-  color: #444;
+  color: #222;
   background: #eee;
-  border: 0.18rem solid;
+  border: 0.18rem solid #888;
   border-radius: 10px;
   padding: 10px 35px;
-  font-size: 14px;
+  font-size: 1.5rem;
   font-weight: 600;
-  letter-spacing: 0.08rem;
+  letter-spacing: 0.065rem;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
 }
 
-a:hover {
-  color: #0fa0ce;
-}
-
 #shutdown {
   display: inline-block;
+  color: #222;
+  background: #ccc;
   float: right;
   clear: right;
-  width: 18px;
-  height: 18px;
-  font-size: 13px;
-  padding: 0;
+  width: 16px;
+  height: 16px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 0 0 1px 1px;
   text-align: center;
-  background: #ccc;
 }
 
+#shutdown:hover,
+a:hover {
+  color: #0fa0ce;
+  background-color: #d1dde0;
+  border-color: #0fa0ce;
+}
 
 /* Buttons
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
@@ -274,19 +278,19 @@ input[type="button"] {
   display: inline-block;
   height: 36px;
   margin-bottom: 0;
-  padding: 0 30px;
-  color: #444;
+  padding: 0 28px;
+  color: #222;
+  background: #eee;
   text-align: center;
-  font-size: 11px;
+  font-size: 1rem;
   font-weight: 600;
-  line-height: 33px;
+  line-height: 3rem;
   letter-spacing: 0.1rem;
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
-  background-color: transparent;
-  border-radius: 4px;
-  border: 1px solid #999;
+  border: 0.18em solid #888;
+  border-radius: 10px;
   cursor: pointer;
   box-sizing: border-box;
 }
@@ -301,34 +305,11 @@ button:focus,
 input[type="submit"]:focus,
 input[type="reset"]:focus,
 input[type="button"]:focus {
-  color: #333;
-  border-color: #888;
+  color: #0fa0ce;
+  background-color: #d1dde0;
+  border-color: #0fa0ce;
   outline: 0;
 }
-
-.button.button-primary,
-button.button-primary,
-input[type="submit"].button-primary,
-input[type="reset"].button-primary,
-input[type="button"].button-primary {
-  color: #fff;
-  background-color: #33c3f0;
-  border-color: #33c3f0;
-}
-
-.button.button-primary:hover,
-button.button-primary:hover,
-input[type="submit"].button-primary:hover,
-input[type="reset"].button-primary:hover,
-input[type="button"].button-primary:hover,
-.button.button-primary:focus,
-button.button-primary:focus,
-input[type="submit"].button-primary:focus,
-input[type="reset"].button-primary:focus,
-input[type="button"].button-primary:focus {
-  color: #fff;
-  background-color: #1eaedb;
-  border-color: #1eaedb; }
 
 
 /* Forms
@@ -514,6 +495,15 @@ hr {
   margin-bottom: 3.5rem;
   border-width: 0;
   border-top: 1px solid #e1e1e1;
+}
+
+.rc-slider-rail,
+.rc-slider-dot {
+  background-color: #e1e1e1;
+}
+
+.rc-slider-dot {
+  border-color: #c8c8c8;
 }
 
 
