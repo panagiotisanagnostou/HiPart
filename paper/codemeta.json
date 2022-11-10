@@ -1,0 +1,17 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/panagiotisanagnostou/HiPart",
+  "datePublished": "2022-11-10",
+  "dateModified": "2022-11-10",
+  "dateCreated": "2022-11-10",
+  "description": "This repository presents the HiPart package, an open-source native python library that provides efficient and interpret-able implementations of divisive hierarchical clustering algorithms. HiPart supports interactive visualizations for the manipulation of the execution steps allowing the direct intervention of the clustering outcome. This package is highly suited for Big Data applications as the focus has been given to the computational efficiency of the implemented clustering methodologies. The dependencies used are either Python build-in packages or highly maintained stable external packages. The software is provided under the MIT license.",
+  "keywords": "Clustering, High dimensionality, Python",
+  "license": "MIT",
+  "title": "HiPart: Hierarchical divisive clustering toolbox",
+  "version": "v0.1.18"
+}
