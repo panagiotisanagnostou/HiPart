@@ -54,7 +54,7 @@ jobs:
         pip install pytest-cov
         pytest --cov=HiPart --cov-report=xml
         
-    - name: codecov covarage upload
+    - name: codecov coverage upload
       if: |
         matrix.os == 'ubuntu-latest' &&
         matrix.version == '3.8'
