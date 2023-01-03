@@ -898,7 +898,7 @@ def _Cluster_Scatter_Plot(object_path):
     Simple scatter plot creation function. This function is used on the
     initial visualization of the data and can be accessed throughout the
     execution of the interactive visualization server.
-    
+
     Parameters
     ----------
     object_path : str

@@ -39,8 +39,8 @@ The full documentation of the package can be found [here](https://hipart.readthe
 Citation
 --------
 
-~~~~
-@misc{https://doi.org/10.48550/arxiv.2209.08680,
+```bibtex
+@misc{anagnostou2022hipart,
   doi = {10.48550/ARXIV.2209.08680},
   url = {https://arxiv.org/abs/2209.08680},
   author = {Anagnostou, Panagiotis and Tasoulis, Sotiris and Plagianakos, Vassilis and Tasoulis, Dimitris},
@@ -49,7 +49,7 @@ Citation
   publisher = {arXiv},
   year = {2022},
 }
-~~~~
+```
 
 Acknowledgments
 ---------------
