@@ -19,7 +19,7 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=["HiPart"],
     include_package_data=True,
-    python_requires=">=3.8",
+    python_requires=">=3.7",
     install_requires=[
         "numpy",
         "treelib>=1.6",
