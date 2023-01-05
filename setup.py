@@ -30,7 +30,6 @@ setuptools.setup(
         "matplotlib",
         "plotly",
         "dash>=2.0",
-        "pandas",
     ],
     project_urls={
         "Bug Tracker": "https://github.com/panagiotisanagnostou/HiPart",
