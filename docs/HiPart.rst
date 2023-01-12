@@ -1,13 +1,8 @@
 HiPart package
 ==============
 
-Module contents
----------------
-
-.. automodule:: HiPart
-   :members:
-   :undoc-members:
-   :show-inheritance:
+Submodules
+----------
 
 HiPart.clustering module
 ------------------------
@@ -28,6 +23,14 @@ HiPart.visualizations module
 ----------------------------
 
 .. automodule:: HiPart.visualizations
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: HiPart
    :members:
    :undoc-members:
    :show-inheritance:
