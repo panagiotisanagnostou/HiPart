@@ -27,7 +27,7 @@ setuptools.setup(
         "scikit-learn",
         "statsmodels>=0.13",
         "kdepy",
-        "matplotlib=3.5",
+        "matplotlib",
         "plotly",
         "dash>=2.0",
     ],
