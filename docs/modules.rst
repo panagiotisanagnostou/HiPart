@@ -1,5 +1,5 @@
-src
-===
+HiPart
+======
 
 .. toctree::
    :maxdepth: 4
