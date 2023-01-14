@@ -904,9 +904,9 @@ def _Cluster_Scatter_Plot(object_path):
     object_path : str
         The location of the temporary file containing the pickle dump of the
         object we want to visualize.
-    
+
     """
-    
+
     # get the necessary data for the visualization
     (
         data_matrix,
@@ -914,7 +914,7 @@ def _Cluster_Scatter_Plot(object_path):
         _,
         number_of_nodes,
     ) = _data_preparation(object_path, 0)
-    
+
     # create scatter plot with the split-point shape
     category_order = {
         "cluster": [
@@ -925,7 +925,7 @@ def _Cluster_Scatter_Plot(object_path):
     colList = {
         str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)
     }
-    
+
     # create scatter plot
     figure = px.scatter(
         data_matrix,
@@ -935,7 +935,7 @@ def _Cluster_Scatter_Plot(object_path):
         category_orders=category_order,
         color_discrete_map=colList,
     )
-    
+
     # reform visualization
     figure.update_layout(width=850, height=650, plot_bgcolor="#fff")
     figure.update_traces(
@@ -962,7 +962,7 @@ def _Cluster_Scatter_Plot(object_path):
         zerolinewidth=1,
         zerolinecolor="#aaa",
     )
-    
+
     # Markdown description of the figure
     description = dcc.Markdown(
         _message_center("des:main_cluser", object_path),
@@ -971,7 +971,7 @@ def _Cluster_Scatter_Plot(object_path):
             "margin": "-20px 0px 0px 0px",
         }
     )
-    
+
     return html.Div(
         [
             description,
