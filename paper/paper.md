@@ -59,9 +59,9 @@ The HiPart (Hierarchical Partitioning) package is divided into three major secti
 
 ## Method Implementation
 
-The package employs an object-oriented approach for the implementation of the algorithms, similarly to that of [@JMLR:v23:21-0862], while incorporating design similarities with the scikit-learn library [@pedregosa2011scikit]. Meaning, a class executes each of the algorithms, and the class's parameters and attributes are the algorithm's hyper-parameters and results.
+The package employs an object-oriented approach for the implementation of the algorithms, similarly to that of [@JMLR:v23:21-0862], while incorporating design similarities with the scikit-learn library [@pedregosa2011scikit]. Meaning, a class instance executes each of the algorithms, and the class instance's attributes are the algorithm's hyper-parameters and results.
 
-For the execution of the algorithms, the user needs to call either the method `predict` or `fit_predict` of each algorithm's execution class. The algorithm parameterization can be applied at the constructor of their respective class.
+For the execution of the algorithms, the user needs to call either the `predict` or the `fit_predict` method of each algorithm's execution class. The algorithm parameterization can be applied at the constructor of their respective class.
 
 
 ## Static Visualization
