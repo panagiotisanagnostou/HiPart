@@ -107,6 +107,10 @@ Four widely used data sets from the field of bioinformatics are employed along w
 :::
 [^1]: https://www.doi.org/10.7303/syn300013
 
+::: myimg
+![Dendrogram figure for the Cancer data set with the use of the dePDDP algorithm and the dendrogram visualization module of the HiPart library. The line below the tree represents the colour of the original cluster each sample belongs.](dendrogram.pdf)
+:::
+
 All experiments took place on a server computer with Linux operating system, kernel version 5.11.0, with an Intel Core i7-10700K CPU \@ 3.80GHz and four DDR4 RAM dims of 32GB with 2133MHz frequency. Default parameters were used for the execution of all the algorithms, and the actual number of clusters was provided to algorithms as a parameter when required.
 
 In [Table 1](#mytable)we present the mean performance of all methods with respect to execution time (time in secs) and NMI across 100 experiments. We observe that HiPart implementations perform exquisitely in terms of execution time while still being comparable with respect to clustering performance.
@@ -227,16 +231,12 @@ In [Table 1](#mytable)we present the mean performance of all methods with respec
 Table: Clustering results with respect to execution time and clustering performance.
 :::
 
-::: myimg
-![Dendrogram figure for the Cancer data set with the use of the dePDDP algorithm and the dendrogram visualization module of the HiPart library. The line below the tree represents the colour of the original cluster each sample belongs.](dendrogram.pdf)
-:::
-
 :::
 
 
 # Conclusions and Future Work
 
-We present a highly time-efficient clustering package with a suite of tools that give the capability of addressing problems in high-dimensional clustering. Also, the developed new visualization tools enhance understanding and identification of the underlying clustering data structure.
+We present a highly time-efficient clustering package with a suite of tools that give the capability of addressing problems in high-dimensional clustering problems. Also, the developed new visualization tools enhance understanding and identification of the underlying clustering data structure.
 
 We plan to continuously expand the HiPart package in the future through the addition of more hierarchical algorithms and by providing even more options for dimensionality reduction, such as the use of recent projection pursuit methodologies [@pavlidis2016minimum; @hofmeyr2016clustering; @hofmeyr2019minimum; @hofmeyr2019ppci]. Our final aim is to establish the golden standard when considering hierarchical divisive clustering.
 
