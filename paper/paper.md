@@ -78,7 +78,8 @@ In the interactive mode, we provide the possibility for stepwise manipulation of
 
 # Development Notes
 
-For the development of the package, we complied with the **PEP8** style standards, and we enforced it with the employment of *flake8* command-line utility. To ensure the code's quality, we implemented the *pytest* module to the entirety of the source code. In addition, platform compatibility has been assured through extensive testing, and the package development in its entirety uses only well-established or native Python packages. The package has been released as open-source software under the "MIT License". For more information regarding potential contributions or for the submission of an issue, or a request, the package is hosted as a repository on Github.
+For the development of the package, we complied with the **PEP8** style standards, and we enforced it with the employment of *flake8* command-line utility. To ensure the code's quality, we implemented tests using the *pytest* module to assert the correctness of the implementations. In addition, platform compatibility has been assured through extensive testing, and the package development in its entirety uses only well-established or native Python packages. The package has been released as
+open-source software under the MIT License.  For more information regarding potential contributions or for the submission of an issue, or a request, the package is hosted as a repository on Github.
 
 
 # Experiments and Comparisons
@@ -108,7 +109,7 @@ Four widely used data sets from the field of bioinformatics are employed along w
 
 All experiments took place on a server computer with Linux operating system, kernel version 5.11.0, with an Intel Core i7-10700K CPU \@ 3.80GHz and four DDR4 RAM dims of 32GB with 2133MHz frequency. Default parameters were used for the execution of all the algorithms, and the actual number of clusters was provided to algorithms as a parameter when required.
 
-In the [Table](#mytable) bellow we present the mean performance of all methods with respect to execution time (time in secs) and NMI across 100 experiments. We observe that HiPart implementations perform exquisitely in terms of execution time while still being comparable with respect to clustering performance.
+In [Table 1](#mytable)we present the mean performance of all methods with respect to execution time (time in secs) and NMI across 100 experiments. We observe that HiPart implementations perform exquisitely in terms of execution time while still being comparable with respect to clustering performance.
 
 ```{=html}
 <style>
@@ -157,7 +158,7 @@ In the [Table](#mytable) bellow we present the mean performance of all methods w
 ::: {#floats}
 ::: {#mytable}
 +------------+--------------------------+----------+-------------------------+-----------+
-| Algorithm  | time                     | NMI      | time                    | NMI       |
+| Algorithm  | time (seconds)           | NMI      | time (seconds)          | NMI       |
 +============+:========================:+:========:+:=======================:+:=========:+
 |            | **Gene Expression Data**                                                  |
 +------------+--------------------------+----------+-------------------------+-----------+
