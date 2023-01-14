@@ -38,7 +38,8 @@ This paper presents the HiPart package, an open-source native python library tha
 
 # Statement of need
 
-A highly researched problem by a variety of research communities is the problem of data clustering. However, high-dimensional data clustering still constitutes a significant challenge, plagued by the *curse of dimensionality* [@hutzenthaler2020overcoming]. Hierarchical divisive algorithms developed in the recent years [@TASOULIS20103391; @pavlidis2016minimum; @hofmeyr2016clustering; @hofmeyr2019minimum; @hofmeyr2019ppci] have shown great potential for the particular case of high dimensional data, incorporating dimensionality reduction iteratively within their algorithmic procedure. Additionally, they seem unique in providing a hierarchical format of the clustering result with low computational cost, in contrast to the commonly used but computationally demanding agglomerative clustering methods.
+A highly researched problem by a variety of research communities is the problem of clustering. However, high-dimensional clustering still constitutes a significant challenge, plagued by the *curse of dimensionality* [@hutzenthaler2020overcoming]. Hierarchical divisive algorithms developed in the recent years [@TASOULIS20103391; @pavlidis2016minimum; @hofmeyr2016clustering; @hofmeyr2019minimum; @hofmeyr2019ppci] have shown great potential for the particular case of high dimensional data,
+incorporating dimensionality reduction iteratively within their algorithmic procedure. Additionally, they seem unique in providing a hierarchical format of the clustering result with low computational cost, in contrast to the commonly used but computationally demanding agglomerative clustering methods.
 
 Although the discovery of a hierarchical format is crucial in many fields, such as bioinformatics [@luo2003hierarchical; @modena2014gene], to the best of our knowledge, this package is the first native python implementation of divisive hierarchical clustering algorithms. We particularly focus on the "Principal Direction Divisive Clustering (PDDP)" algorithm [@boley1998principal] for its potential to effectively tackle the *curse of dimensionality* and its impeccable time performance [@TASOULIS20103391].
 
@@ -234,12 +235,12 @@ Table: Clustering results with respect to execution time and clustering performa
 
 # Conclusions and Future Work
 
-We present a highly time-efficient clustering package with a suite of tools that give the capability of addressing problems in high-dimensional data clustering. Also, the developed new visualization tools enhance understanding and identification of the underlying clustering data structure.
+We present a highly time-efficient clustering package with a suite of tools that give the capability of addressing problems in high-dimensional clustering. Also, the developed new visualization tools enhance understanding and identification of the underlying clustering data structure.
 
 We plan to continuously expand the HiPart package in the future through the addition of more hierarchical algorithms and by providing even more options for dimensionality reduction, such as the use of recent projection pursuit methodologies [@pavlidis2016minimum; @hofmeyr2016clustering; @hofmeyr2019minimum; @hofmeyr2019ppci]. Our final aim is to establish the golden standard when considering hierarchical divisive clustering.
 
 
-# Acknowledgments 
+# Acknowledgments
 
 This project has received funding from the Hellenic Foundation for Research and Innovation (HFRI), under grant agreement No 1901.
 
