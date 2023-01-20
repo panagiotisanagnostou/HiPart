@@ -1,5 +1,5 @@
-Documentation
-=============
+HiPart Package
+==============
 
 .. toctree::
    :hidden:
