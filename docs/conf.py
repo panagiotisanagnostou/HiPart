@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('../src/HiPart'))
 project = 'HiPart'
 copyright = '2022, Panagiotis Anangostou'
 author = 'Panagiotis Anangostou'
-release = '0.2.0'
+release = '0.2.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -6,7 +6,7 @@ Divise Clustering with HiPart
 
 .. contents::
    :depth: 3
-..
+
 
 Divisive Clustering and Visualization
 =====================================
