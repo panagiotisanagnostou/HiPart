@@ -45,11 +45,40 @@ The example bellow is the simplest form of the package's execution. Shortly, it 
 Users can find complete execution examples for all the algorithms of the HiPart package in the `clustering_example <https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_example.py>`_ file of the repository. Also, the users can find a KernelPCA method usage example in the `clustering_with_kpca_example <https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_with_kpca_example.py>`_ file of the repository. Finally, the file `interactive_visualization_example <https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/interactive_visualization_example.py>`_ contains an example execution of the interactive visualization. The instructions for the interactive visualization GUI can be found with the execution of this visualization.
 
 
+Citation
+--------
+
+	.. code-block:: bibtex
+		
+		@misc{anagnostou2022hipart,
+		  doi = {10.48550/ARXIV.2209.08680},
+		  url = {https://arxiv.org/abs/2209.08680},
+		  author = {Anagnostou, Panagiotis and Tasoulis, Sotiris and Plagianakos, Vassilis and Tasoulis, Dimitris},
+		  keywords = {Machine Learning (stat.ML), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
+		  title = {HiPart: Hierarchical Divisive Clustering Toolbox},
+		  publisher = {arXiv},
+		  year = {2022},
+		}
+
+
+Acknowledgments
+---------------
+This project has received funding from the Hellenic Foundation for Research and Innovation (HFRI), under grant agreement No 1901.
+
+
+Collaborators
+-------------
+Dimitris Tasoulis [:email:](d.tasoulis@thesignalgroup.com)
+Panagiotis Anagnostou [:email:](panagno@uth.gr)
+Sotiris Tasoulis [:email:](stasoulis@uth.gr)
+
+
+
 .. toctree::
-   :maxdepth: 0
-   :caption: Contents:
+   :hidden:
 
    modules
+   examples
 
 * :ref:`genindex`
 * :ref:`modindex`

@@ -26,7 +26,6 @@ Paper dendrogram figure generation.
 from HiPart.clustering import dePDDP
 from scipy.cluster import hierarchy
 
-import HiPart.__utility_functions as util
 import HiPart.inteactive_visualization as iv
 import HiPart.visualizations as viz
 import matplotlib
@@ -38,16 +37,20 @@ import pandas as pd
 
 if __name__ == "__main__":
     # laod the data
-    X = pd.read_csv(
-        filepath_or_buffer="./data/cancer/data.csv",
-        index_col=0,
-        header=0,
-    ).astype("float64").to_numpy()
+    X = (
+        pd.read_csv(
+            filepath_or_buffer="./data/cancer/data.csv",
+            index_col=0,
+            header=0,
+        )
+        .astype("float64")
+        .to_numpy()
+    )
     y = pd.read_csv(
         filepath_or_buffer="./data/cancer/labels.csv",
         index_col=0,
         header=0,
-        dtype="category"
+        dtype="category",
     ).Class.cat.codes.to_numpy()
 
     print("\ncancer")
@@ -68,13 +71,13 @@ if __name__ == "__main__":
     # initialize pyplot rcParams
     plt.rcParams["figure.figsize"] = [4, 4.5]
     plt.rcParams["figure.autolayout"] = True
-    plt.rcParams['lines.linewidth'] = 0.5
-    plt.rcParams['ytick.labelsize'] = 9
+    plt.rcParams["lines.linewidth"] = 0.5
+    plt.rcParams["ytick.labelsize"] = 9
 
     # make figure
     fig = plt.figure(figsize=(5, 7))
     # create a grid
-    gs = gridspec.GridSpec(25, 1, fig, wspace=0.01, hspace=.2)
+    gs = gridspec.GridSpec(25, 1, fig, wspace=0.01, hspace=0.2)
 
     # dendrogram subplot
     dendro = plt.subplot(gs[0:24, 0:1])
@@ -83,8 +86,8 @@ if __name__ == "__main__":
         depddp,
         count_sort=True,
         no_labels=True,
-        above_threshold_color='black',
-        ax=dendro
+        above_threshold_color="black",
+        ax=dendro,
     )
     dendro.set_xticks([])
     dendro.set_yticks([])

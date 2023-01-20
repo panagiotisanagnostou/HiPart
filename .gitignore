@@ -4,6 +4,8 @@
 *.png
 *.pdf
 dist/
+build/
+.pytest_cache/
 src/HiPart.egg-info
 docs/_build/
 docs/_templates/

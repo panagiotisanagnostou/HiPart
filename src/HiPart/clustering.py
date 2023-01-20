@@ -26,7 +26,6 @@ import numpy as np
 import statsmodels.api as sm
 
 from KDEpy import FFTKDE
-from scipy.signal import argrelextrema
 from sklearn.cluster import KMeans
 from treelib import Tree
 
@@ -137,9 +136,8 @@ class dePDDP:
         # Initialize the ST1 stopping criterion counter that count the number
         # of clusters                                       # (ST1)
         found_clusters = 1
-        while (
-            (selected_node is not None)
-            and (found_clusters < self.max_clusters_number)
+        while (selected_node is not None) and (
+            found_clusters < self.max_clusters_number
         ):  # (ST1) or (ST2)
 
             self.split_function(tree, selected_node)  # step (1)
@@ -198,15 +196,11 @@ class dePDDP:
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
         left_kid_index = node.data["indices"][
-            np.where(
-                node.data["projection"][:, 0] < node.data["splitpoint"]
-            )[0]
+            np.where(node.data["projection"][:, 0] < node.data["splitpoint"])[0]
         ]
         # right child indices
         right_kid_index = node.data["indices"][
-            np.where(
-                node.data["projection"][:, 0] >= node.data["splitpoint"]
-            )[0]
+            np.where(node.data["projection"][:, 0] >= node.data["splitpoint"])[0]
         ]
 
         # Nodes and data creation for the children
@@ -216,8 +210,7 @@ class dePDDP:
             identifier=self.node_ids + 1,
             parent=node.identifier,
             data=self.calculate_node_data(
-                left_kid_index, self.X[left_kid_index, :],
-                node.data["color_key"]
+                left_kid_index, self.X[left_kid_index, :], node.data["color_key"]
             ),
         )
         tree.create_node(
@@ -225,7 +218,8 @@ class dePDDP:
             identifier=self.node_ids + 2,
             parent=node.identifier,
             data=self.calculate_node_data(
-                right_kid_index, self.X[right_kid_index, :],
+                right_kid_index,
+                self.X[right_kid_index, :],
                 self.cluster_color + 1,
             ),
         )
@@ -326,20 +320,20 @@ class dePDDP:
             # evaluation: the density of the projections on the 1st PC
             x_ticks, evaluation = (
                 FFTKDE(
-                    kernel="gaussian",
-                    bw=self.split_data_bandwidth_scale * bandwidth
+                    kernel="gaussian", bw=self.split_data_bandwidth_scale * bandwidth
                 )
                 .fit(one_dimension)
                 .evaluate()
             )
             # calculate all the local minima
-            minimum_indices = argrelextrema(evaluation, np.less)[0]
+            minimum_indices = np.where(
+                np.diff((np.diff(evaluation) > 0).astype("int8")) == 1
+            )[0]
 
             # Find the location of the local minima and make sure they are
             # with in the given percentile limits
             quantile_value = np.quantile(
-                one_dimension,
-                (self.percentile, (1 - self.percentile))
+                one_dimension, (self.percentile, (1 - self.percentile))
             )
             local_minimum_index = np.where(
                 np.logical_and(
@@ -388,9 +382,7 @@ class dePDDP:
     def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
-                "decomposition_method: "
-                + str(v)
-                + ": Unknown decomposition method!"
+                "decomposition_method: " + str(v) + ": Unknown decomposition method!"
             )
         self._decomposition_method = v
 
@@ -401,8 +393,9 @@ class dePDDP:
     @max_clusters_number.setter
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._max_clusters_number = v
 
     @property
@@ -412,9 +405,7 @@ class dePDDP:
     @split_data_bandwidth_scale.setter
     def split_data_bandwidth_scale(self, v):
         if v <= 0:
-            raise ValueError(
-                "split_data_bandwidth_scale: Should be > 0"
-            )
+            raise ValueError("split_data_bandwidth_scale: Should be > 0")
         self._split_data_bandwidth_scale = v
 
     @property
@@ -434,8 +425,9 @@ class dePDDP:
     @min_sample_split.setter
     def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._min_sample_split = v
 
     @property
@@ -454,12 +446,12 @@ class dePDDP:
             if not ndDict[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
-                tmp[
-                    self.tree.children(i)[0].data["indices"]
-                ] = self.tree.children(i)[0].identifier
-                tmp[
-                    self.tree.children(i)[1].data["indices"]
-                ] = self.tree.children(i)[1].identifier
+                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
+                    0
+                ].identifier
+                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
+                    1
+                ].identifier
                 output_matrix.append(tmp)
         del output_matrix[0]
         output_matrix = np.array(output_matrix).transpose()
@@ -585,9 +577,8 @@ class iPDDP:
         # Initialize the ST1 stopping criterion counter that count the number
         # of clusters                                       # (ST1)
         found_clusters = 1
-        while (
-            (selected_node is not None)
-            and (found_clusters < self.max_clusters_number)
+        while (selected_node is not None) and (
+            found_clusters < self.max_clusters_number
         ):  # (ST1) or (ST2)
 
             self.split_function(tree, selected_node)  # step (1)
@@ -648,15 +639,11 @@ class iPDDP:
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
         left_kid_index = node.data["indices"][
-            np.where(
-                node.data["projection"][:, 0] < node.data["splitpoint"]
-            )[0]
+            np.where(node.data["projection"][:, 0] < node.data["splitpoint"])[0]
         ]
         # right child indices
         right_kid_index = node.data["indices"][
-            np.where(
-                node.data["projection"][:, 0] >= node.data["splitpoint"]
-            )[0]
+            np.where(node.data["projection"][:, 0] >= node.data["splitpoint"])[0]
         ]
 
         # Nodes and data creation for the children
@@ -775,8 +762,7 @@ class iPDDP:
             indices = indices[sort_indices]
 
             quantile_value = np.quantile(
-                one_dimension,
-                (self.percentile, (1 - self.percentile))
+                one_dimension, (self.percentile, (1 - self.percentile))
             )
             within_limits = np.where(
                 np.logical_and(
@@ -821,9 +807,7 @@ class iPDDP:
     def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
-                "decomposition_method: "
-                + str(v)
-                + ": Unknown decomposition method!"
+                "decomposition_method: " + str(v) + ": Unknown decomposition method!"
             )
         self._decomposition_method = v
 
@@ -834,8 +818,9 @@ class iPDDP:
     @max_clusters_number.setter
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._max_clusters_number = v
 
     @property
@@ -855,8 +840,9 @@ class iPDDP:
     @min_sample_split.setter
     def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._min_sample_split = v
 
     @property
@@ -875,12 +861,12 @@ class iPDDP:
             if not ndDict[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
-                tmp[
-                    self.tree.children(i)[0].data["indices"]
-                ] = self.tree.children(i)[0].identifier
-                tmp[
-                    self.tree.children(i)[1].data["indices"]
-                ] = self.tree.children(i)[1].identifier
+                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
+                    0
+                ].identifier
+                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
+                    1
+                ].identifier
                 output_matrix.append(tmp)
         del output_matrix[0]
         output_matrix = np.array(output_matrix).transpose()
@@ -1007,9 +993,8 @@ class kM_PDDP:
         # of clusters
         found_clusters = 1
         # (ST1) or (ST2)
-        while (
-            (selected_node is not None)
-            and (found_clusters < self.max_clusters_number)
+        while (selected_node is not None) and (
+            found_clusters < self.max_clusters_number
         ):
 
             self.split_function(tree, selected_node)  # step (1)
@@ -1239,9 +1224,7 @@ class kM_PDDP:
     def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
-                "decomposition_method: "
-                + str(v)
-                + ": Unknown decomposition method!"
+                "decomposition_method: " + str(v) + ": Unknown decomposition method!"
             )
         self._decomposition_method = v
 
@@ -1252,8 +1235,9 @@ class kM_PDDP:
     @max_clusters_number.setter
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._max_clusters_number = v
 
     @property
@@ -1263,8 +1247,9 @@ class kM_PDDP:
     @min_sample_split.setter
     def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._min_sample_split = v
 
     @property
@@ -1274,8 +1259,9 @@ class kM_PDDP:
     @random_seed.setter
     def random_seed(self, v):
         if v is not None and (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._random_seed = v
 
     @property
@@ -1294,12 +1280,12 @@ class kM_PDDP:
             if not ndDict[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
-                tmp[
-                    self.tree.children(i)[0].data["indices"]
-                ] = self.tree.children(i)[0].identifier
-                tmp[
-                    self.tree.children(i)[1].data["indices"]
-                ] = self.tree.children(i)[1].identifier
+                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
+                    0
+                ].identifier
+                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
+                    1
+                ].identifier
                 output_matrix.append(tmp)
         del output_matrix[0]
         output_matrix = np.array(output_matrix).transpose()
@@ -1420,9 +1406,8 @@ class PDDP:
         # Initialize the ST1 stopping criterion counter that count the number
         # of clusters                                       # (ST1)
         found_clusters = 1
-        while (
-            (selected_node is not None)
-            and (found_clusters < self.max_clusters_number)
+        while (selected_node is not None) and (
+            found_clusters < self.max_clusters_number
         ):  # (ST1) or (ST2)
 
             self.split_function(tree, selected_node)  # step (1)
@@ -1482,15 +1467,11 @@ class PDDP:
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
         left_kid_index = node.data["indices"][
-            np.where(
-                node.data["projection"][:, 0] < node.data["splitpoint"]
-            )[0]
+            np.where(node.data["projection"][:, 0] < node.data["splitpoint"])[0]
         ]
         # right child indices
         right_kid_index = node.data["indices"][
-            np.where(
-                node.data["projection"][:, 0] >= node.data["splitpoint"]
-            )[0]
+            np.where(node.data["projection"][:, 0] >= node.data["splitpoint"])[0]
         ]
 
         # Nodes and data creation for the children
@@ -1646,9 +1627,7 @@ class PDDP:
     def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
-                "decomposition_method: "
-                + str(v)
-                + ": Unknown decomposition method!"
+                "decomposition_method: " + str(v) + ": Unknown decomposition method!"
             )
         self._decomposition_method = v
 
@@ -1659,8 +1638,9 @@ class PDDP:
     @max_clusters_number.setter
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._max_clusters_number = v
 
     @property
@@ -1670,8 +1650,9 @@ class PDDP:
     @min_sample_split.setter
     def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._min_sample_split = v
 
     @property
@@ -1690,12 +1671,12 @@ class PDDP:
             if not ndDict[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
-                tmp[
-                    self.tree.children(i)[0].data["indices"]
-                ] = self.tree.children(i)[0].identifier
-                tmp[
-                    self.tree.children(i)[1].data["indices"]
-                ] = self.tree.children(i)[1].identifier
+                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
+                    0
+                ].identifier
+                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
+                    1
+                ].identifier
                 output_matrix.append(tmp)
         del output_matrix[0]
         output_matrix = np.array(output_matrix).transpose()
@@ -1748,12 +1729,7 @@ class bicecting_kmeans:
 
     """
 
-    def __init__(
-        self,
-        max_clusters_number=100,
-        min_sample_split=5,
-        random_seed=None
-    ):
+    def __init__(self, max_clusters_number=100, min_sample_split=5, random_seed=None):
         self.max_clusters_number = max_clusters_number
         self.min_sample_split = min_sample_split
         self.random_seed = random_seed
@@ -1804,9 +1780,8 @@ class bicecting_kmeans:
         # Initialize the ST1 stopping criterion counter that count the number
         # of clusters.
         found_clusters = 1
-        while (
-            (selected_node is not None)
-            and (found_clusters < self.max_clusters_number)
+        while (selected_node is not None) and (
+            found_clusters < self.max_clusters_number
         ):
 
             self.split_function(tree, selected_node)  # step (1)
@@ -2006,8 +1981,9 @@ class bicecting_kmeans:
     @max_clusters_number.setter
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._max_clusters_number = v
 
     @property
@@ -2017,8 +1993,9 @@ class bicecting_kmeans:
     @min_sample_split.setter
     def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._min_sample_split = v
 
     @property
@@ -2028,8 +2005,9 @@ class bicecting_kmeans:
     @random_seed.setter
     def random_seed(self, v):
         if v is not None and (not isinstance(v, int)):
-            raise ValueError("min_sample_split: "
-                             + "Invalid value it should be int and > 1")
+            raise ValueError(
+                "min_sample_split: " + "Invalid value it should be int and > 1"
+            )
         self._random_seed = v
 
     @property
@@ -2048,12 +2026,12 @@ class bicecting_kmeans:
             if not ndDict[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
-                tmp[
-                    self.tree.children(i)[0].data["indices"]
-                ] = self.tree.children(i)[0].identifier
-                tmp[
-                    self.tree.children(i)[1].data["indices"]
-                ] = self.tree.children(i)[1].identifier
+                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
+                    0
+                ].identifier
+                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
+                    1
+                ].identifier
                 output_matrix.append(tmp)
         del output_matrix[0]
         output_matrix = np.array(output_matrix).transpose()
