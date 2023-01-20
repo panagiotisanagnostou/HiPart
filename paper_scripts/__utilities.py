@@ -23,7 +23,10 @@ Utility functions for the paper_results_generation.
 @author: Panagiotis Anagnostou
 """
 
-from fcmeans import FCM
+try:
+    from fcmeans import FCM
+except ImportError:
+    raise ImportError('Install the package "fuzzy-c-means"!')
 from sklearn.cluster import KMeans, OPTICS, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score as ari
 from sklearn.metrics import normalized_mutual_info_score as nmi
@@ -33,7 +36,10 @@ from HiPart.clustering import iPDDP
 from HiPart.clustering import kM_PDDP
 from HiPart.clustering import PDDP
 
-import h5py
+try:
+    import h5py
+except ImportError:
+    raise ImportError('Install the package "h5py"!')
 import numpy as np
 import re
 import string
@@ -135,9 +141,7 @@ def execute_evaluation(X, y):
         bikmeans_ari_l = []
         for i in range(ffolds):
             tic = time.perf_counter()
-            bikmeans = bicecting_kmeans(
-                max_clusters_number=cluster_number
-            ).fit(X)
+            bikmeans = bicecting_kmeans(max_clusters_number=cluster_number).fit(X)
             toc = time.perf_counter()
             bikmeans_time_l.append(toc - tic)
             bikmeans_mni_l.append(nmi(y, bikmeans.labels_))
