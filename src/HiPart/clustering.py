@@ -30,7 +30,7 @@ from sklearn.cluster import KMeans
 from treelib import Tree
 
 
-class dePDDP:
+class DePDDP:
     """
     Class dePDDP. It executes the dePDDP algorithm.
 
@@ -47,7 +47,7 @@ class dePDDP:
         as kernel for the dePDDP algorithm.
     max_clusters_number : int, optional
         Desired maximum number of clusters to find the dePDDP algorithm.
-    split_data_bandwidth_scale : float, optional
+    bandwidth_scale : float, optional
         Standard deviation scaler for the density approximation.
     percentile : float, optional
         The percentile distance from the dataset's edge in which a split can
@@ -85,7 +85,7 @@ class dePDDP:
     ):
         self.decomposition_method = decomposition_method
         self.max_clusters_number = max_clusters_number
-        self.split_data_bandwidth_scale = bandwidth_scale
+        self.bandwidth_scale = bandwidth_scale
         self.percentile = percentile
         self.min_sample_split = min_sample_split
         self.visualization_utility = visualization_utility
@@ -130,7 +130,7 @@ class dePDDP:
         selected_node = 0
 
         # if no possibility of split exists on the data     # (ST2)
-        if not tree.get_node(0).data["split_permition"]:
+        if not tree.get_node(0).data["split_permission"]:
             raise RuntimeError("cannot split the data at all!!!")
 
         # Initialize the ST1 stopping criterion counter that count the number
@@ -179,6 +179,8 @@ class dePDDP:
 
         Parameters
         ----------
+        selected_node : int
+            The numerical identifier for the tree node that i about to be split.
         tree : treelib.tree.Tree
             The tree build by the dePDDP algorithm, in order to cluster the
             input data.
@@ -191,7 +193,7 @@ class dePDDP:
 
         """
         node = tree.get_node(selected_node)
-        node.data["split_permition"] = False
+        node.data["split_permission"] = False
 
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
@@ -263,7 +265,7 @@ class dePDDP:
             for i in sorted(
                 enumerate(leaves), key=lambda x: x[1].data["split_criterion"]
             ):
-                if i[1].data["split_permition"]:
+                if i[1].data["split_permission"]:
                     next_split = i[1].identifier
                     break
 
@@ -320,7 +322,7 @@ class dePDDP:
             # evaluation: the density of the projections on the 1st PC
             x_ticks, evaluation = (
                 FFTKDE(
-                    kernel="gaussian", bw=self.split_data_bandwidth_scale * bandwidth
+                    kernel="gaussian", bw=self.bandwidth_scale * bandwidth
                 )
                 .fit(one_dimension)
                 .evaluate()
@@ -369,7 +371,7 @@ class dePDDP:
             "projection": projection,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
-            "split_permition": flag,
+            "split_permission": flag,
             "color_key": key,
             "dendrogram_check": False,
         }
@@ -394,19 +396,19 @@ class dePDDP:
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError(
-                "min_sample_split: " + "Invalid value it should be int and > 1"
+                "min_sample_split: Invalid value it should be int and > 1"
             )
         self._max_clusters_number = v
 
     @property
-    def split_data_bandwidth_scale(self):
-        return self._split_data_bandwidth_scale
+    def bandwidth_scale(self):
+        return self._bandwidth_scale
 
-    @split_data_bandwidth_scale.setter
-    def split_data_bandwidth_scale(self, v):
+    @bandwidth_scale.setter
+    def bandwidth_scale(self, v):
         if v <= 0:
-            raise ValueError("split_data_bandwidth_scale: Should be > 0")
-        self._split_data_bandwidth_scale = v
+            raise ValueError("bandwidth_scale: Should be > 0")
+        self._bandwidth_scale = v
 
     @property
     def percentile(self):
@@ -440,10 +442,10 @@ class dePDDP:
 
     @property
     def output_matrix(self):
-        ndDict = self.tree.nodes
+        nd_dict = self.tree.nodes
         output_matrix = [np.zeros(np.size(self.X, 0))]
-        for i in ndDict:
-            if not ndDict[i].is_leaf():
+        for i in nd_dict:
+            if not nd_dict[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
@@ -475,7 +477,7 @@ class dePDDP:
         self._labels_ = v
 
 
-class iPDDP:
+class IPDDP:
     """
     Class iPDDP. It executes the iPDDP algorithm.
 
@@ -571,7 +573,7 @@ class iPDDP:
         selected_node = 0
 
         # if no possibility of split exists on the data     # (ST2)
-        if not tree.get_node(0).data["split_permition"]:
+        if not tree.get_node(0).data["split_permission"]:
             raise RuntimeError("cannot split the data at all!!!")
 
         # Initialize the ST1 stopping criterion counter that count the number
@@ -634,7 +636,7 @@ class iPDDP:
         """
 
         node = tree.get_node(selected_node)
-        node.data["split_permition"] = False
+        node.data["split_permission"] = False
 
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
@@ -710,7 +712,7 @@ class iPDDP:
                 key=lambda x: x[1].data["split_criterion"],
                 reverse=True,
             ):
-                if i[1].data["split_permition"]:
+                if i[1].data["split_permission"]:
                     next_split = i[1].identifier
                     break
 
@@ -794,7 +796,7 @@ class iPDDP:
             "projection": projection,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
-            "split_permition": flag,
+            "split_permission": flag,
             "color_key": key,
             "dendrogram_check": False,
         }
@@ -855,10 +857,10 @@ class iPDDP:
 
     @property
     def output_matrix(self):
-        ndDict = self.tree.nodes
+        nodes = self.tree.nodes
         output_matrix = [np.zeros(np.size(self.X, 0))]
-        for i in ndDict:
-            if not ndDict[i].is_leaf():
+        for i in nodes:
+            if not nodes[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
@@ -890,7 +892,7 @@ class iPDDP:
         self._labels_ = v
 
 
-class kM_PDDP:
+class KMPDDP:
     """
     Class kM-PDDP. It executes the kM-PDDP algorithm.
 
@@ -985,7 +987,7 @@ class kM_PDDP:
         selected_node = 0
 
         # if no possibility of split exists on the data     # (ST2)
-        if not tree.get_node(0).data["split_permition"]:
+        if not tree.get_node(0).data["split_permission"]:
             print("cannot split at all")
             return self
 
@@ -1049,13 +1051,13 @@ class kM_PDDP:
         """
 
         node = tree.get_node(selected_node)
-        node.data["split_permition"] = False
+        node.data["split_permission"] = False
 
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
-        left_kid_index = node.data["left_indeces"]
+        left_kid_index = node.data["left_indices"]
         # right child indices
-        right_kid_index = node.data["right_indeces"]
+        right_kid_index = node.data["right_indices"]
 
         # Nodes and data creation for the children
         # Uses the calculate_node_data function to create the data for the node
@@ -1122,7 +1124,7 @@ class kM_PDDP:
                 key=lambda x: x[1].data["split_criterion"],
                 reverse=True,
             ):
-                if i[1].data["split_permition"]:
+                if i[1].data["split_permission"]:
                     next_split = i[1].identifier
                     break
 
@@ -1165,11 +1167,11 @@ class kM_PDDP:
                 two_dimentions=self.visualization_utility,
                 decomposition_args=self.decomposition_args,
             )
-            one_dimention = np.array([[i] for i in projection[:, 0]])
+            one_dimension = np.array([[i] for i in projection[:, 0]])
 
             model = KMeans(n_clusters=2, random_state=self.random_seed)
-            model.fit(one_dimention)
-            labels = model.predict(one_dimention)
+            model.fit(one_dimension)
+            labels = model.predict(one_dimension)
             centers = model.cluster_centers_
 
             # Labels for the split selection
@@ -1185,11 +1187,11 @@ class kM_PDDP:
             centered = util.center_data(data_matrix)
             split_criterion = np.linalg.norm(centered, ord="fro")
 
-            right_min = np.min(one_dimention[label_one])
-            left_max = np.max(one_dimention[label_zero])
+            right_min = np.min(one_dimension[label_one])
+            left_max = np.max(one_dimension[label_zero])
             if left_max > right_min:
-                right_min = np.min(one_dimention[label_zero])
-                left_max = np.max(one_dimention[label_one])
+                right_min = np.min(one_dimension[label_zero])
+                left_max = np.max(one_dimension[label_one])
 
             splitpoint = left_max + ((right_min - left_max) / 2)
             flag = True
@@ -1205,13 +1207,13 @@ class kM_PDDP:
 
         return {
             "indices": indices,
-            "left_indeces": left_child,
-            "right_indeces": right_child,
+            "left_indices": left_child,
+            "right_indices": right_child,
             "projection": projection,
             "centers": centers,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
-            "split_permition": flag,
+            "split_permission": flag,
             "color_key": key,
             "dendrogram_check": False,
         }
@@ -1224,7 +1226,8 @@ class kM_PDDP:
     def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
-                "decomposition_method: " + str(v) + ": Unknown decomposition method!"
+                "decomposition_method: " + str(v) +
+                ": Unknown decomposition method!"
             )
         self._decomposition_method = v
 
@@ -1274,10 +1277,10 @@ class kM_PDDP:
 
     @property
     def output_matrix(self):
-        ndDict = self.tree.nodes
+        nds = self.tree.nodes
         output_matrix = [np.zeros(np.size(self.X, 0))]
-        for i in ndDict:
-            if not ndDict[i].is_leaf():
+        for i in nds:
+            if not nds[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
@@ -1352,7 +1355,7 @@ class PDDP:
         max_clusters_number=100,
         min_sample_split=5,
         visualization_utility=True,
-        **decomposition_args
+        **decomposition_args,
     ):
         self.decomposition_method = decomposition_method
         self.max_clusters_number = max_clusters_number
@@ -1399,7 +1402,7 @@ class PDDP:
         selected_node = 0
 
         # if no possibility of split exists on the data     # (ST2)
-        if not tree.get_node(0).data["split_permition"]:
+        if not tree.get_node(0).data["split_permission"]:
             print("cannot split at all")
             return self
 
@@ -1462,7 +1465,7 @@ class PDDP:
         """
 
         node = tree.get_node(selected_node)
-        node.data["split_permition"] = False
+        node.data["split_permission"] = False
 
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
@@ -1540,7 +1543,7 @@ class PDDP:
                 key=lambda x: x[1].data["split_criterion"],
                 reverse=True,
             ):
-                if i[1].data["split_permition"]:
+                if i[1].data["split_permission"]:
                     minimum_location = i[1].identifier
                     break
 
@@ -1614,7 +1617,7 @@ class PDDP:
             "projection": projection,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
-            "split_permition": flag,
+            "split_permission": flag,
             "color_key": key,
             "dendrogram_check": False,
         }
@@ -1627,7 +1630,8 @@ class PDDP:
     def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
-                "decomposition_method: " + str(v) + ": Unknown decomposition method!"
+                "decomposition_method: " + str(v) +
+                ": Unknown decomposition method!"
             )
         self._decomposition_method = v
 
@@ -1700,9 +1704,9 @@ class PDDP:
         self._labels_ = v
 
 
-class bicecting_kmeans:
+class BisectingKmeans:
     """
-    Class bicecting_kmeans. It executes the bisecting k-Means algorithm.
+    Class BisectingKmeans. It executes the bisecting k-Means algorithm.
 
     References
     ----------
@@ -1736,8 +1740,8 @@ class bicecting_kmeans:
 
     def fit(self, X):
         """
-        Execute the bicecting_kmeans algorithm and return all the execution
-        data in the form of a bicecting_kmeans class object.
+        Execute the BisectingKmeans algorithm and return all the execution
+        data in the form of a BisectingKmeans class object.
 
         Parameters
         ----------
@@ -1748,7 +1752,7 @@ class bicecting_kmeans:
         Returns
         -------
         self
-            A bicecting_kmeans class type object, with complete results on the
+            A BisectingKmeans class type object, with complete results on the
             algorithm's analysis.
 
         """
@@ -1773,7 +1777,7 @@ class bicecting_kmeans:
         selected_node = 0
 
         # if no possibility of split exists on the data
-        if not tree.get_node(0).data["split_permition"]:
+        if not tree.get_node(0).data["split_permission"]:
             print("cannot split at all")
             return self
 
@@ -1795,7 +1799,7 @@ class bicecting_kmeans:
 
     def fit_predict(self, X):
         """
-        Execute the bicecting_kmeans algorithm and return the results of the
+        Execute the BisectingKmeans algorithm and return the results of the
         execution in the form of labels.
 
         Parameters
@@ -1824,7 +1828,7 @@ class bicecting_kmeans:
         Parameters
         ----------
         tree : treelib.tree.Tree
-            The tree build by the bicecting_kmeans algorithm, in order to
+            The tree build by the BisectingKmeans algorithm, in order to
             cluster the input data.
 
         Returns
@@ -1835,14 +1839,14 @@ class bicecting_kmeans:
 
         """
         node = tree.get_node(selected_node)
-        node.data["split_permition"] = False
+        node.data["split_permission"] = False
 
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
-        left_kid_index = node.data["left_indeces"]
+        left_kid_index = node.data["left_indices"]
 
         # right child indices
-        right_kid_index = node.data["right_indeces"]
+        right_kid_index = node.data["right_indices"]
 
         # Nodes and data creation for the children
         # Uses the calculate_node_data function to create the data for the node
@@ -1908,7 +1912,7 @@ class bicecting_kmeans:
                 key=lambda x: x[1].data["split_criterion"],
                 reverse=True,
             ):
-                if i[1].data["split_permition"]:
+                if i[1].data["split_permission"]:
                     next_split = i[1].identifier
                     break
 
@@ -1918,7 +1922,7 @@ class bicecting_kmeans:
         """
         Execution of the binary k-Means algorithm on the samples presented by
         the data_matrix. The two resulted clusters are the two new clusters if
-        the leaf is chosen to be splitted. And calculation of the splitting
+        the leaf is chosen to be split. And calculation of the splitting
         criterion.
 
         Parameters
@@ -1965,11 +1969,11 @@ class bicecting_kmeans:
 
         return {
             "indices": indices,
-            "left_indeces": left_child,
-            "right_indeces": right_child,
+            "left_indices": left_child,
+            "right_indices": right_child,
             "centers": centers,
             "split_criterion": split_criterion,
-            "split_permition": flag,
+            "split_permission": flag,
             "color_key": key,
             "dendrogram_check": False,
         }
@@ -2020,10 +2024,10 @@ class bicecting_kmeans:
 
     @property
     def output_matrix(self):
-        ndDict = self.tree.nodes
+        tnds = self.tree.nodes
         output_matrix = [np.zeros(np.size(self.X, 0))]
-        for i in ndDict:
-            if not ndDict[i].is_leaf():
+        for i in tnds:
+            if not tnds[i].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[

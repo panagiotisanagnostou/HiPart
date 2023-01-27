@@ -28,9 +28,9 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output, State
 from KDEpy import FFTKDE
-from HiPart.clustering import dePDDP
-from HiPart.clustering import iPDDP
-from HiPart.clustering import kM_PDDP
+from HiPart.clustering import DePDDP
+from HiPart.clustering import IPDDP
+from HiPart.clustering import KMPDDP
 from HiPart.clustering import PDDP
 from tempfile import NamedTemporaryFile
 
@@ -76,9 +76,9 @@ def main(inputData):
 
     # Compatibility check of the input data with the interactive visualization
     if not (
-        isinstance(inputData, dePDDP)
-        or isinstance(inputData, iPDDP)
-        or isinstance(inputData, kM_PDDP)
+        isinstance(inputData, DePDDP)
+        or isinstance(inputData, IPDDP)
+        or isinstance(inputData, KMPDDP)
         or isinstance(inputData, PDDP)
     ):
         raise TypeError(
@@ -361,7 +361,7 @@ def Splitpoint_Manipulation_Callback(
             obj = pickle.load(obj_file)
 
         # Check data compatibility with the function
-        if isinstance(obj, dePDDP):
+        if isinstance(obj, DePDDP):
             curent_figure = _int_make_scatter_n_hist(
                 data_matrix,
                 splitpoint,
@@ -443,7 +443,7 @@ def Splitpoint_Manipulation_Callback(
             obj = pickle.load(obj_file)
 
         # Check data compatibility with the function
-        if isinstance(obj, dePDDP):
+        if isinstance(obj, DePDDP):
             curent_figure = _int_make_scatter_n_hist(
                 data_matrix,
                 splitpoint,
@@ -530,7 +530,7 @@ def _Splitpoint_Manipulation(object_path):
         obj = pickle.load(obj_file)
 
     # Check data compatibility with the function
-    if isinstance(obj, dePDDP):
+    if isinstance(obj, DePDDP):
         figure = _int_make_scatter_n_hist(
             data_matrix,
             splitpoint,
@@ -1324,7 +1324,7 @@ def _recalculate_after_spchange(hipart_object, split, splitpoint_value):
     for i in dictionary_of_nodes:
         if dictionary_of_nodes[i].is_leaf():
             if dictionary_of_nodes[i].data["split_criterion"] is not None:
-                dictionary_of_nodes[i].data["split_permition"] = True
+                dictionary_of_nodes[i].data["split_permission"] = True
 
     # reset status variables for the code to execute
     hipart_object.node_ids = len(list(dictionary_of_nodes.keys())) - 1

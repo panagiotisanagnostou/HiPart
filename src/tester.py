@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import time
 import HiPart.visualizations as viz
 
+
 # %% Example data creation
 # number of cluster in the data
 clusters = 5
@@ -35,7 +36,7 @@ depddp = DePDDP(
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("depddp_time= {val:.5f}".format(val=toc - tic))
+print("depddp_time= {val:.5f}".format(val=toc-tic))
 print("depddp_mni= {val:.5f}".format(val=nmi(y, depddp.labels_)))
 print("depddp_ari= {val:.5f}\n".format(val=ari(y, depddp.labels_)))
 
@@ -54,15 +55,9 @@ ipddp = IPDDP(
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("ipddp_time= {val:.5f}".format(val=toc - tic))
+print("ipddp_time= {val:.5f}".format(val=toc-tic))
 print("ipddp_mni= {val:.5f}".format(val=nmi(y, ipddp.labels_)))
 print("ipddp_ari= {val:.5f}\n".format(val=ari(y, ipddp.labels_)))
-
-# scatter visualization
-viz.split_visualization(ipddp).show()
-# dendrogram
-dn = viz.dendrogram_visualization(ipddp)
-plt.show()
 
 # %% kMeans-PDDP algorithm execution
 # timer for the execution time in the form of tic-toc
@@ -74,15 +69,9 @@ kmpddp = KMPDDP(
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("kmpddp_time= {val:.5f}".format(val=toc - tic))
+print("kmpddp_time= {val:.5f}".format(val=toc-tic))
 print("kmpddp_mni= {val:.5f}".format(val=nmi(y, kmpddp.labels_)))
 print("kmpddp_ari= {val:.5f}\n".format(val=ari(y, kmpddp.labels_)))
-
-# scatter visualization
-viz.split_visualization(kmpddp).show()
-# dendrogram
-dn = viz.dendrogram_visualization(kmpddp)
-plt.show()
 
 # %% PDDP algorithm execution
 # timer for the execution time in the form of tic-toc
@@ -91,15 +80,9 @@ pddp = PDDP(decomposition_method="pca", max_clusters_number=clusters).fit(X)
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("pddp_time= {val:.5f}".format(val=toc - tic))
+print("pddp_time= {val:.5f}".format(val=toc-tic))
 print("pddp_mni= {val:.5f}".format(val=nmi(y, pddp.labels_)))
 print("pddp_ari= {val:.5f}\n".format(val=ari(y, pddp.labels_)))
-
-# scatter visualization
-viz.split_visualization(pddp).show()
-# dendrogram
-dn = viz.dendrogram_visualization(pddp)
-plt.show()
 
 # %% Bisecting kMeans algorithm execution
 # timer for the execution time in the form of tic-toc
@@ -107,12 +90,6 @@ tic = time.perf_counter()
 bikmeans = BisectingKmeans(max_clusters_number=clusters).fit(X)
 toc = time.perf_counter()
 
-print("bikmeans_time= {val:.5f}".format(val=toc - tic))
+print("bikmeans_time= {val:.5f}".format(val=toc-tic))
 print("bikmeans_mni= {val:.5f}".format(val=nmi(y, bikmeans.labels_)))
 print("bikmeans_ari= {val:.5f}\n".format(val=ari(y, bikmeans.labels_)))
-
-# scatter visualization
-viz.split_visualization(bikmeans).show()
-# dendrogram
-dn = viz.dendrogram_visualization(bikmeans)
-plt.show()

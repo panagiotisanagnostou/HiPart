@@ -30,7 +30,7 @@ except ImportError:
 from sklearn.cluster import KMeans, OPTICS, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score as ari
 from sklearn.metrics import normalized_mutual_info_score as nmi
-from HiPart.clustering import bicecting_kmeans
+from HiPart.clustering import BisectingKmeans
 from HiPart.clustering import dePDDP
 from HiPart.clustering import iPDDP
 from HiPart.clustering import kM_PDDP
@@ -141,7 +141,7 @@ def execute_evaluation(X, y):
         bikmeans_ari_l = []
         for i in range(ffolds):
             tic = time.perf_counter()
-            bikmeans = bicecting_kmeans(max_clusters_number=cluster_number).fit(X)
+            bikmeans = BisectingKmeans(max_clusters_number=cluster_number).fit(X)
             toc = time.perf_counter()
             bikmeans_time_l.append(toc - tic)
             bikmeans_mni_l.append(nmi(y, bikmeans.labels_))
@@ -162,7 +162,7 @@ def execute_evaluation(X, y):
     except Exception as e:
         print(traceback.format_exc())
         print(e)
-        print("bicecting_kmeans: execution error!")
+        print("BisectingKmeans: execution error!")
 
     # kM-PDDP algorithm execution
     try:
