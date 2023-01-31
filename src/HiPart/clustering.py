@@ -475,7 +475,7 @@ class DePDDP:
     @output_matrix.setter
     def output_matrix(self, v):
         raise RuntimeError(
-            "DePDDP: output_matrix: can only be generated and not to be created!"
+            "DePDDP: output_matrix: can only be generated and not to be assigned!"
         )
 
     @property
@@ -483,13 +483,12 @@ class DePDDP:
         labels_ = np.ones(np.size(self.X, 0))
         for i in self.tree.leaves():
             labels_[i.data["indices"]] = i.identifier
-        labels_
         return labels_
 
     @labels_.setter
     def labels_(self, v):
         raise RuntimeError(
-            "DePDDP: labels_: can only be generated and not to be created!"
+            "DePDDP: labels_: can only be generated and not to be assigned!"
         )
 
 
@@ -914,7 +913,7 @@ class IPDDP:
     @output_matrix.setter
     def output_matrix(self, v):
         raise RuntimeError(
-            "IPDDP: output_matrix: can only be generated and not to be created!"
+            "IPDDP: output_matrix: can only be generated and not to be assigned!"
         )
 
     @property
@@ -927,7 +926,7 @@ class IPDDP:
     @labels_.setter
     def labels_(self, v):
         raise RuntimeError(
-            "IPDDP: labels_: can only be generated and not to be created!"
+            "IPDDP: labels_: can only be generated and not to be assigned!"
         )
 
 
@@ -1331,13 +1330,11 @@ class KMPDDP:
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 # Left child according to the tree creation process
-                tmp[self.tree.children(j)[0].data["indices"]] = self.tree.children(j)[
-                    0
-                ].identifier
+                tmp[self.tree.children(j)[0].data["indices"]] =\
+                    self.tree.children(j)[0].identifier
                 # Right child according to the tree creation process
-                tmp[self.tree.children(j)[1].data["indices"]] = self.tree.children(j)[
-                    1
-                ].identifier
+                tmp[self.tree.children(j)[1].data["indices"]] =\
+                    self.tree.children(j)[1].identifier
 
                 # The output_matrix is created transposed
                 output_matrix.append(tmp)
@@ -1352,7 +1349,7 @@ class KMPDDP:
     @output_matrix.setter
     def output_matrix(self, v):
         raise RuntimeError(
-            "KMPDDP: output_matrix: can only be generated and not to be created!"
+            "KMPDDP: output_matrix: can only be generated and not to be assigned!"
         )
 
     @property
@@ -1365,7 +1362,7 @@ class KMPDDP:
     @labels_.setter
     def labels_(self, v):
         raise RuntimeError(
-            "KMPDDP: labels_: can only be generated and not to be created!"
+            "KMPDDP: labels_: can only be generated and not to be assigned!"
         )
 
 
@@ -1458,10 +1455,10 @@ class PDDP:
         tree.create_node(
             tag="cl_" + str(self.node_ids),
             identifier=self.node_ids,
-            data=self.calculate_node_data(indices, self.X, self.cluster_color),
+            data=self.calculate_node_data(indices, self.cluster_color),
         )
         # indicator for the next node to split
-        selected_node = 0
+        selected = 0
 
         # if no possibility of split exists on the data     # (ST2)
         if not tree.get_node(0).data["split_permission"]:
@@ -1469,16 +1466,16 @@ class PDDP:
 
         # Initialize the ST1 stopping criterion counter that count the number
         # of clusters                                       # (ST1)
-        found_clusters = 1
-        while (selected_node is not None) and (
-            found_clusters < self.max_clusters_number
+        counter = 1
+        while (selected is not None) and (
+            counter < self.max_clusters_number
         ):  # (ST1) or (ST2)
 
-            self.split_function(tree, selected_node)  # step (1)
+            self.split_function(tree, selected)  # step (1)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(tree.leaves())  # step (2)
-            found_clusters = found_clusters + 1  # (ST1)
+            selected = self.select_kid(tree.leaves())  # step (2)
+            counter = counter + 1  # (ST1)
 
         self.tree = tree
         return self
@@ -1548,7 +1545,6 @@ class PDDP:
             parent=node.identifier,
             data=self.calculate_node_data(
                 left_kid_index,
-                self.X[left_kid_index, :],
                 node.data["color_key"],
             ),
         )
@@ -1558,7 +1554,6 @@ class PDDP:
             parent=node.identifier,
             data=self.calculate_node_data(
                 right_kid_index,
-                self.X[right_kid_index, :],
                 self.cluster_color + 1,
             ),
         )
@@ -1588,10 +1583,10 @@ class PDDP:
 
         """
 
-        minimum_location = None
+        maximum_scatter = None
 
         # Remove the nodes that can not split further
-        leaves = list(
+        scatter_leaves = list(
             np.array(leaves)[
                 [
                     True if i.data["split_criterion"] is not None else False
@@ -1600,19 +1595,19 @@ class PDDP:
             ]
         )
 
-        if len(leaves) > 0:
+        if len(scatter_leaves) > 0:
             for i in sorted(
-                enumerate(leaves),
+                enumerate(scatter_leaves),
                 key=lambda x: x[1].data["split_criterion"],
                 reverse=True,
             ):
                 if i[1].data["split_permission"]:
-                    minimum_location = i[1].identifier
+                    maximum_scatter = i[1].identifier
                     break
 
-        return minimum_location
+        return maximum_scatter
 
-    def calculate_node_data(self, indices, data_matrix, key):
+    def calculate_node_data(self, indices, key):
         """
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
@@ -1629,10 +1624,6 @@ class PDDP:
         ----------
         indices : numpy.ndarray
             The index of the samples in the original data matrix.
-
-        data_matrix : numpy.ndarray
-            The data matrix containing all the data for the samples.
-
         key : int
             The value of the color for each node.
 
@@ -1643,10 +1634,15 @@ class PDDP:
 
         """
 
+        projection = None
+        splitpoint = None
+        split_criterion = None
+        flag = False
+
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
 
-            centered = util.center_data(data_matrix)
+            centered = util.center_data(self.X[indices, :])
 
             # execute pca on the data matrix
             projection = util.execute_decomposition_method(
@@ -1664,16 +1660,6 @@ class PDDP:
                 splitpoint = 0.0
                 split_criterion = scat
                 flag = True
-            else:
-                splitpoint = None  # (ST2)
-                split_criterion = None  # (ST2)
-                flag = False  # (ST2)
-        # =========================
-        else:
-            projection = None
-            splitpoint = None  # (ST2)
-            split_criterion = None  # (ST2)
-            flag = False  # (ST2)
 
         return {
             "indices": indices,
@@ -1693,7 +1679,7 @@ class PDDP:
     def decomposition_method(self, v):
         if not (v in ["pca", "kpca", "ica"]):
             raise ValueError(
-                "decomposition_method: " + str(v) + ": Unknown decomposition method!"
+                "PDDP: decomposition_method: " + str(v) + ": Unknown decomposition method!"
             )
         self._decomposition_method = v
 
@@ -1705,7 +1691,7 @@ class PDDP:
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError(
-                "min_sample_split: " + "Invalid value it should be int and > 1"
+                "PDDP: min_sample_split: Invalid value it should be int and > 1"
             )
         self._max_clusters_number = v
 
@@ -1717,7 +1703,7 @@ class PDDP:
     def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError(
-                "min_sample_split: " + "Invalid value it should be int and > 1"
+                "PDDP: min_sample_split: Invalid value it should be int and > 1"
             )
         self._min_sample_split = v
 
@@ -1731,39 +1717,54 @@ class PDDP:
 
     @property
     def output_matrix(self):
-        ndDict = self.tree.nodes
-        output_matrix = [np.zeros(np.size(self.X, 0))]
-        for i in ndDict:
-            if not ndDict[i].is_leaf():
+        nd_dict = self.tree.nodes
+        output_matrix = [np.full(self.samples_number, 0)]
+
+        # The dictionary of nodes contains the created node from the KMPDDP
+        # algorithm sorted from the root to the last split.
+        for k in nd_dict:
+            # For the output matrix we don't want the leaves of the tree. Each
+            # level of the output matrix represents a split the split exist in
+            # the internal nodes of the tree. Only by checking the children of
+            # those nodes we can extract the data for the current split.
+            if not nd_dict[k].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
-                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
-                    0
-                ].identifier
-                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
-                    1
-                ].identifier
+                # Left child according to the tree creation process
+                tmp[self.tree.children(k)[0].data["indices"]] = \
+                    self.tree.children(k)[0].identifier
+                # Right child according to the tree creation process
+                tmp[self.tree.children(k)[1].data["indices"]] = \
+                    self.tree.children(k)[1].identifier
+
+                # The output_matrix is created transposed
                 output_matrix.append(tmp)
+        # the first row contains only zeros
         del output_matrix[0]
+
+        # transpose the output_matrix to be extracted
         output_matrix = np.array(output_matrix).transpose()
-        self.output_matrix = output_matrix
-        return self._output_matrix
+
+        return output_matrix
 
     @output_matrix.setter
     def output_matrix(self, v):
-        self._output_matrix = v
+        raise RuntimeError(
+            "PDDP: output_matrix: can only be generated and not to be assigned!"
+        )
 
     @property
     def labels_(self):
         labels_ = np.ones(np.size(self.X, 0))
         for i in self.tree.leaves():
             labels_[i.data["indices"]] = i.identifier
-        self.labels_ = labels_
-        return self._labels_
+        return labels_
 
     @labels_.setter
     def labels_(self, v):
-        self._labels_ = v
+        raise RuntimeError(
+            "PDDP: labels_: can only be generated and not to be assigned!"
+        )
 
 
 class BisectingKmeans:
@@ -1794,7 +1795,7 @@ class BisectingKmeans:
         Extracted clusters from the algorithm.
     tree : treelib.Tree
         The object which contains all the information about the execution of
-        the iPDDP algorithm.
+        the BisectingKmeans algorithm.
     samples_number : int
         The number of samples contained in the data.
 

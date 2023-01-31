@@ -29,7 +29,7 @@ def datadir(tmpdir, request):
     return tmpdir
 
 
-def test_DePDDP_return_type(datadir):
+def test_depddp_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -37,7 +37,7 @@ def test_DePDDP_return_type(datadir):
     assert isinstance(new_obj, DePDDP)
 
 
-def test_IPDDP_return_type(datadir):
+def test_ipddp_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -45,7 +45,7 @@ def test_IPDDP_return_type(datadir):
     assert isinstance(new_obj, IPDDP)
 
 
-def test_KMPDDP_return_type(datadir):
+def test_kmpddp_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -53,7 +53,7 @@ def test_KMPDDP_return_type(datadir):
     assert isinstance(new_obj, KMPDDP)
 
 
-def test_PDDP_return_type(datadir):
+def test_pddp_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -69,7 +69,7 @@ def test_bicecting_kmeans_return_type(datadir):
     assert isinstance(new_obj, BisectingKmeans)
 
 
-def test_DePDDP_parameter_errors():
+def test_depddp_parameter_errors():
     success_score = 0
 
     algorithm = DePDDP()
@@ -104,7 +104,7 @@ def test_DePDDP_parameter_errors():
     assert success_score == 11
 
 
-def test_IPDDP_parameter_errors(datadir):
+def test_ipddp_parameter_errors(datadir):
     success_score = 0
 
     algorithm = IPDDP()
@@ -134,7 +134,7 @@ def test_IPDDP_parameter_errors(datadir):
     assert success_score == 9
 
 
-def test_KMPDDP_parameter_errors(datadir):
+def test_kmpddp_parameter_errors(datadir):
     success_score = 0
 
     algorithm = KMPDDP(random_seed=123)
@@ -164,7 +164,7 @@ def test_KMPDDP_parameter_errors(datadir):
     assert success_score == 9
 
 
-def test_PDDP_parameter_errors(datadir):
+def test_pddp_parameter_errors(datadir):
     success_score = 0
 
     algorithm = PDDP()
@@ -213,7 +213,7 @@ def test_bicecting_kmeans_parameter_errors():
     assert success_score == 6
 
 
-def test_DePDDP_labels__return_type_and_form(datadir):
+def test_depddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -221,7 +221,7 @@ def test_DePDDP_labels__return_type_and_form(datadir):
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
-def test_IPDDP_labels__return_type_and_form(datadir):
+def test_ipddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -229,7 +229,7 @@ def test_IPDDP_labels__return_type_and_form(datadir):
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
-def test_KMPDDP_labels__return_type_and_form(datadir):
+def test_kmpddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -237,7 +237,7 @@ def test_KMPDDP_labels__return_type_and_form(datadir):
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
-def test_PDDP_labels__return_type_and_form(datadir):
+def test_pddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -268,7 +268,7 @@ def test_bicecting_kmeans_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_DePDDP_pca_results(datadir):
+def test_depddp_pca_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -281,7 +281,7 @@ def test_DePDDP_pca_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_IPDDP_pca_results(datadir):
+def test_ipddp_pca_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -294,7 +294,7 @@ def test_IPDDP_pca_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_KMPDDP_pca_results(datadir):
+def test_kmpddp_pca_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -308,7 +308,7 @@ def test_KMPDDP_pca_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_PDDP_pca_results(datadir):
+def test_pddp_pca_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -321,7 +321,7 @@ def test_PDDP_pca_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_DePDDP_ica_results(datadir):
+def test_depddp_ica_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -335,7 +335,7 @@ def test_DePDDP_ica_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_IPDDP_ica_results(datadir):
+def test_ipddp_ica_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -349,7 +349,7 @@ def test_IPDDP_ica_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_KMPDDP_ica_results(datadir):
+def test_kmpddp_ica_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -364,7 +364,7 @@ def test_KMPDDP_ica_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_PDDP_ica_results(datadir):
+def test_pddp_ica_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -378,7 +378,7 @@ def test_PDDP_ica_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_DePDDP_kpca_results(datadir):
+def test_depddp_kpca_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -392,7 +392,7 @@ def test_DePDDP_kpca_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_IPDDP_kpca_results(datadir):
+def test_ipddp_kpca_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -406,7 +406,7 @@ def test_IPDDP_kpca_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_KMPDDP_kpca_results(datadir):
+def test_kmpddp_kpca_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -421,7 +421,7 @@ def test_KMPDDP_kpca_results(datadir):
     assert np.sum(matrix_test == matrix_control) == 6000
 
 
-def test_PDDP_kpca_results(datadir):
+def test_pddp_kpca_results(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -521,7 +521,7 @@ def test_split_visualization_plot_7(datadir):
         assert False
 
 
-def test_split_visualization_TypeError(datadir):
+def test_split_visualization_typeerror(datadir):
 
     try:
         viz.split_visualization(np.array([1, 2, 3]))
@@ -530,7 +530,7 @@ def test_split_visualization_TypeError(datadir):
         assert True
 
 
-def test_split_visualization_ValueError_1(datadir):
+def test_split_visualization_valueerror_1(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -546,7 +546,7 @@ def test_split_visualization_ValueError_1(datadir):
         assert True
 
 
-def test_split_visualization_ValueError_2(datadir):
+def test_split_visualization_valueerror_2(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -572,7 +572,7 @@ def test_dendrogram_visualization(datadir):
     assert isinstance(new_plot, dict)
 
 
-def test_dendrogram_visualization_TypeError(datadir):
+def test_dendrogram_visualization_typeerror(datadir):
     try:
         viz.dendrogram_visualization(np.array([1, 2, 3]))
         assert False
@@ -590,7 +590,7 @@ def test_linkage(datadir):
     assert isinstance(links, np.ndarray)
 
 
-def test_linkage_TypeError(datadir):
+def test_linkage_typeerror(datadir):
     try:
         viz.linkage(np.array([1, 2, 3]))
         assert False

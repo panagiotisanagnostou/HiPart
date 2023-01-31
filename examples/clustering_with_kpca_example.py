@@ -51,6 +51,7 @@ def plot_manafolds(X, y, vals, gamma, title):
 
     return plt
 
+
 if __name__ == "__main__":
     # set a random seed for results consistency
     np.random.seed(123)
@@ -76,7 +77,7 @@ if __name__ == "__main__":
         title="Original space",
     ).show()
 
-    ##### data clustering
+    # data clustering
 
     clusternumber = 2
 
