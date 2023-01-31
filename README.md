@@ -57,6 +57,6 @@ This project has received funding from the Hellenic Foundation for Research and 
 
 Collaborators
 -------------
-Dimitris Tasoulis [:email:](d.tasoulis@thesignalgroup.com)
-Panagiotis Anagnostou [:email:](panagno@uth.gr)
-Sotiris Tasoulis [:email:](stasoulis@uth.gr)
+Dimitris Tasoulis [:email:](mailto:d.tasoulis@thesignalgroup.com)
+Panagiotis Anagnostou [:email:](mailto:panagno@uth.gr)
+Sotiris Tasoulis [:email:](mailto:stasoulis@uth.gr)

@@ -5,6 +5,7 @@
 *.pdf
 dist/
 build/
+.idea/
 .pytest_cache/
 src/HiPart.egg-info
 docs/_build/
