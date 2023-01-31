@@ -35,12 +35,12 @@ The example bellow is the simplest form of the package's execution. Shortly, it 
 
 	.. code-block:: py
 	
-		from HiPart.clustering import dePDDP
+		from HiPart.clustering import DePDDP
 		from sklearn.datasets import make_blobs
 
 		X, y = make_blobs(n_samples=1500, centers=6, random_state=0)
 
-		clustered_class = dePDDP(max_clusters_number=6).fit_predict(X)
+		clustered_class = DePDDP(max_clusters_number=6).fit_predict(X)
 
 Users can find complete execution examples for all the algorithms of the HiPart package in the `clustering_example <https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_example.py>`_ file of the repository. Also, the users can find a KernelPCA method usage example in the `clustering_with_kpca_example <https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_with_kpca_example.py>`_ file of the repository. Finally, the file `interactive_visualization_example <https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/interactive_visualization_example.py>`_ contains an example execution of the interactive visualization. The instructions for the interactive visualization GUI can be found with the execution of this visualization.
 

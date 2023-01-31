@@ -68,9 +68,6 @@ def main(inputData):
 
     Returns (Currently not working correctly)
     ----------------------------------------
-    obj : dePDDP or iPDDP or kM_PDDP or PDDP object
-        The manipulated by the interactive visualization HiPart object. The
-        object`s type depends on the input object.
 
     """
 
@@ -274,6 +271,7 @@ def Splitpoint_Manipulation_Callback(
 
     Parameters
     ----------
+    splitpoint_marks
     data : dict
         The paths of the temporary files created for the execution of the
         interactive visualization.
@@ -365,7 +363,7 @@ def Splitpoint_Manipulation_Callback(
             curent_figure = _int_make_scatter_n_hist(
                 data_matrix,
                 splitpoint,
-                obj.split_data_bandwidth_scale,
+                obj.bandwidth_scale,
                 category_order,
                 colList,
             )
@@ -447,7 +445,7 @@ def Splitpoint_Manipulation_Callback(
             curent_figure = _int_make_scatter_n_hist(
                 data_matrix,
                 splitpoint,
-                obj.split_data_bandwidth_scale,
+                obj.bandwidth_scale,
                 category_order,
                 colList,
             )
@@ -534,7 +532,7 @@ def _Splitpoint_Manipulation(object_path):
         figure = _int_make_scatter_n_hist(
             data_matrix,
             splitpoint,
-            obj.split_data_bandwidth_scale,
+            obj.bandwidth_scale,
             category_order,
             colList,
         )
@@ -640,7 +638,7 @@ def _data_preparation(object_path, splitVal):
     splitVal : int
         The serial number of split that want to extract data from.
 
-    ReturnsHiPart: Interactive Visualisation
+    Returns
     -------
     data_matrix : pandas.core.frame.DataFrame
     splitpoint : int
@@ -753,6 +751,8 @@ def _message_center(message_id, object_path):
         obj = pickle.load(obj_file)
 
     obj_name = str(obj.__class__).split(".")[-1].split("'")[0]
+
+    msg = ""
 
     if message_id == "des:main_cluser":
         msg = """
@@ -1134,9 +1134,6 @@ def _int_make_scatter_n_marginal_scatter(
         the end of the algorithm's execution as column "cluster".
     splitPoint : int
         The values of the point the data are split for this plot.
-    bandwidth_scale
-        Standard deviation scaler for the density approximation. Allowed values
-        are in the (0,1).
     category_order : dict
         The order of witch to show the clusters, contained in the
         visualization, on the legend of the plot.

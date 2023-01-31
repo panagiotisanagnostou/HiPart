@@ -3,8 +3,6 @@ Divise Clustering with HiPart
 =============================
 
 :Author: Sotiris Tasoulis
-:Authors:
-   Sotiris Tasoulis
 
 .. contents::
    :depth: 3

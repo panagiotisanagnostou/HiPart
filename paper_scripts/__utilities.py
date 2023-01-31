@@ -31,9 +31,9 @@ from sklearn.cluster import KMeans, OPTICS, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score as ari
 from sklearn.metrics import normalized_mutual_info_score as nmi
 from HiPart.clustering import BisectingKmeans
-from HiPart.clustering import dePDDP
-from HiPart.clustering import iPDDP
-from HiPart.clustering import kM_PDDP
+from HiPart.clustering import DePDDP
+from HiPart.clustering import IPDDP
+from HiPart.clustering import KMPDDP
 from HiPart.clustering import PDDP
 
 try:
@@ -104,7 +104,7 @@ def execute_evaluation(X, y):
         depddp_mni = []
         depddp_ari = []
         for i in range(ffolds):
-            depddp = dePDDP(
+            depddp = DePDDP(
                 max_clusters_number=cluster_number,
                 bandwidth_scale=0.5,
                 percentile=0.1,
@@ -171,7 +171,7 @@ def execute_evaluation(X, y):
         kmpddp_ari_l = []
         for i in range(ffolds):
             tic = time.perf_counter()
-            kmpddp = kM_PDDP(max_clusters_number=cluster_number).fit(X)
+            kmpddp = KMPDDP(max_clusters_number=cluster_number).fit(X)
             toc = time.perf_counter()
             kmpddp_time_l.append(toc - tic)
             kmpddp_mni_l.append(nmi(y, kmpddp.labels_))
@@ -231,7 +231,7 @@ def execute_evaluation(X, y):
         ipddp_ari_l = []
         for i in range(ffolds):
             tic = time.perf_counter()
-            ipddp = iPDDP(max_clusters_number=cluster_number).fit(X)
+            ipddp = IPDDP(max_clusters_number=cluster_number).fit(X)
             toc = time.perf_counter()
             ipddp_time_l.append(toc - tic)
             ipddp_mni_l.append(nmi(y, ipddp.labels_))

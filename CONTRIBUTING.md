@@ -225,7 +225,7 @@ Finally, you can find all the necessary files needed for documentation
 generation in the repository folder docs.
 
 <!--
-## Styleguides
+## Styleguide
 
 ### Commit Messages
 -->
