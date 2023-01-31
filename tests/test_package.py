@@ -135,33 +135,33 @@ def test_ipddp_parameter_errors(datadir):
 
 
 def test_kmpddp_parameter_errors(datadir):
-    success_score = 0
+    success = 0
 
     algorithm = KMPDDP(random_seed=123)
-    success_score += 1 if isinstance(algorithm.decomposition_method, str) else 0
-    success_score += 1 if isinstance(algorithm.max_clusters_number, int) else 0
-    success_score += 1 if isinstance(algorithm.min_sample_split, int) else 0
-    success_score += 1 if isinstance(algorithm.random_seed, int) else 0
-    success_score += 1 if isinstance(algorithm.visualization_utility, bool) else 0
+    success += 1 if isinstance(algorithm.decomposition_method, str) else 0
+    success += 1 if isinstance(algorithm.max_clusters_number, int) else 0
+    success += 1 if isinstance(algorithm.min_sample_split, int) else 0
+    success += 1 if isinstance(algorithm.random_seed, int) else 0
+    success += 1 if isinstance(algorithm.visualization_utility, bool) else 0
 
     try:
         KMPDDP(decomposition_method="abc")
     except Exception:
-        success_score += 1
+        success += 1
     try:
         KMPDDP(max_clusters_number=-5)
     except Exception:
-        success_score += 1
+        success += 1
     try:
         KMPDDP(random_seed=.8)
     except Exception:
-        success_score += 1
+        success += 1
     try:
         KMPDDP(min_sample_split=-5)
     except Exception:
-        success_score += 1
+        success += 1
 
-    assert success_score == 9
+    assert success == 9
 
 
 def test_pddp_parameter_errors(datadir):

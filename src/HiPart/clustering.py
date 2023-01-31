@@ -298,6 +298,12 @@ class DePDDP:
             The necessary data for each node which are splitting point.
 
         """
+
+        projection = None  # (ST2)
+        splitpoint = None  # (ST2)
+        split_criterion = None  # (ST2)
+        flag = False  # (ST2)
+
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
             # execute pca on the data matrix
@@ -351,16 +357,6 @@ class DePDDP:
                 splitpoint = ss[minimum_location]
                 split_criterion = ee[minimum_location]
                 flag = True
-            else:
-                splitpoint = None  # (ST2)
-                split_criterion = None  # (ST2)
-                flag = False  # (ST2)
-        # =========================
-        else:
-            projection = None  # (ST2)
-            splitpoint = None  # (ST2)
-            split_criterion = None  # (ST2)
-            flag = False  # (ST2)
 
         return {
             "indices": indices,
@@ -1795,7 +1791,7 @@ class BisectingKmeans:
         Extracted clusters from the algorithm.
     tree : treelib.Tree
         The object which contains all the information about the execution of
-        the BisectingKmeans algorithm.
+        the bisecting k-Means algorithm.
     samples_number : int
         The number of samples contained in the data.
 
@@ -2055,7 +2051,7 @@ class BisectingKmeans:
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError(
-                "min_sample_split: " + "Invalid value it should be int and > 1"
+                "BisectingKmeans: min_sample_split: Invalid value it should be int and > 1"
             )
         self._max_clusters_number = v
 
@@ -2067,7 +2063,7 @@ class BisectingKmeans:
     def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
             raise ValueError(
-                "min_sample_split: " + "Invalid value it should be int and > 1"
+                "BisectingKmeans: min_sample_split: Invalid value it should be int and > 1"
             )
         self._min_sample_split = v
 
@@ -2079,7 +2075,7 @@ class BisectingKmeans:
     def random_seed(self, v):
         if v is not None and (not isinstance(v, int)):
             raise ValueError(
-                "min_sample_split: " + "Invalid value it should be int and > 1"
+                "BisectingKmeans: min_sample_split: Invalid value it should be int and > 1"
             )
         self._random_seed = v
 
@@ -2094,22 +2090,34 @@ class BisectingKmeans:
     @property
     def output_matrix(self):
         tnds = self.tree.nodes
-        output_matrix = [np.zeros(self.samples_number)]
-        for i in tnds:
-            if not tnds[i].is_leaf():
+        output_matrix = [np.full(self.samples_number, 0)]
+
+        # The dictionary of nodes contains the created node from the KMPDDP
+        # algorithm sorted from the root to the last split.
+        for l in tnds:
+            # For the output matrix we don't want the leaves of the tree. Each
+            # level of the output matrix represents a split the split exist in
+            # the internal nodes of the tree. Only by checking the children of
+            # those nodes we can extract the data for the current split.
+            if not tnds[l].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
-                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
-                    0
-                ].identifier
-                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
-                    1
-                ].identifier
+                # Left child according to the tree creation process
+                tmp[self.tree.children(l)[0].data["indices"]] = \
+                    self.tree.children(l)[0].identifier
+                # Right child according to the tree creation process
+                tmp[self.tree.children(l)[1].data["indices"]] = \
+                    self.tree.children(l)[1].identifier
+
+                # The output_matrix is created transposed
                 output_matrix.append(tmp)
+        # the first row contains only zeros
         del output_matrix[0]
+
+        # transpose the output_matrix to be extracted
         output_matrix = np.array(output_matrix).transpose()
-        self.output_matrix = output_matrix
-        return self._output_matrix
+
+        return output_matrix
 
     @output_matrix.setter
     def output_matrix(self, v):
