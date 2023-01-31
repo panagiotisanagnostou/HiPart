@@ -247,7 +247,7 @@ def display_menu(pathname, data):
 )
 def Splitpoint_Manipulation_Callback(
     data,
-    curent_figure,
+    current_figure,
     split_number,
     maximum_number_splits,
     split_marks,
@@ -275,7 +275,7 @@ def Splitpoint_Manipulation_Callback(
     data : dict
         The paths of the temporary files created for the execution of the
         interactive visualization.
-    curent_figure : dict
+    current_figure : dict
         A dictionary created from the plotly express object plots. It is used
         for the manipulation of the current figure.
     split_number : int
@@ -334,17 +334,18 @@ def Splitpoint_Manipulation_Callback(
         )
 
         # ensure correct values for the sliders
-        splitMax = maximum_number_splits
-        splitMarks = split_marks
-
-        splitPMin = data_matrix["PC1"].min()
-        splitPMax = data_matrix["PC1"].max()
         splitPMarks = {
             splitpoint: {
                 'label': 'Generated Split-point',
                 'style': {'color': '#77b0b1'}
             }
         }
+
+        splitMax = maximum_number_splits
+        splitMarks = split_marks
+
+        splitPMin = data_matrix["PC1"].min()
+        splitPMax = data_matrix["PC1"].max()
 
         # create visualization points
         category_order = {
@@ -355,20 +356,20 @@ def Splitpoint_Manipulation_Callback(
         color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
         colList = {str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)}
 
-        with open(data["new_input_object"], "rb") as obj_file:
-            obj = pickle.load(obj_file)
+        with open(data["new_input_object"], "rb") as cls_file:
+            cls = pickle.load(cls_file)
 
         # Check data compatibility with the function
-        if isinstance(obj, DePDDP):
-            curent_figure = _int_make_scatter_n_hist(
+        if isinstance(cls, DePDDP):
+            current_figure = _int_make_scatter_n_hist(
                 data_matrix,
                 splitpoint,
-                obj.bandwidth_scale,
+                cls.bandwidth_scale,
                 category_order,
                 colList,
             )
         else:
-            curent_figure = _int_make_scatter_n_marginal_scatter(
+            current_figure = _int_make_scatter_n_marginal_scatter(
                 data_matrix,
                 splitpoint,
                 category_order,
@@ -377,13 +378,13 @@ def Splitpoint_Manipulation_Callback(
 
     elif callback_ID == "splitpoint_Manipulation":
         # reconstruct the already created figure as figure from dict
-        curent_figure = go.Figure(
-            data=curent_figure["data"],
-            layout=go.Layout(curent_figure["layout"]),
+        current_figure = go.Figure(
+            data=current_figure["data"],
+            layout=go.Layout(current_figure["layout"]),
         )
 
         # update the splitpoint shape location
-        curent_figure.update_shapes(
+        current_figure.update_shapes(
             {"x0": splitpoint_position, "x1": splitpoint_position}
         )
 
@@ -398,17 +399,17 @@ def Splitpoint_Manipulation_Callback(
 
     elif callback_ID == "splitpoint_Man_apply":
         # execution of the split-point manipulation algorithmically
-        with open(data["new_input_object"], "rb") as obj_file:
-            obj = pickle.load(obj_file)
+        with open(data["new_input_object"], "rb") as cls_file:
+            cls = pickle.load(cls_file)
 
-        obj = _recalculate_after_spchange(
-            obj,
+        cls = _recalculate_after_spchange(
+            cls,
             split_number,
             splitpoint_position
         )
 
-        with open(data["new_input_object"], "wb") as obj_file:
-            pickle.dump(obj, obj_file)
+        with open(data["new_input_object"], "wb") as cls_file:
+            pickle.dump(cls, cls_file)
 
         # reconstruction of the figure and its slider from scratch
         data_matrix, splitpoint, internal_nodes, number_of_nodes = _data_preparation(
@@ -429,7 +430,7 @@ def Splitpoint_Manipulation_Callback(
         }
 
         # create visualization points
-        category_order = {
+        order = {
             "cluster": [
                 str(i) for i in range(len(np.unique(data_matrix["cluster"])))
             ]
@@ -442,26 +443,26 @@ def Splitpoint_Manipulation_Callback(
 
         # Check data compatibility with the function
         if isinstance(obj, DePDDP):
-            curent_figure = _int_make_scatter_n_hist(
+            current_figure = _int_make_scatter_n_hist(
                 data_matrix,
                 splitpoint,
                 obj.bandwidth_scale,
-                category_order,
+                order,
                 colList,
             )
         else:
-            curent_figure = _int_make_scatter_n_marginal_scatter(
+            current_figure = _int_make_scatter_n_marginal_scatter(
                 data_matrix,
                 splitpoint,
-                category_order,
+                order,
                 colList
             )
 
     else:
         # reconstruct the already created figure as figure from dict
-        curent_figure = go.Figure(
-            data=curent_figure["data"],
-            layout=go.Layout(curent_figure["layout"])
+        current_figure = go.Figure(
+            data=current_figure["data"],
+            layout=go.Layout(current_figure["layout"])
         )
 
         # ensure correct values for the sliders
@@ -476,7 +477,7 @@ def Splitpoint_Manipulation_Callback(
     return (
         dcc.Graph(
             id="splitpoint_Scatter",
-            figure=curent_figure,
+            figure=current_figure,
             config={"displayModeBar": False},
         ),
         splitMax,
@@ -916,14 +917,14 @@ def _Cluster_Scatter_Plot(object_path):
     ) = _data_preparation(object_path, 0)
 
     # create scatter plot with the split-point shape
+    color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
+    colList = {
+        str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)
+    }
     category_order = {
         "cluster": [
             str(i) for i in range(len(np.unique(data_matrix["cluster"])))
         ]
-    }
-    color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
-    colList = {
-        str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)
     }
 
     # create scatter plot

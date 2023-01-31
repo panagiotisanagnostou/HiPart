@@ -25,11 +25,8 @@ looks forward to your contributions.
 -   [I Want To Contribute](#i-want-to-contribute)
 
     -   [Reporting Bugs](#reporting-bugs)
-
     -   [Suggesting Enhancements](#suggesting-enhancements)
-
     -   [Your First Code Contribution](#your-first-code-contribution)
-
     -   [Improving The Documentation](#improving-the-documentation)
 
 -   [Join The Project Team](#join-the-project-team)
@@ -188,9 +185,7 @@ in this package are based on binary space partition trees, and their classes
 contain three main methods:
 
 1.  **Calculation Method:** Calculating the data for each of the tree nodes is an important step in the construction process. This method is responsible for calculating the data each node contains. This data includes the `indexes` of the samples each node has, the `spit_point` of the subspace, the `split_criterion` value (which is either minimized or maximized depending on the criterion each algorithm uses) and some utility data needed for the correct execution of the algorithms and the visualizations.
-
 2.  **Selection Method:** This method is responsible for selecting the next node to be split. In the case of the HiPart package, the selection method is applied in the leaves of the tree for each of the algorithms. It collects the values of the `split_criterion` and returns the node that either maximizes or minimizes this criterion.
-
 3.  **Split Method:** This method is responsible for dividing a node into two or more child nodes. It should take into account the data that the node contains.
 
 The above methods were created based on
@@ -200,15 +195,10 @@ Thomas H. Cormen.
 To make your first code contribution:
 
 1.  Fork the repository
-
 2.  Create a new branch with a meaningful name
-
 3.  Make your changes
-
 4.  Commit your changes with a detailed commit message
- 
 5.  Push your changes to your forked repository
-
 6.  Open a pull request to the main repository
 
 We will then review your changes and provide feedback. Remember that open-source
@@ -237,8 +227,6 @@ The documentation was created with the Sphinx documentation generator via
 docstrings. The documentation is written in the form of NumPy docstrings.
 Finally, you can find all the necessary files needed for documentation
 generation in the repository folder docs.
-
-
 
 ## Contact
 
