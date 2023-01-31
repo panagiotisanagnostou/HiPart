@@ -2,7 +2,7 @@ import HiPart.visualizations as viz
 import matplotlib.pyplot as plt
 import numpy as np
 
-from HiPart.clustering import dePDDP
+from HiPart.clustering import DePDDP
 from sklearn.decomposition import KernelPCA
 from sklearn.datasets import make_circles
 
@@ -51,6 +51,7 @@ def plot_manafolds(X, y, vals, gamma, title):
 
     return plt
 
+
 if __name__ == "__main__":
     # set a random seed for results consistency
     np.random.seed(123)
@@ -76,11 +77,11 @@ if __name__ == "__main__":
         title="Original space",
     ).show()
 
-    ##### data clustering
+    # data clustering
 
     clusternumber = 2
 
-    outObj = dePDDP(
+    outObj = DePDDP(
         decomposition_method="kpca",
         max_clusters_number=clusternumber,
         bandwidth_scale=0.5,

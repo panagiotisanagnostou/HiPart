@@ -1,4 +1,4 @@
-from HiPart.clustering import dePDDP
+from HiPart.clustering import DePDDP
 from sklearn.datasets import make_blobs
 
 import HiPart.interactive_visualization as int_viz
@@ -15,7 +15,7 @@ X, y = make_blobs(
 print("Example data shape: {}\n".format(X.shape))
 
 # Data clustering
-depddp = dePDDP(
+depddp = DePDDP(
     decomposition_method="pca",
     max_clusters_number=clusters,
     bandwidth_scale=0.5,

@@ -48,6 +48,7 @@ def execute_decomposition_method(
 
     Parameters
     ----------
+    two_dimentions
     data_matrix : numpy.ndarray
         The data matrix contains all the data for the samples.
     decomposition_method : str
@@ -187,6 +188,8 @@ def make_scatter_n_hist(
 
     Parameters
     ----------
+    bandwidth_scale
+    scaler
     scatter : matplotlib.axes.Axes object
         The Axes for the main plot to be drawn.
     hist : matplotlib.axes.Axes object

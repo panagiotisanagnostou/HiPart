@@ -23,10 +23,10 @@ Paper dendrogram figure generation.
 @author: Panagiotis Anagnostou
 """
 
-from HiPart.clustering import dePDDP
+from HiPart.clustering import DePDDP
 from scipy.cluster import hierarchy
 
-import HiPart.inteactive_visualization as iv
+import HiPart.interactive_visualization as iv
 import HiPart.visualizations as viz
 import matplotlib
 import matplotlib.gridspec as gridspec
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     print(X.shape)
 
     # execution of the dePDDP algorithm
-    depddp = dePDDP(
+    depddp = DePDDP(
         decomposition_method="pca",
         max_clusters_number=np.unique(y).shape[0],
         bandwidth_scale=0.5,

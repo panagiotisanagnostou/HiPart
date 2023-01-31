@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """
-Implementation modue for the static visualization of the algorithms implemented
+Implementation module for the static visualization of the algorithms implemented
 in the HiPart package.
 
 """
@@ -29,10 +29,10 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 
 from scipy.cluster.hierarchy import dendrogram
-from HiPart.clustering import bicecting_kmeans
-from HiPart.clustering import dePDDP
-from HiPart.clustering import iPDDP
-from HiPart.clustering import kM_PDDP
+from HiPart.clustering import BisectingKmeans
+from HiPart.clustering import DePDDP
+from HiPart.clustering import IPDDP
+from HiPart.clustering import KMPDDP
 from HiPart.clustering import PDDP
 
 
@@ -48,12 +48,12 @@ def split_visualization(hipart_object, color_map="tab20"):
     Depending on the input object, the visualization is enriched with
     additional information related to the algorithm that created it. For the:
 
-    1. dePDDP object, the visualization adds a marginal plot on the X-axis that
+    1. DePDDP object, the visualization adds a marginal plot on the X-axis that
     represents the density of the data as extracted from the kernel density
     estimation for the first principal component. That is the information the
     dePDDP algorithm utilizes to split each cluster.
 
-    2. kM_PDDP object, the visualization adds a marginal plot on the X-axis
+    2. KMPDDP object, the visualization adds a marginal plot on the X-axis
     that represents the data as they are projected on the first principal
     component, with the addition of the centers the k-Means finds within its
     execution on each split. That is the information the kM_PDDP algorithm
@@ -64,7 +64,7 @@ def split_visualization(hipart_object, color_map="tab20"):
     principal component. That is the information the iPDDP algorithm utilizes
     to split each cluster.
 
-    4. bicecting_kmeans object does not include additional information in the
+    4. BisectingKmeans object does not include additional information in the
     visualization. That is because of the nature of the algorithm it
     implements.
 
@@ -75,7 +75,7 @@ def split_visualization(hipart_object, color_map="tab20"):
 
     Parameters
     ----------
-    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or bicecting_kmeans
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or BisectingKmeans
         The object member of HiPart package that we want to manipulate on the
         premiss of this function.
     color_map : string
@@ -90,40 +90,40 @@ def split_visualization(hipart_object, color_map="tab20"):
         if the elements of the object are not correctly structured.
     ValueError
         If the "visualization_utility" attribute of the imported object is
-        False, this causes some of the needed for this visualization data not
+        False, this causes some needed for this visualization data not
         to be created.
 
     Returns
     -------
     plt : pyplot (module)
-        The created visulization by this function.
+        The created visualization by this function.
 
     """
 
     # Check data compatibility with the function
-    if isinstance(hipart_object, dePDDP):
+    if isinstance(hipart_object, DePDDP):
         if not hipart_object.visualization_utility:
             raise ValueError(
-                """The visulaization of the data cannot be achived because the
+                """The visualization of the data cannot be archived because the
                 visualization_utility is False."""
             )
         with_hist = True
         with_marginal_scatter = False
         grid_size = 4
     elif (
-        isinstance(hipart_object, iPDDP)
-        or isinstance(hipart_object, kM_PDDP)
+        isinstance(hipart_object, IPDDP)
+        or isinstance(hipart_object, KMPDDP)
         or isinstance(hipart_object, PDDP)
     ):
         if not hipart_object.visualization_utility:
             raise ValueError(
-                """The visulaization of the data cannot be achived because the
+                """The visualization of the data cannot be archived because the
                 visualization_utility is False."""
             )
         with_hist = False
         with_marginal_scatter = True
         grid_size = 4
-    elif isinstance(hipart_object, bicecting_kmeans):
+    elif isinstance(hipart_object, BisectingKmeans):
         with_hist = False
         with_marginal_scatter = False
         grid_size = 2
@@ -136,12 +136,12 @@ def split_visualization(hipart_object, color_map="tab20"):
     )
     number_of_splits = len(internal_nodes)
 
-    # insure that the root node will be always an internal node while is the
+    # Ensure that the root node will be always an internal node while is the
     # only node in the tree
     if number_of_splits == 0:
         internal_nodes = [0]
 
-    # select the number of plot subfigures
+    # select the number of plot sub-figures
     row_plots = 3 if math.ceil(number_of_splits) > 4 else 2
 
     # set figure size
@@ -149,7 +149,7 @@ def split_visualization(hipart_object, color_map="tab20"):
         figsize=(4 * row_plots, 3.5 * math.ceil(number_of_splits / row_plots)),
     )
 
-    # create grid for subfigures
+    # create grid for sub-figures
     gs = gridspec.GridSpec(
         math.ceil(number_of_splits / row_plots) * grid_size,
         row_plots * grid_size,
@@ -160,7 +160,7 @@ def split_visualization(hipart_object, color_map="tab20"):
     hist_indicator = 0
 
     for i in range(number_of_splits):
-        # exrtact the subplot position
+        # Extract the subplot position
         row_from, row_to, col_from, col_to = util.grid_position(
             current=i,
             rows=row_plots,
@@ -200,7 +200,7 @@ def split_visualization(hipart_object, color_map="tab20"):
                 hist=hist,
                 PP=principal_projections,
                 splitPoint=splitPoint,
-                bandwidth_scale=hipart_object.split_data_bandwidth_scale,
+                bandwidth_scale=hipart_object.bandwidth_scale,
                 pr_col=pr_col,
                 scaler=total_elements,
             )
@@ -230,7 +230,7 @@ def split_visualization(hipart_object, color_map="tab20"):
             )
             centers = dictionary_of_nodes[
                 internal_nodes[i]
-            ].data["centers"] if isinstance(hipart_object, kM_PDDP) else None
+            ].data["centers"] if isinstance(hipart_object, KMPDDP) else None
             util.make_scatter_n_marginal_scatter(
                 scatter=scatter,
                 marginal_scatter=marginal_scatter,
@@ -248,9 +248,9 @@ def split_visualization(hipart_object, color_map="tab20"):
             )
 
         else:
-            # bicecting k-Means doesn't execute PCA so we execute it here for
+            # Bisecting k-Means doesn't execute PCA, so we execute it here for
             # the visualization
-            if isinstance(hipart_object, bicecting_kmeans):
+            if isinstance(hipart_object, BisectingKmeans):
                 principal_projections = util.execute_decomposition_method(
                     data_matrix=hipart_object.X[
                         dictionary_of_nodes[internal_nodes[i]].data["indices"]
@@ -270,7 +270,7 @@ def split_visualization(hipart_object, color_map="tab20"):
                     internal_nodes[i]
                 ].data["splitpoint"]
 
-            # create the each individual visualization
+            # create each individual visualization
             ax = plt.subplot(gs[row_from:row_to, col_from:col_to])
             ax = util.make_simple_scatter(
                 sp=ax,
@@ -299,12 +299,12 @@ def dendrogram_visualization(hipart_object, **dendrogram_parameters):
 
     Parameters
     ----------
-    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or bicecting_kmeans
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or BisectingKmeans
         The object member of the HiPart package that we want to manipulate on
         the premiss of this function.
     **dendrogram_parameters : dict
         All the parameters the scipy.cluster.hierarchy.dendrogram function can
-        take except the color_treshold parameter. With the exception of the
+        take except the color_threshold parameter. Except for the
         "color_threshold" parameter. This parameter takes a default threshold
         because, in the linkage, we do not calculate the actual distance of the
         found clusters but only their hierarchy.
@@ -325,11 +325,11 @@ def dendrogram_visualization(hipart_object, **dendrogram_parameters):
     """
 
     if not (
-        isinstance(hipart_object, dePDDP)
-        or isinstance(hipart_object, iPDDP)
-        or isinstance(hipart_object, kM_PDDP)
+        isinstance(hipart_object, DePDDP)
+        or isinstance(hipart_object, IPDDP)
+        or isinstance(hipart_object, KMPDDP)
         or isinstance(hipart_object, PDDP)
-        or isinstance(hipart_object, bicecting_kmeans)
+        or isinstance(hipart_object, BisectingKmeans)
     ):
         raise TypeError("can only process objects of the 'HiPart' package.")
 
@@ -350,7 +350,7 @@ def linkage(hipart_object):
 
     Parameters
     ----------
-    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or bicecting_kmeans
+    hipart_object : dePDDP or iPDDP or kM_PDDP or PDDP or BisectingKmeans
         The object member of HiPart package that we want to manipulate on the
         premiss of this function.
 
@@ -362,11 +362,11 @@ def linkage(hipart_object):
     """
 
     if not (
-        isinstance(hipart_object, dePDDP)
-        or isinstance(hipart_object, iPDDP)
-        or isinstance(hipart_object, kM_PDDP)
+        isinstance(hipart_object, DePDDP)
+        or isinstance(hipart_object, IPDDP)
+        or isinstance(hipart_object, KMPDDP)
         or isinstance(hipart_object, PDDP)
-        or isinstance(hipart_object, bicecting_kmeans)
+        or isinstance(hipart_object, BisectingKmeans)
     ):
         raise TypeError("can only process objects of the 'HiPart' package.")
 

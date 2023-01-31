@@ -1,7 +1,7 @@
-from HiPart.clustering import bicecting_kmeans
-from HiPart.clustering import dePDDP
-from HiPart.clustering import iPDDP
-from HiPart.clustering import kM_PDDP
+from HiPart.clustering import BisectingKmeans
+from HiPart.clustering import DePDDP
+from HiPart.clustering import IPDDP
+from HiPart.clustering import KMPDDP
 from HiPart.clustering import PDDP
 from sklearn.datasets import make_blobs
 from sklearn.metrics import adjusted_rand_score as ari
@@ -10,7 +10,6 @@ from sklearn.metrics import normalized_mutual_info_score as nmi
 import matplotlib.pyplot as plt
 import time
 import HiPart.visualizations as viz
-
 
 # %% Example data creation
 # number of cluster in the data
@@ -24,11 +23,10 @@ X, y = make_blobs(
 )
 print("Example data shape: {}\n".format(X.shape))
 
-
 # %% dePDDP algorithm execution
 # timer for the execution time in the form of tic-toc
 tic = time.perf_counter()
-depddp = dePDDP(
+depddp = DePDDP(
     decomposition_method="pca",
     max_clusters_number=clusters,
     bandwidth_scale=0.5,
@@ -37,7 +35,7 @@ depddp = dePDDP(
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("depddp_time= {val:.5f}".format(val=toc-tic))
+print("depddp_time= {val:.5f}".format(val=toc - tic))
 print("depddp_mni= {val:.5f}".format(val=nmi(y, depddp.labels_)))
 print("depddp_ari= {val:.5f}\n".format(val=ari(y, depddp.labels_)))
 
@@ -47,17 +45,16 @@ viz.split_visualization(depddp).show()
 dn = viz.dendrogram_visualization(depddp)
 plt.show()
 
-
 # %% iPDDP algorithm execution
 # timer for the execution time in the form of tic-toc
 tic = time.perf_counter()
-ipddp = iPDDP(
+ipddp = IPDDP(
     decomposition_method="pca", max_clusters_number=clusters, percentile=0.1
 ).fit(X)
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("ipddp_time= {val:.5f}".format(val=toc-tic))
+print("ipddp_time= {val:.5f}".format(val=toc - tic))
 print("ipddp_mni= {val:.5f}".format(val=nmi(y, ipddp.labels_)))
 print("ipddp_ari= {val:.5f}\n".format(val=ari(y, ipddp.labels_)))
 
@@ -67,18 +64,17 @@ viz.split_visualization(ipddp).show()
 dn = viz.dendrogram_visualization(ipddp)
 plt.show()
 
-
 # %% kMeans-PDDP algorithm execution
 # timer for the execution time in the form of tic-toc
 tic = time.perf_counter()
-kmpddp = kM_PDDP(
+kmpddp = KMPDDP(
     decomposition_method="pca",
     max_clusters_number=clusters,
 ).fit(X)
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("kmpddp_time= {val:.5f}".format(val=toc-tic))
+print("kmpddp_time= {val:.5f}".format(val=toc - tic))
 print("kmpddp_mni= {val:.5f}".format(val=nmi(y, kmpddp.labels_)))
 print("kmpddp_ari= {val:.5f}\n".format(val=ari(y, kmpddp.labels_)))
 
@@ -88,7 +84,6 @@ viz.split_visualization(kmpddp).show()
 dn = viz.dendrogram_visualization(kmpddp)
 plt.show()
 
-
 # %% PDDP algorithm execution
 # timer for the execution time in the form of tic-toc
 tic = time.perf_counter()
@@ -96,7 +91,7 @@ pddp = PDDP(decomposition_method="pca", max_clusters_number=clusters).fit(X)
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("pddp_time= {val:.5f}".format(val=toc-tic))
+print("pddp_time= {val:.5f}".format(val=toc - tic))
 print("pddp_mni= {val:.5f}".format(val=nmi(y, pddp.labels_)))
 print("pddp_ari= {val:.5f}\n".format(val=ari(y, pddp.labels_)))
 
@@ -106,14 +101,13 @@ viz.split_visualization(pddp).show()
 dn = viz.dendrogram_visualization(pddp)
 plt.show()
 
-
 # %% Bisecting kMeans algorithm execution
 # timer for the execution time in the form of tic-toc
 tic = time.perf_counter()
-bikmeans = bicecting_kmeans(max_clusters_number=clusters).fit(X)
+bikmeans = BisectingKmeans(max_clusters_number=clusters).fit(X)
 toc = time.perf_counter()
 
-print("bikmeans_time= {val:.5f}".format(val=toc-tic))
+print("bikmeans_time= {val:.5f}".format(val=toc - tic))
 print("bikmeans_mni= {val:.5f}".format(val=nmi(y, bikmeans.labels_)))
 print("bikmeans_ari= {val:.5f}\n".format(val=ari(y, bikmeans.labels_)))
 
