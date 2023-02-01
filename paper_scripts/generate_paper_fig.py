@@ -27,7 +27,7 @@ from HiPart.clustering import dePDDP
 from scipy.cluster import hierarchy
 
 import HiPart.__utility_functions as util
-import HiPart.inteactive_visualization as iv
+import HiPart.interactive_visualization as iv
 import HiPart.visualizations as viz
 import matplotlib
 import matplotlib.gridspec as gridspec

@@ -33,14 +33,15 @@ bibliography: paper.bib
 
 # Summary
 
-This paper presents the HiPart package, an open-source native python library that provides efficient and interpret-able implementations of divisive hierarchical clustering algorithms. HiPart supports interactive visualizations for the manipulation of the execution steps allowing the direct intervention of the clustering outcome. This package is highly suited for Big Data applications as the focus has been given to the computational efficiency of the implemented clustering methodologies. The dependencies used are either Python build-in packages or highly maintained stable external packages. The software is provided under the MIT license. The package's source code and documentation can be found at [GitHub](https://github.com/panagiotisanagnostou/HiPart).
+This paper presents the HiPart package, an open-source native Python library that provides efficient and interpret-able implementations of divisive hierarchical clustering algorithms. HiPart supports interactive visualizations for the manipulation of the execution steps allowing the direct intervention of the clustering outcome. This package is highly suited for Big Data applications as the focus has been given to the computational efficiency of the implemented clustering methodologies. The dependencies used are either Python build-in packages or highly maintained stable external packages. The software is provided under the MIT license. The package's source code and documentation can be found at [GitHub](https://github.com/panagiotisanagnostou/HiPart).
 
 
 # Statement of need
 
-A highly researched problem by a variety of research communities is the problem of data clustering. However, high-dimensional data clustering still constitutes a significant challenge, plagued by the *curse of dimensionality* [@hutzenthaler2020overcoming]. Hierarchical divisive algorithms developed in the recent years [@TASOULIS20103391; @pavlidis2016minimum; @hofmeyr2016clustering; @hofmeyr2019minimum; @hofmeyr2019ppci] have shown great potential for the particular case of high dimensional data, incorporating dimensionality reduction iteratively within their algorithmic procedure. Additionally, they seem unique in providing a hierarchical format of the clustering result with low computational cost, in contrast to the commonly used but computationally demanding agglomerative clustering methods.
+A highly researched problem by a variety of research communities is the problem of clustering. However, high-dimensional clustering still constitutes a significant challenge, plagued by the *curse of dimensionality* [@hutzenthaler2020overcoming]. Hierarchical divisive algorithms developed in the recent years [@TASOULIS20103391; @pavlidis2016minimum; @hofmeyr2016clustering; @hofmeyr2019minimum; @hofmeyr2019ppci] have shown great potential for the particular case of high dimensional data,
+incorporating dimensionality reduction iteratively within their algorithmic procedure. Additionally, they seem unique in providing a hierarchical format of the clustering result with low computational cost, in contrast to the commonly used but computationally demanding agglomerative clustering methods.
 
-Although the discovery of a hierarchical format is crucial in many fields, such as bioinformatics [@luo2003hierarchical; @modena2014gene], to the best of our knowledge, this package is the first native python implementation of divisive hierarchical clustering algorithms. We particularly focus on the "Principal Direction Divisive Clustering (PDDP)" algorithm [@boley1998principal] for its potential to effectively tackle the *curse of dimensionality* and its impeccable time performance [@TASOULIS20103391].
+Although the discovery of a hierarchical format is crucial in many fields, such as bioinformatics [@luo2003hierarchical; @modena2014gene], to the best of our knowledge, this package is the first native Python implementation of divisive hierarchical clustering algorithms. We particularly focus on the "Principal Direction Divisive Clustering (PDDP)" algorithm [@boley1998principal] for its potential to effectively tackle the *curse of dimensionality* and its impeccable time performance [@TASOULIS20103391].
 
 Simultaneously, we provide implementations of a complete set of hierarchical divisive clustering algorithms with a similar basis. These are the dePDDP [@TASOULIS20103391], the iPDDP [@TASOULIS20103391], the kM-PDDP [@zeimpekis2008principal], and the bisecting k-Means (BKM) [@savaresi2001performance]. We also provide additional features not included in the original developments of the aforementioned methodologies that make them appropriate for the discovery of arbitrary shaped or non-linear separable clusters. In detail, we incorporate kernel Principal Component Analysis (kPCA) [@Scholkopf99kernelprincipal] and Independent Component Analysis (ICA) [@hyvarinen2000independent; @tharwat2020independent] for the iterative dimensionality reduction steps.
 
@@ -58,9 +59,9 @@ The HiPart (Hierarchical Partitioning) package is divided into three major secti
 
 ## Method Implementation
 
-The package employs an object-oriented approach for the implementation of the algorithms, similarly to that of [@JMLR:v23:21-0862], while incorporating design similarities with the scikit-learn library [@pedregosa2011scikit]. Meaning, a class executes each of the algorithms, and the class's parameters and attributes are the algorithm's hyper-parameters and results.
+The package employs an object-oriented approach for the implementation of the algorithms, similarly to that of [@JMLR:v23:21-0862], while incorporating design similarities with the scikit-learn library [@pedregosa2011scikit]. Meaning, a class instance executes each of the algorithms, and the class instance's attributes are the algorithm's hyper-parameters and results.
 
-For the execution of the algorithms, the user needs to call either the method `predict` or `fit_predict` of each algorithm's execution class. The algorithm parameterization can be applied at the constructor of their respective class.
+For the execution of the algorithms, the user needs to call either the `predict` or the `fit_predict` method of each algorithm's execution class. The algorithm parameterization can be applied at the constructor of their respective class.
 
 
 ## Static Visualization
@@ -77,12 +78,13 @@ In the interactive mode, we provide the possibility for stepwise manipulation of
 
 # Development Notes
 
-For the development of the package, we complied with the **PEP8** style standards, and we enforced it with the employment of *flake8* command-line utility. To ensure the code's quality, we implemented the *pytest* module to the entirety of the source code. In addition, platform compatibility has been assured through extensive testing, and the package development in its entirety uses only well-established or native python packages. The package has been released as open-source software under the "MIT License". For more information regarding potential contributions or for the submission of an issue, or a request, the package is hosted as a repository on Github.
+For the development of the package, we complied with the **PEP8** style standards, and we enforced it with the employment of *flake8* command-line utility. To ensure the code's quality, we implemented tests using the *pytest* module to assert the correctness of the implementations. In addition, platform compatibility has been assured through extensive testing, and the package development in its entirety uses only well-established or native Python packages. The package has been released as
+open-source software under the MIT License.  For more information regarding potential contributions or for the submission of an issue, or a request, the package is hosted as a repository on Github.
 
 
 # Experiments and Comparisons
 
-In this section, we provide clustering results with respect to the execution speed and clustering performance for the provided implementations. For direct comparison, we employ a series of well-established clustering algorithms. These are the k-Means [@likas2003global], the Agglomerative (AGG) [@ackermann2014analysis] and the OPTICS [@ankerst1999optics] of the scikit-learn [@pedregosa2011scikit] python library and the fuzzy c-means (FCM) algorithm [@bezdek1984fuzzy] of the fuzzy-c-means [@dias2019fuzzy] python package. Clustering performance is evaluated using the Normalized Mutual Information (NMI) score [@yang2016comparative].
+In this section, we provide clustering results with respect to the execution speed and clustering performance for the provided implementations. For direct comparison, we employ a series of well-established clustering algorithms. These are the k-Means [@likas2003global], the Agglomerative (AGG) [@ackermann2014analysis] and the OPTICS [@ankerst1999optics] of the scikit-learn [@pedregosa2011scikit] Python library and the fuzzy c-means (FCM) algorithm [@bezdek1984fuzzy] of the fuzzy-c-means [@dias2019fuzzy] Python package. Clustering performance is evaluated using the Normalized Mutual Information (NMI) score [@yang2016comparative].
 
 Four widely used data sets from the field of bioinformatics are employed along with two popular data sets benchmark data set for text and image clustering, respectively:
 
@@ -105,9 +107,13 @@ Four widely used data sets from the field of bioinformatics are employed along w
 :::
 [^1]: https://www.doi.org/10.7303/syn300013
 
+::: myimg
+![Dendrogram figure for the Cancer data set with the use of the dePDDP algorithm and the dendrogram visualization module of the HiPart library. The line below the tree represents the colour of the original cluster each sample belongs.](dendrogram.pdf)
+:::
+
 All experiments took place on a server computer with Linux operating system, kernel version 5.11.0, with an Intel Core i7-10700K CPU \@ 3.80GHz and four DDR4 RAM dims of 32GB with 2133MHz frequency. Default parameters were used for the execution of all the algorithms, and the actual number of clusters was provided to algorithms as a parameter when required.
 
-In the [Table](#mytable) bellow we present the mean performance of all methods with respect to execution time (time in secs) and NMI across 100 experiments. We observe that HiPart implementations perform exquisitely in terms of execution time while still being comparable with respect to clustering performance.
+In [Table 1](#mytable)we present the mean performance of all methods with respect to execution time (time in secs) and NMI across 100 experiments. We observe that HiPart implementations perform exquisitely in terms of execution time while still being comparable with respect to clustering performance.
 
 ```{=html}
 <style>
@@ -156,7 +162,7 @@ In the [Table](#mytable) bellow we present the mean performance of all methods w
 ::: {#floats}
 ::: {#mytable}
 +------------+--------------------------+----------+-------------------------+-----------+
-| Algorithm  | time                     | NMI      | time                    | NMI       |
+| Algorithm  | time (seconds)           | NMI      | time (seconds)          | NMI       |
 +============+:========================:+:========:+:=======================:+:=========:+
 |            | **Gene Expression Data**                                                  |
 +------------+--------------------------+----------+-------------------------+-----------+
@@ -225,21 +231,17 @@ In the [Table](#mytable) bellow we present the mean performance of all methods w
 Table: Clustering results with respect to execution time and clustering performance.
 :::
 
-::: myimg
-![Dendrogram figure for the Cancer data set with the use of the dePDDP algorithm and the dendrogram visualization module of the HiPart library. The line below the tree represents the colour of the original cluster each sample belongs.](dendrogram.pdf)
-:::
-
 :::
 
 
 # Conclusions and Future Work
 
-We present a highly time-efficient clustering package with a suite of tools that give the capability of addressing problems in high-dimensional data clustering. Also, the developed new visualization tools enhance understanding and identification of the underlying clustering data structure.
+We present a highly time-efficient clustering package with a suite of tools that give the capability of addressing problems in high-dimensional clustering problems. Also, the developed new visualization tools enhance understanding and identification of the underlying clustering data structure.
 
 We plan to continuously expand the HiPart package in the future through the addition of more hierarchical algorithms and by providing even more options for dimensionality reduction, such as the use of recent projection pursuit methodologies [@pavlidis2016minimum; @hofmeyr2016clustering; @hofmeyr2019minimum; @hofmeyr2019ppci]. Our final aim is to establish the golden standard when considering hierarchical divisive clustering.
 
 
-# Acknowledgments 
+# Acknowledgments
 
 This project has received funding from the Hellenic Foundation for Research and Innovation (HFRI), under grant agreement No 1901.
 
