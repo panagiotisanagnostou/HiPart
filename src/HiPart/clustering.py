@@ -228,7 +228,7 @@ class DePDDP:
         self.cluster_color += 1
         self.node_ids += 2
 
-    def select_kid(self, leaves):
+    def select_kid(self, possible_splits):
         """
         The clusters each time exist in the leaves of the trees. From those
         leaves select the next leave to split based on the algorithm's
@@ -239,7 +239,7 @@ class DePDDP:
 
         Parameters
         ----------
-        leaves : list of treelib.node.Node
+        possible_splits : list of treelib.node.Node
             The list of nodes needed to exam to select the next Node to split.
 
         Returns
@@ -251,18 +251,18 @@ class DePDDP:
         min_density_node = None
 
         # Remove the nodes that can not split further
-        leaves = list(
-            np.array(leaves)[
+        possible_splits = list(
+            np.array(possible_splits)[
                 [
                     True if i.data["split_criterion"] is not None else False
-                    for i in leaves
+                    for i in possible_splits
                 ]
             ]
         )
 
-        if len(leaves) > 0:
+        if len(possible_splits) > 0:
             for i in sorted(
-                enumerate(leaves), key=lambda x: x[1].data["split_criterion"]
+                enumerate(possible_splits), key=lambda x: x[1].data["split_criterion"]
             ):
                 if i[1].data["split_permission"]:
                     min_density_node = i[1].identifier
@@ -299,7 +299,7 @@ class DePDDP:
 
         """
 
-        projection = None  # (ST2)
+        proj = None  # (ST2)
         splitpoint = None  # (ST2)
         split_criterion = None  # (ST2)
         flag = False  # (ST2)
@@ -307,13 +307,13 @@ class DePDDP:
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
             # execute pca on the data matrix
-            projection = util.execute_decomposition_method(
+            proj = util.execute_decomposition_method(
                 data_matrix=self.X[indices, :],
                 decomposition_method=self.decomposition_method,
                 two_dimentions=self.visualization_utility,
                 decomposition_args=self.decomposition_args,
             )
-            one_dimension = projection[:, 0]
+            one_dimension = proj[:, 0]
 
             # calculate the standard deviation of the data
             bandwidth = sm.nonparametric.bandwidths.select_bandwidth(
@@ -360,7 +360,7 @@ class DePDDP:
 
         return {
             "indices": indices,
-            "projection": projection,
+            "projection": proj,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
             "split_permission": flag,
@@ -764,17 +764,17 @@ class IPDDP:
         # =========================
         if indices.shape[0] > self.min_sample_split:
             # execute pca on the data matrix
-            projection = util.execute_decomposition_method(
+            proj_vector = util.execute_decomposition_method(
                 data_matrix=self.X[indices, :],
                 decomposition_method=self.decomposition_method,
                 two_dimentions=self.visualization_utility,
                 decomposition_args=self.decomposition_args,
             )
-            one_dimension = projection[:, 0]
+            one_dimension = proj_vector[:, 0]
 
             sort_indices = np.argsort(one_dimension)
-            projection = projection[sort_indices, :]
-            one_dimension = projection[:, 0]
+            proj_vector = proj_vector[sort_indices, :]
+            one_dimension = proj_vector[:, 0]
             indices = indices[sort_indices]
 
             quantile_value = np.quantile(
@@ -801,20 +801,32 @@ class IPDDP:
                 flag = False
         # =========================
         else:
-            projection = None
+            proj_vector = None
             splitpoint = None
             split_criterion = None
             flag = False
 
         return {
             "indices": indices,
-            "projection": projection,
+            "projection": proj_vector,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
             "split_permission": flag,
             "color_key": key,
             "dendrogram_check": False,
         }
+
+    @property
+    def max_clusters_number(self):
+        return self._max_clusters_number
+
+    @max_clusters_number.setter
+    def max_clusters_number(self, v):
+        if v < 0 or (not isinstance(v, int)):
+            raise ValueError(
+                "IPDDP: min_sample_split: Invalid value it should be int and > 1"
+            )
+        self._max_clusters_number = v
 
     @property
     def decomposition_method(self):
@@ -829,18 +841,6 @@ class IPDDP:
                 + ": Unknown decomposition method!"
             )
         self._decomposition_method = v
-
-    @property
-    def max_clusters_number(self):
-        return self._max_clusters_number
-
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "IPDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._max_clusters_number = v
 
     @property
     def percentile(self):
@@ -886,18 +886,18 @@ class IPDDP:
             # those nodes we can extract the data for the current split.
             if not nodes[i].is_leaf():
                 # create output cluster splitting matrix
-                tmp = np.copy(output_matrix[-1])
+                tmp_array = np.copy(output_matrix[-1])
                 # Left child according to the tree creation process
-                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
+                tmp_array[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
                     0
                 ].identifier
                 # Right child according to the tree creation process
-                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
+                tmp_array[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
                     1
                 ].identifier
 
                 # The output_matrix is created transposed
-                output_matrix.append(tmp)
+                output_matrix.append(tmp_array)
         # the first row contains only zeros
         del output_matrix[0]
 
@@ -1140,7 +1140,7 @@ class KMPDDP:
 
         """
 
-        next_split = None
+        maximum_frobenius = None
 
         # Remove the nodes that can not split further
         leaves = list(
@@ -1159,10 +1159,10 @@ class KMPDDP:
                 reverse=True,
             ):
                 if i[1].data["split_permission"]:
-                    next_split = i[1].identifier
+                    maximum_frobenius = i[1].identifier
                     break
 
-        return next_split
+        return maximum_frobenius
 
     def calculate_node_data(self, indices, key):
         """
@@ -1181,8 +1181,6 @@ class KMPDDP:
         ----------
         indices : numpy.ndarray
             The index of the samples in the original data matrix.
-        data_matrix : numpy.ndarray
-            The data matrix containing all the data for the samples.
         key : int
             The value of the color for each node.
 
@@ -1908,10 +1906,10 @@ class BisectingKmeans:
 
         # left child indices extracted from the nodes split-point and the
         # indices included in the parent node
-        left_kid_index = node.data["left_indices"]
+        left_index = node.data["left_indices"]
 
         # right child indices
-        right_kid_index = node.data["right_indices"]
+        right_index = node.data["right_indices"]
 
         # Nodes and data creation for the children
         # Uses the calculate_node_data function to create the data for the node
@@ -1920,8 +1918,8 @@ class BisectingKmeans:
             identifier=self.node_ids + 1,
             parent=node.identifier,
             data=self.calculate_node_data(
-                left_kid_index,
-                self.X[left_kid_index, :],
+                left_index,
+                self.X[left_index, :],
                 node.data["color_key"],
             ),
         )
@@ -1930,8 +1928,8 @@ class BisectingKmeans:
             identifier=self.node_ids + 2,
             parent=node.identifier,
             data=self.calculate_node_data(
-                right_kid_index,
-                self.X[right_kid_index, :],
+                right_index,
+                self.X[right_index, :],
                 self.cluster_color + 1,
             ),
         )

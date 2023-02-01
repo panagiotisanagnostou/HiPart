@@ -26,34 +26,22 @@ Paper dendrogram figure generation.
 from HiPart.clustering import DePDDP
 from scipy.cluster import hierarchy
 
+import __utilities as util
 import HiPart.interactive_visualization as iv
 import HiPart.visualizations as viz
 import matplotlib
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 
 if __name__ == "__main__":
     # laod the data
-    X = (
-        pd.read_csv(
-            filepath_or_buffer="./data/cancer/data.csv",
-            index_col=0,
-            header=0,
-        )
-        .astype("float64")
-        .to_numpy()
-    )
-    y = pd.read_csv(
-        filepath_or_buffer="./data/cancer/labels.csv",
-        index_col=0,
-        header=0,
-        dtype="category",
-    ).Class.cat.codes.to_numpy()
+    # %% Analyze Cancer dataset
+    name = "Cancer"
+    X, y = util.h5file("data/", name)
+    y = y + 1
 
-    print("\ncancer")
     print(X.shape)
 
     # execution of the dePDDP algorithm
@@ -69,13 +57,12 @@ if __name__ == "__main__":
     color_list = [iv._convert_to_hex(color_map(i)) for i in range(color_map.N)]
 
     # initialize pyplot rcParams
-    plt.rcParams["figure.figsize"] = [4, 4.5]
     plt.rcParams["figure.autolayout"] = True
     plt.rcParams["lines.linewidth"] = 0.5
     plt.rcParams["ytick.labelsize"] = 9
 
     # make figure
-    fig = plt.figure(figsize=(5, 7))
+    fig = plt.figure(figsize=(3.5, 2.2))
     # create a grid
     gs = gridspec.GridSpec(25, 1, fig, wspace=0.01, hspace=0.2)
 
@@ -132,4 +119,4 @@ if __name__ == "__main__":
     labels.xaxis.grid(which="minor")
 
     # save figure
-    plt.savefig("dendrogram.png")
+    plt.savefig("dendrogram.pdf", bbox_inches='tight')

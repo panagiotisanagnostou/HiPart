@@ -435,8 +435,8 @@ def Splitpoint_Manipulation_Callback(
                 str(i) for i in range(len(np.unique(data_matrix["cluster"])))
             ]
         }
-        color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
-        colList = {str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)}
+        map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
+        color_list = {str(i): _convert_to_hex(map(i)) for i in range(map.N)}
 
         with open(data["new_input_object"], "rb") as obj_file:
             obj = pickle.load(obj_file)
@@ -448,14 +448,14 @@ def Splitpoint_Manipulation_Callback(
                 splitpoint,
                 obj.bandwidth_scale,
                 order,
-                colList,
+                color_list,
             )
         else:
             current_figure = _int_make_scatter_n_marginal_scatter(
                 data_matrix,
                 splitpoint,
                 order,
-                colList
+                color_list
             )
 
     else:
@@ -664,11 +664,11 @@ def _data_preparation(object_path, splitVal):
         cluster_map[i.data["indices"]] = str(int(i.data["color_key"]))
 
     # list of all the tree's nodes
-    dictionary_of_nodes = tree.nodes
+    node_dictionary = tree.nodes
 
     # Search for the internal nodes (splits) of the tree with the use of the
     # clusters determined above
-    number_of_nodes = len(list(dictionary_of_nodes.keys()))
+    number_of_nodes = len(list(node_dictionary.keys()))
     leaf_node_list = [j.identifier for j in clusters]
     internal_nodes = [
         i for i in range(number_of_nodes) if not (i in leaf_node_list)
@@ -1064,7 +1064,7 @@ def _int_make_scatter_n_hist(
         color="cluster",
         hover_name="cluster",
         category_orders=category_order,
-        color_discrete_map=colList
+        color_discrete_map=colList,
     )["data"]
     for i in main_figure:
         fig.add_trace(i, row=2, col=1)
