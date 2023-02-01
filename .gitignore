@@ -1,8 +1,11 @@
 */__pycache__/
 */*/__pycache__/
 */.ipynb_checkpoints
-*.png
+*.pdf
 dist/
+build/
+.idea/
+.pytest_cache/
 src/HiPart.egg-info
 docs/_build/
 docs/_templates/

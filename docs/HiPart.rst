@@ -1,33 +1,34 @@
-HiPart package
-==============
+Package contents
+================
 
-Module contents
----------------
+.. toctree::
+   :hidden:
 
 .. automodule:: HiPart
    :members:
    :undoc-members:
    :show-inheritance:
 
-HiPart.clustering module
-------------------------
+Clustering module
+-----------------
 
 .. automodule:: HiPart.clustering
    :members:
    :show-inheritance:
 
-HiPart.interactive\_visualization module
-----------------------------------------
+Interactive\_visualization module
+---------------------------------
 
 .. automodule:: HiPart.interactive_visualization
    :members:
    :undoc-members:
    :show-inheritance:
 
-HiPart.visualizations module
-----------------------------
+Visualizations module
+---------------------
 
 .. automodule:: HiPart.visualizations
    :members:
    :undoc-members:
    :show-inheritance:
+

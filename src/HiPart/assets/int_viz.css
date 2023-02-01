@@ -43,7 +43,7 @@ SOFTWARE.
   max-width: 960px;
   margin: 0 auto;
   padding: 0 20px;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 .column,
@@ -83,9 +83,9 @@ SOFTWARE.
   .nine.columns { width: 74%; }
   .ten.columns { width: 82.6666666667%; }
   .eleven.columns { width: 91.3333333333%; }
-  .twelve.columns { 
-	  width: 100%;
-	  margin-left: 0; 
+  .twelve.columns {
+    width: 100%;
+    margin-left: 0;
   }
 
   .one-third.column { width: 30.6666666667%; }
@@ -136,7 +136,6 @@ SOFTWARE.
   .offset-by-one-half.column,
   .offset-by-one-half.columns { margin-left: 52%; }
 }
-
 
 /* Base Styles
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
@@ -405,6 +404,7 @@ ol,
 ul {
   padding-left: 0;
   margin-top: 0;
+  margin-bottom: 1rem;
 }
 
 ul ul,
@@ -461,11 +461,7 @@ form {
   margin-bottom: 0;
 }
 
-p,
-ul,
-ol {
-  margin-bottom: 1rem;
-}
+p { margin-bottom: 1rem; }
 
 /* Utilities
 –––––––––––––––––––––––––––––––––––––––––––––––––– */

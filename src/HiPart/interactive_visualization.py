@@ -28,9 +28,9 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output, State
 from KDEpy import FFTKDE
-from HiPart.clustering import dePDDP
-from HiPart.clustering import iPDDP
-from HiPart.clustering import kM_PDDP
+from HiPart.clustering import DePDDP
+from HiPart.clustering import IPDDP
+from HiPart.clustering import KMPDDP
 from HiPart.clustering import PDDP
 from tempfile import NamedTemporaryFile
 
@@ -68,17 +68,14 @@ def main(inputData):
 
     Returns (Currently not working correctly)
     ----------------------------------------
-    obj : dePDDP or iPDDP or kM_PDDP or PDDP object
-        The manipulated by the interactive visualization HiPart object. The
-        object`s type depends on the input object.
 
     """
 
     # Compatibility check of the input data with the interactive visualization
     if not (
-        isinstance(inputData, dePDDP)
-        or isinstance(inputData, iPDDP)
-        or isinstance(inputData, kM_PDDP)
+        isinstance(inputData, DePDDP)
+        or isinstance(inputData, IPDDP)
+        or isinstance(inputData, KMPDDP)
         or isinstance(inputData, PDDP)
     ):
         raise TypeError(
@@ -250,7 +247,7 @@ def display_menu(pathname, data):
 )
 def Splitpoint_Manipulation_Callback(
     data,
-    curent_figure,
+    current_figure,
     split_number,
     maximum_number_splits,
     split_marks,
@@ -274,10 +271,11 @@ def Splitpoint_Manipulation_Callback(
 
     Parameters
     ----------
+    splitpoint_marks
     data : dict
         The paths of the temporary files created for the execution of the
         interactive visualization.
-    curent_figure : dict
+    current_figure : dict
         A dictionary created from the plotly express object plots. It is used
         for the manipulation of the current figure.
     split_number : int
@@ -336,17 +334,18 @@ def Splitpoint_Manipulation_Callback(
         )
 
         # ensure correct values for the sliders
-        splitMax = maximum_number_splits
-        splitMarks = split_marks
-
-        splitPMin = data_matrix["PC1"].min()
-        splitPMax = data_matrix["PC1"].max()
         splitPMarks = {
             splitpoint: {
                 'label': 'Generated Split-point',
                 'style': {'color': '#77b0b1'}
             }
         }
+
+        splitMax = maximum_number_splits
+        splitMarks = split_marks
+
+        splitPMin = data_matrix["PC1"].min()
+        splitPMax = data_matrix["PC1"].max()
 
         # create visualization points
         category_order = {
@@ -357,20 +356,20 @@ def Splitpoint_Manipulation_Callback(
         color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
         colList = {str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)}
 
-        with open(data["new_input_object"], "rb") as obj_file:
-            obj = pickle.load(obj_file)
+        with open(data["new_input_object"], "rb") as cls_file:
+            cls = pickle.load(cls_file)
 
         # Check data compatibility with the function
-        if isinstance(obj, dePDDP):
-            curent_figure = _int_make_scatter_n_hist(
+        if isinstance(cls, DePDDP):
+            current_figure = _int_make_scatter_n_hist(
                 data_matrix,
                 splitpoint,
-                obj.split_data_bandwidth_scale,
+                cls.bandwidth_scale,
                 category_order,
                 colList,
             )
         else:
-            curent_figure = _int_make_scatter_n_marginal_scatter(
+            current_figure = _int_make_scatter_n_marginal_scatter(
                 data_matrix,
                 splitpoint,
                 category_order,
@@ -379,13 +378,13 @@ def Splitpoint_Manipulation_Callback(
 
     elif callback_ID == "splitpoint_Manipulation":
         # reconstruct the already created figure as figure from dict
-        curent_figure = go.Figure(
-            data=curent_figure["data"],
-            layout=go.Layout(curent_figure["layout"]),
+        current_figure = go.Figure(
+            data=current_figure["data"],
+            layout=go.Layout(current_figure["layout"]),
         )
 
         # update the splitpoint shape location
-        curent_figure.update_shapes(
+        current_figure.update_shapes(
             {"x0": splitpoint_position, "x1": splitpoint_position}
         )
 
@@ -400,17 +399,17 @@ def Splitpoint_Manipulation_Callback(
 
     elif callback_ID == "splitpoint_Man_apply":
         # execution of the split-point manipulation algorithmically
-        with open(data["new_input_object"], "rb") as obj_file:
-            obj = pickle.load(obj_file)
+        with open(data["new_input_object"], "rb") as cls_file:
+            cls = pickle.load(cls_file)
 
-        obj = _recalculate_after_spchange(
-            obj,
+        cls = _recalculate_after_spchange(
+            cls,
             split_number,
             splitpoint_position
         )
 
-        with open(data["new_input_object"], "wb") as obj_file:
-            pickle.dump(obj, obj_file)
+        with open(data["new_input_object"], "wb") as cls_file:
+            pickle.dump(cls, cls_file)
 
         # reconstruction of the figure and its slider from scratch
         data_matrix, splitpoint, internal_nodes, number_of_nodes = _data_preparation(
@@ -431,39 +430,39 @@ def Splitpoint_Manipulation_Callback(
         }
 
         # create visualization points
-        category_order = {
+        order = {
             "cluster": [
                 str(i) for i in range(len(np.unique(data_matrix["cluster"])))
             ]
         }
-        color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
-        colList = {str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)}
+        map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
+        color_list = {str(i): _convert_to_hex(map(i)) for i in range(map.N)}
 
         with open(data["new_input_object"], "rb") as obj_file:
             obj = pickle.load(obj_file)
 
         # Check data compatibility with the function
-        if isinstance(obj, dePDDP):
-            curent_figure = _int_make_scatter_n_hist(
+        if isinstance(obj, DePDDP):
+            current_figure = _int_make_scatter_n_hist(
                 data_matrix,
                 splitpoint,
-                obj.split_data_bandwidth_scale,
-                category_order,
-                colList,
+                obj.bandwidth_scale,
+                order,
+                color_list,
             )
         else:
-            curent_figure = _int_make_scatter_n_marginal_scatter(
+            current_figure = _int_make_scatter_n_marginal_scatter(
                 data_matrix,
                 splitpoint,
-                category_order,
-                colList
+                order,
+                color_list
             )
 
     else:
         # reconstruct the already created figure as figure from dict
-        curent_figure = go.Figure(
-            data=curent_figure["data"],
-            layout=go.Layout(curent_figure["layout"])
+        current_figure = go.Figure(
+            data=current_figure["data"],
+            layout=go.Layout(current_figure["layout"])
         )
 
         # ensure correct values for the sliders
@@ -478,7 +477,7 @@ def Splitpoint_Manipulation_Callback(
     return (
         dcc.Graph(
             id="splitpoint_Scatter",
-            figure=curent_figure,
+            figure=current_figure,
             config={"displayModeBar": False},
         ),
         splitMax,
@@ -530,11 +529,11 @@ def _Splitpoint_Manipulation(object_path):
         obj = pickle.load(obj_file)
 
     # Check data compatibility with the function
-    if isinstance(obj, dePDDP):
+    if isinstance(obj, DePDDP):
         figure = _int_make_scatter_n_hist(
             data_matrix,
             splitpoint,
-            obj.split_data_bandwidth_scale,
+            obj.bandwidth_scale,
             category_order,
             colList,
         )
@@ -640,7 +639,7 @@ def _data_preparation(object_path, splitVal):
     splitVal : int
         The serial number of split that want to extract data from.
 
-    ReturnsHiPart: Interactive Visualisation
+    Returns
     -------
     data_matrix : pandas.core.frame.DataFrame
     splitpoint : int
@@ -665,11 +664,11 @@ def _data_preparation(object_path, splitVal):
         cluster_map[i.data["indices"]] = str(int(i.data["color_key"]))
 
     # list of all the tree's nodes
-    dictionary_of_nodes = tree.nodes
+    node_dictionary = tree.nodes
 
     # Search for the internal nodes (splits) of the tree with the use of the
     # clusters determined above
-    number_of_nodes = len(list(dictionary_of_nodes.keys()))
+    number_of_nodes = len(list(node_dictionary.keys()))
     leaf_node_list = [j.identifier for j in clusters]
     internal_nodes = [
         i for i in range(number_of_nodes) if not (i in leaf_node_list)
@@ -753,6 +752,8 @@ def _message_center(message_id, object_path):
         obj = pickle.load(obj_file)
 
     obj_name = str(obj.__class__).split(".")[-1].split("'")[0]
+
+    msg = ""
 
     if message_id == "des:main_cluser":
         msg = """
@@ -898,15 +899,15 @@ def _Cluster_Scatter_Plot(object_path):
     Simple scatter plot creation function. This function is used on the
     initial visualization of the data and can be accessed throughout the
     execution of the interactive visualization server.
-    
+
     Parameters
     ----------
     object_path : str
         The location of the temporary file containing the pickle dump of the
         object we want to visualize.
-    
+
     """
-    
+
     # get the necessary data for the visualization
     (
         data_matrix,
@@ -914,18 +915,18 @@ def _Cluster_Scatter_Plot(object_path):
         _,
         number_of_nodes,
     ) = _data_preparation(object_path, 0)
-    
+
     # create scatter plot with the split-point shape
+    color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
+    colList = {
+        str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)
+    }
     category_order = {
         "cluster": [
             str(i) for i in range(len(np.unique(data_matrix["cluster"])))
         ]
     }
-    color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
-    colList = {
-        str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)
-    }
-    
+
     # create scatter plot
     figure = px.scatter(
         data_matrix,
@@ -935,7 +936,7 @@ def _Cluster_Scatter_Plot(object_path):
         category_orders=category_order,
         color_discrete_map=colList,
     )
-    
+
     # reform visualization
     figure.update_layout(width=850, height=650, plot_bgcolor="#fff")
     figure.update_traces(
@@ -962,7 +963,7 @@ def _Cluster_Scatter_Plot(object_path):
         zerolinewidth=1,
         zerolinecolor="#aaa",
     )
-    
+
     # Markdown description of the figure
     description = dcc.Markdown(
         _message_center("des:main_cluser", object_path),
@@ -971,7 +972,7 @@ def _Cluster_Scatter_Plot(object_path):
             "margin": "-20px 0px 0px 0px",
         }
     )
-    
+
     return html.Div(
         [
             description,
@@ -1063,7 +1064,7 @@ def _int_make_scatter_n_hist(
         color="cluster",
         hover_name="cluster",
         category_orders=category_order,
-        color_discrete_map=colList
+        color_discrete_map=colList,
     )["data"]
     for i in main_figure:
         fig.add_trace(i, row=2, col=1)
@@ -1134,9 +1135,6 @@ def _int_make_scatter_n_marginal_scatter(
         the end of the algorithm's execution as column "cluster".
     splitPoint : int
         The values of the point the data are split for this plot.
-    bandwidth_scale
-        Standard deviation scaler for the density approximation. Allowed values
-        are in the (0,1).
     category_order : dict
         The order of witch to show the clusters, contained in the
         visualization, on the legend of the plot.
@@ -1324,7 +1322,7 @@ def _recalculate_after_spchange(hipart_object, split, splitpoint_value):
     for i in dictionary_of_nodes:
         if dictionary_of_nodes[i].is_leaf():
             if dictionary_of_nodes[i].data["split_criterion"] is not None:
-                dictionary_of_nodes[i].data["split_permition"] = True
+                dictionary_of_nodes[i].data["split_permission"] = True
 
     # reset status variables for the code to execute
     hipart_object.node_ids = len(list(dictionary_of_nodes.keys())) - 1

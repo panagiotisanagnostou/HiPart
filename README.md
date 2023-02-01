@@ -7,11 +7,11 @@
 
 HiPart: Hierarchical divisive clustering toolbox
 ================================================
-This repository presents the HiPart package, an open-source native python library that provides efficient and interpret-able implementations of divisive hierarchical clustering algorithms. HiPart supports interactive visualizations for the manipulation of the execution steps allowing the direct intervention of the clustering outcome. This package is highly suited for Big Data applications as the focus has been given to the computational efficiency of the implemented clustering methodologies. The dependencies used are either Python build-in packages or highly maintained stable external packages. The software is provided under the MIT license.
+This repository presents the HiPart package, an open-source native python library that provides efficient and interpretable implementations of divisive hierarchical clustering algorithms. HiPart supports interactive visualizations for the manipulation of the execution steps allowing the direct intervention of the clustering outcome. This package is highly suited for Big Data applications as the focus has been given to the computational efficiency of the implemented clustering methodologies. The dependencies used are either Python build-in packages or highly maintained stable external packages. The software is provided under the MIT license.
 
 Installation
 ------------
-For the installation of the package, the only necessary actions and requirements are a version of Python higher or equal to 3.7 and the execution of the following command.
+For the installation of the package, the only necessary actions and requirements are a version of Python higher or equal to 3.8 and the execution of the following command.
 
 ```bash
 pip install HiPart
@@ -30,7 +30,7 @@ X, y = make_blobs(n_samples=1500, centers=6, random_state=0)
 clustered_class = dePDDP(max_clusters_number=6).fit_predict(X)
 ```
 
-Users can find complete execution examples for all the algorithms of the HiPart package in the [clustering_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/clustering_example.py) file of the repository. Also, the users can find a KernelPCA method usage example in the [clustering_with_kpca_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/clustering_with_kpca_example.py) file of the repository. Finally, the file [interactive_visualization_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/interactive_visualization_example.py) contains an example execution of the interactive visualization. The instructions for the interactive visualization GUI can be found with the execution of this visualization.
+Users can find complete execution examples for all the algorithms of the HiPart package in the [clustering_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_example.py) file of the repository. Also, the users can find a KernelPCA method usage example in the [clustering_with_kpca_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_with_kpca_example.py) file of the repository. Finally, the file [interactive_visualization_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/interactive_visualization_example.py) contains an example execution of the interactive visualization. The instructions for the interactive visualization GUI can be found with the execution of this visualization.
 
 Documentation
 -------------
@@ -39,8 +39,8 @@ The full documentation of the package can be found [here](https://hipart.readthe
 Citation
 --------
 
-~~~~
-@misc{https://doi.org/10.48550/arxiv.2209.08680,
+```bibtex
+@misc{anagnostou2022hipart,
   doi = {10.48550/ARXIV.2209.08680},
   url = {https://arxiv.org/abs/2209.08680},
   author = {Anagnostou, Panagiotis and Tasoulis, Sotiris and Plagianakos, Vassilis and Tasoulis, Dimitris},
@@ -49,7 +49,7 @@ Citation
   publisher = {arXiv},
   year = {2022},
 }
-~~~~
+```
 
 Acknowledgments
 ---------------
@@ -57,6 +57,6 @@ This project has received funding from the Hellenic Foundation for Research and 
 
 Collaborators
 -------------
-Dimitris Tasoulis [:email:](d.tasoulis@thesignalgroup.com)
-Panagiotis Anagnostou [:email:](panagno@uth.gr)
-Sotiris Tasoulis [:email:](stasoulis@uth.gr)
+Dimitris Tasoulis [:email:](mailto:d.tasoulis@thesignalgroup.com)
+Panagiotis Anagnostou [:email:](mailto:panagno@uth.gr)
+Sotiris Tasoulis [:email:](mailto:stasoulis@uth.gr)

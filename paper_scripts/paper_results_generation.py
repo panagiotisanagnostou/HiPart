@@ -24,11 +24,10 @@ Results generator.
 """
 
 import __utilities as util
+import csv
 import gc
 import numpy as np
-import pandas as pd
 import pickle
-import re
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -52,6 +51,9 @@ def evaluate(X, y, name):
 
 
 if __name__ == "__main__":
+    with open("result_dict.dump", "wb") as outf:
+        pickle.dump(dict(), outf)
+
     # %% Analyze Baron dataset
     name = "DRComparison-Baron"
     X, y = util.h5file("data/", name)
@@ -71,29 +73,64 @@ if __name__ == "__main__":
     evaluate(X, y, name)
 
     # %% Analyze Cancer dataset
-    X = pd.read_csv("./data/cancer/data.csv", index_col=0, header=0)
-    X = np.asarray(X, dtype="float64")
-    y = pd.read_csv("./data/cancer/labels.csv", index_col=0, header=0)
-    y["Class"] = pd.Categorical(y["Class"])
-    y["Class"] = y.Class.cat.codes
-    y = np.asarray(y).transpose()[0]
-
-    print("\nCancer")
+    name = "Cancer"
+    X, y = util.h5file("data/", name)
 
     evaluate(X, y, name)
 
     # %% Analyze USPS dataset
-    X = np.array(pd.read_csv("data/USPS-data", sep=";").applymap(lambda x: re.sub(",", ".", x))).astype(dtype="float32")
-    y = np.array(pd.read_csv("data/USPS-class")).transpose()[0]
-
-    print("\nUSPS")
+    name = "USPS"
+    X, y = util.h5file("data/", name)
 
     evaluate(X, y, name)
 
     # %% Analyze BBC dataset
-    X = np.array(pd.read_csv("data/bbc_data.csv", header=None))
-    y = np.array(pd.read_csv("data/bbc_class.csv")).transpose()[0]
-
-    print("\nBBC")
+    name = "BBC"
+    X, y = util.h5file("data/", name)
 
     evaluate(X, y, name)
+
+    # %% Generate final results
+    with open("result_dict.dump", "rb") as ind:
+        res = pickle.load(ind)
+
+    algos = [
+        "dePDDP",
+        "bisect k-Means",
+        "kM-PDDP",
+        "PDDP",
+        "iPDDP",
+        "k-Means",
+        "Fuzzy c-means",
+        "Agglomerative",
+        "OPTICS",
+    ]
+
+    with open("paper_results.csv", "w", encoding="UTF8", newline="") as f:
+        for i in res:
+            if not res[i] is None:
+                if res[i][1][0] != 0:
+                    writer = csv.writer(f, delimiter=";")
+
+                    # write the header
+                    writer.writerow([i] + list(np.full(3, "")))
+                    writer.writerow(["Algorithm", "Execution Time", "MNI", "ARI"])
+
+                    if res[i].shape[1] > 3:
+                        merged = np.array(
+                            [
+                                [
+                                    str(np.round(j[2 * k], decimals=2))
+                                    + " ("
+                                    + str(np.round(j[2 * k + 1], decimals=2))
+                                    + ")"
+                                    for k in range(3)
+                                ]
+                                for j in res[i]
+                            ]
+                        )
+                    else:
+                        merged = res[i]
+                    data = np.concatenate(([[j] for j in algos], merged), axis=1)
+                    # write multiple rows
+                    writer.writerows(data)
