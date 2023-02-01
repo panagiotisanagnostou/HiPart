@@ -76,11 +76,10 @@ Sotiris Tasoulis [:email:](stasoulis@uth.gr)
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
 
    modules
+
    examples
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
