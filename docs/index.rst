@@ -66,19 +66,14 @@ Acknowledgments
 This project has received funding from the Hellenic Foundation for Research and Innovation (HFRI), under grant agreement No 1901.
 
 
-Collaborators
+Contents
 -------------
-Dimitris Tasoulis [:email:](d.tasoulis@thesignalgroup.com)
-Panagiotis Anagnostou [:email:](panagno@uth.gr)
-Sotiris Tasoulis [:email:](stasoulis@uth.gr)
-
-
 
 .. toctree::
    :maxdepth: 2
 
+   self
    modules
-
    examples
 
 * :ref:`genindex`
