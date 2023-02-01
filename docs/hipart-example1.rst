@@ -5,7 +5,7 @@ Divise Clustering with HiPart
 :Author: Sotiris Tasoulis
 
 .. contents::
-   :depth: 3
+   :depth: 4
 ..
 
 Divisive Clustering and Visualization
