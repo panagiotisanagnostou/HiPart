@@ -1,11 +1,8 @@
-HiPart Package
-==============
+Package contents
+================
 
 .. toctree::
    :hidden:
-
-Package contents
----------------
 
 .. automodule:: HiPart
    :members:
