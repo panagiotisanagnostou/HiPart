@@ -26,7 +26,12 @@ Utility functions for the paper_results_generation.
 try:
     from fcmeans import FCM
 except ImportError:
-    raise ImportError('Install the package "fuzzy-c-means"!')
+    print('Installing the package "fuzzy-c-means"!')
+    import subprocess
+    import sys
+
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "fuzzy-c-means"])
+    from fcmeans import FCM
 from sklearn.cluster import KMeans, OPTICS, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score as ari
 from sklearn.metrics import normalized_mutual_info_score as nmi
@@ -39,7 +44,12 @@ from HiPart.clustering import PDDP
 try:
     import h5py
 except ImportError:
-    raise ImportError('Install the package "h5py"!')
+    print('Installing the package "h5py"!')
+    import subprocess
+    import sys
+
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "h5py"])
+    import h5py
 import numpy as np
 import re
 import string
