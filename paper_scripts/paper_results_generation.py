@@ -23,6 +23,9 @@ Results generator.
 @author: Panagiotis Anagnostou
 """
 
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 import __utilities as util
 import csv
 import gc
