@@ -23,6 +23,9 @@ Paper dendrogram figure generation.
 @author: Panagiotis Anagnostou
 """
 
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 from HiPart.clustering import DePDDP
 from scipy.cluster import hierarchy
 
