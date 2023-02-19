@@ -60,53 +60,13 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def read_data_file(name):
-    data = np.array([["0", "0", "0"]])
-    with open(name, "r", encoding="utf8") as inf:
-        for i in inf:
-            i = re.sub(r"\n", "", i)
-            temp = np.array(i.split("|")).transpose()
-            if len(temp) > 3:
-                temp = np.array([[temp[0], temp[1], "".join(temp[2:])]])
-                data = np.concatenate((data, temp), axis=0)
-            else:
-                temp = np.array([temp])
-                data = np.concatenate((data, temp), axis=0)
-    return data[1:, :]
-
-
-def doc_processecor(doc, stopwords):
-    # remove urls
-    tmp = re.sub(r"https?:\/\/", "", doc)
-    # trurn to lower case
-    tmp = tmp.lower()
-    # remove punctuation
-    tmp = "".join([i if i not in string.punctuation else " " for i in tmp])
-    # applying function to the column
-    tmp = tmp.split(" ")
-    # remove stopwords
-    tmp = [i for i in tmp if i not in stopwords]
-    # make data a string
-    return "".join(tmp)
-
-
-# scale pixels
-def prep_pixels(img_data):
-    # convert from integers to floats
-    img_norm = img_data.astype("float32")
-    # normalize to range 0-1
-    img_norm = img_norm / 255.0
-    # return normalized images
-    return img_norm
-
-
 def execute_evaluation(X, y):
     cluster_number = len(np.unique(y))
     print("cluster_number= {}\n".format(cluster_number))
 
     results = np.zeros((9, 6))
-    ffolds = 10
-    sfolds = 3
+    ffolds = 5
+    sfolds = 2
 
     # dePDDP algorithm
     try:
