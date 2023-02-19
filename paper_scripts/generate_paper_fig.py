@@ -24,7 +24,11 @@ Paper dendrogram figure generation.
 """
 
 import os
+import sys
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from HiPart.clustering import DePDDP
 from scipy.cluster import hierarchy
@@ -36,7 +40,6 @@ import matplotlib
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 if __name__ == "__main__":
     # laod the data
