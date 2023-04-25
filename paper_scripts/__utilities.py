@@ -51,8 +51,6 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "h5py"])
     import h5py
 import numpy as np
-import re
-import string
 import time
 import traceback
 import warnings

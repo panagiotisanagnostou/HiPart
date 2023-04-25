@@ -2092,20 +2092,20 @@ class BisectingKmeans:
 
         # The dictionary of nodes contains the created node from the KMPDDP
         # algorithm sorted from the root to the last split.
-        for l in tnds:
+        for t in tnds:
             # For the output matrix we don't want the leaves of the tree. Each
             # level of the output matrix represents a split the split exist in
             # the internal nodes of the tree. Only by checking the children of
             # those nodes we can extract the data for the current split.
-            if not tnds[l].is_leaf():
+            if not tnds[t].is_leaf():
                 # create output cluster splitting matrix
                 tmp = np.copy(output_matrix[-1])
                 # Left child according to the tree creation process
-                tmp[self.tree.children(l)[0].data["indices"]] = \
-                    self.tree.children(l)[0].identifier
+                tmp[self.tree.children(t)[0].data["indices"]] = \
+                    self.tree.children(t)[0].identifier
                 # Right child according to the tree creation process
-                tmp[self.tree.children(l)[1].data["indices"]] = \
-                    self.tree.children(l)[1].identifier
+                tmp[self.tree.children(t)[1].data["indices"]] = \
+                    self.tree.children(t)[1].identifier
 
                 # The output_matrix is created transposed
                 output_matrix.append(tmp)
