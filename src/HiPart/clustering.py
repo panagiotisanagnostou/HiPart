@@ -43,8 +43,8 @@ class DePDDP:
     Parameters
     ----------
     decomposition_method : str, optional
-        One of the ('pca', 'kpca', 'ica') supported decomposition methods used
-        as kernel for the dePDDP algorithm.
+        One of the ('pca', 'kpca', 'ica', 'tsne') supported decomposition
+        methods used as kernel for the dePDDP algorithm.
     max_clusters_number : int, optional
         Desired maximum number of clusters to find the dePDDP algorithm.
     bandwidth_scale : float, optional
@@ -59,10 +59,10 @@ class DePDDP:
         the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
     **decomposition_args :
-        Arguments for each of the decomposition methods ("PCA" as "pca",
-        "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
-        package, as documented in the scikit-learn package, from which they are
-        implemented.
+        Arguments for each of the decomposition methods ("decomposition.PCA" as
+        "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
+        "ica", "manifold.TSNE" as "tsne") utilized by the HiPart package, as
+        documented in the scikit-learn package, from which they are implemented.
 
     Attributes
     ----------
@@ -275,7 +275,7 @@ class DePDDP:
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
         Principal Components Analysis" or the "Independent Component Analysis"
-        methods.
+        or "t-SNE" methods.
 
         Determination of the projection's density and search for its local
         minima. The lowest local minimum point within the allowed sample
@@ -374,7 +374,7 @@ class DePDDP:
 
     @decomposition_method.setter
     def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica"]):
+        if not (v in ["pca", "kpca", "ica", "tsne"]):
             raise ValueError(
                 "DePDDP: decomposition_method: "
                 + str(v)
@@ -501,8 +501,8 @@ class IPDDP:
     Parameters
     ----------
     decomposition_method : str, optional
-        One of the ('pca', 'kpca', 'ica') supported decomposition methods used
-        as kernel for the iPDDP algorithm.
+        One of the ('pca', 'kpca', 'ica', 'tsne') supported decomposition
+        methods used as kernel for the iPDDP algorithm.
     max_clusters_number : int, optional
         Desired maximum number of clusters for the algorithm.
     percentile : float, optional
@@ -515,10 +515,10 @@ class IPDDP:
         the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
     **decomposition_args :
-        Arguments for each of the decomposition methods ("PCA" as "pca",
-        "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
-        package, as documented in the scikit-learn package, from which they are
-        implemented.
+        Arguments for each of the decomposition methods ("decomposition.PCA" as
+        "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
+        "ica", "manifold.TSNE" as "tsne") utilized by the HiPart package, as
+        documented in the scikit-learn package, from which they are implemented.
 
     Attributes
     ----------
@@ -738,7 +738,7 @@ class IPDDP:
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
         Principal Components Analysis" or the "Independent Component Analysis"
-        methods.
+        or "t-SNE" methods.
 
         Determination of the projection's maximum distance between to
         consecutive points and chooses it as the split-point for this node.
@@ -834,7 +834,7 @@ class IPDDP:
 
     @decomposition_method.setter
     def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica"]):
+        if not (v in ["pca", "kpca", "ica", "tsne"]):
             raise ValueError(
                 "IPDDP: decomposition_method: "
                 + str(v)
@@ -938,24 +938,24 @@ class KMPDDP:
 
     Parameters
     ----------
-    decomposition_method : str, optional
-        One of the supported dimensionality reduction methods used as kernel
-        for the kM-PDDP algorithm.
-    max_clusters_number : int, optional
+    decomposition_method : str, (optional)
+        One of the ('pca', 'kpca', 'ica', 'tsne') supported decomposition
+        methods used as kernel for the kMeans-PDDP algorithm.
+    max_clusters_number : int, (optional)
         Desired maximum number of clusters for the algorithm.
-    min_sample_split : int, optional
+    min_sample_split : int, (optional)
         The minimum number of points needed in a cluster for a split to occur.
-    visualization_utility : bool, optional
+    visualization_utility : bool, (optional)
         If (True) generate the data needed by the visualization utilities of
         the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
-    random_seed : int, optional
+    random_seed : int, (optional)
         The random seed fed in the k-Means algorithm
     **decomposition_args :
-        Arguments for each of the decomposition methods ("PCA" as "pca",
-        "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
-        package, as documented in the scikit-learn package, from which they are
-        implemented.
+        Arguments for each of the decomposition methods ("decomposition.PCA" as
+        "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
+        "ica", "manifold.TSNE" as "tsne") utilized by the HiPart package, as
+        documented in the scikit-learn package, from which they are implemented.
 
     Attributes
     ----------
@@ -1169,7 +1169,7 @@ class KMPDDP:
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
         Principal Components Analysis" or the "Independent Component Analysis"
-        methods.
+        or "t-SNE" methods.
 
         Determination of the projection's clusters by utilizing the binary
         k-means clustering algorithm.
@@ -1201,7 +1201,7 @@ class KMPDDP:
             )
             one_dimension = np.array([[i] for i in projection[:, 0]])
 
-            model = KMeans(n_clusters=2, random_state=self.random_seed)
+            model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_seed)
             model.fit(one_dimension)
             labels = model.predict(one_dimension)
             centers = model.cluster_centers_
@@ -1256,7 +1256,7 @@ class KMPDDP:
 
     @decomposition_method.setter
     def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica"]):
+        if not (v in ["pca", "kpca", "ica", "tsne"]):
             raise ValueError(
                 "KMPDDP: decomposition_method: "
                 + str(v)
@@ -1371,22 +1371,22 @@ class PDDP:
 
     Parameters
     ----------
-    decomposition_method : str, optional
-        One of the supported dimensionality reduction methods used as kernel
-        for the PDDP algorithm.
-    max_clusters_number : int, optional
+    decomposition_method : str, (optional)
+        One of the ('pca', 'kpca', 'ica', 'tsne') supported decomposition
+        methods used as kernel for the PDDP algorithm.
+    max_clusters_number : int, (optional)
         Desired maximum number of clusters for the algorithm.
-    min_sample_split : int, optional
+    min_sample_split : int, (optional)
         The minimum number of points needed in a cluster for a split to occur.
-    visualization_utility : bool, optional
+    visualization_utility : bool, (optional)
         If (True) generate the data needed by the visualization utilities of
         the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
     **decomposition_args :
-        Arguments for each of the decomposition methods ("PCA" as "pca",
-        "KernelPCA" as "kpca", "FastICA" as "ica") utilized by the HiPart
-        package, as documented in the scikit-learn package, from which they are
-        implemented.
+        Arguments for each of the decomposition methods ("decomposition.PCA" as
+        "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
+        "ica", "manifold.TSNE" as "tsne") utilized by the HiPart package, as
+        documented in the scikit-learn package, from which they are implemented.
 
     Attributes
     ----------
@@ -1606,7 +1606,7 @@ class PDDP:
         Calculation of the projections onto the Principal Components with the
         utilization of the "Principal Components Analysis" or the "Kernel
         Principal Components Analysis" or the "Independent Component Analysis"
-        methods.
+        or "t-SNE" methods.
 
         The projection's clusters are split on the median pf the projected
         data.
@@ -1671,7 +1671,7 @@ class PDDP:
 
     @decomposition_method.setter
     def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica"]):
+        if not (v in ["pca", "kpca", "ica", "tsne"]):
             raise ValueError(
                 "PDDP: decomposition_method: " + str(v) + ": Unknown decomposition method!"
             )
@@ -1774,11 +1774,11 @@ class BisectingKmeans:
 
     Parameters
     ----------
-    max_clusters_number : int, optional
+    max_clusters_number : int, (optional)
         Desired maximum number of clusters for the algorithm.
-    min_sample_split : int, optional
+    min_sample_split : int, (optional)
         The minimum number of points needed in a cluster for a split to occur.
-    random_seed : int, optional
+    random_seed : int, (optional)
         The random seed fed in the k-Means algorithm.
 
     Attributes
@@ -2006,7 +2006,7 @@ class BisectingKmeans:
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
 
-            model = KMeans(n_clusters=2, random_state=self.random_seed)
+            model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_seed)
             model.fit(data_matrix)
             labels = model.predict(data_matrix)
             centers = model.cluster_centers_

@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/panagiotisanagnostou/HiPart/branch/main/graph/badge.svg?token=FHoZrLjqfj)](https://codecov.io/gh/panagiotisanagnostou/HiPart)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/60c751d914474e288b369461e6e3466a)](https://www.codacy.com/gh/panagiotisanagnostou/HiPart/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=panagiotisanagnostou/HiPart&amp;utm_campaign=Badge_Grade)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/panagiotisanagnostou/HiPart/blob/main/LICENSE)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.05024/status.svg)](https://doi.org/10.21105/joss.05024)
 
 HiPart: Hierarchical divisive clustering toolbox
 ================================================
@@ -19,15 +20,15 @@ pip install HiPart
 
 Simple Example Execution
 ------------------------
-The example bellow is the simplest form of the package's execution. Shortly, it shows the creation of synthetic clustering dataset containing 6 clusters. Afterwards it is clustered with the dePDDP algorithm and only the cluster labels are returned.
+The example bellow is the simplest form of the package's execution. Shortly, it shows the creation of synthetic clustering dataset containing 6 clusters. Afterwards it is clustered with the DePDDP algorithm and only the cluster labels are returned.
 
 ```python
-from HiPart.clustering import dePDDP
+from HiPart.clustering import DePDDP
 from sklearn.datasets import make_blobs
 
 X, y = make_blobs(n_samples=1500, centers=6, random_state=0)
 
-clustered_class = dePDDP(max_clusters_number=6).fit_predict(X)
+clustered_class = DePDDP(max_clusters_number=6).fit_predict(X)
 ```
 
 Users can find complete execution examples for all the algorithms of the HiPart package in the [clustering_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_example.py) file of the repository. Also, the users can find a KernelPCA method usage example in the [clustering_with_kpca_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_with_kpca_example.py) file of the repository. Finally, the file [interactive_visualization_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/interactive_visualization_example.py) contains an example execution of the interactive visualization. The instructions for the interactive visualization GUI can be found with the execution of this visualization.
@@ -40,15 +41,18 @@ Citation
 --------
 
 ```bibtex
-@misc{anagnostou2022hipart,
-  doi = {10.48550/ARXIV.2209.08680},
-  url = {https://arxiv.org/abs/2209.08680},
-  author = {Anagnostou, Panagiotis and Tasoulis, Sotiris and Plagianakos, Vassilis and Tasoulis, Dimitris},
-  keywords = {Machine Learning (stat.ML), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
+@article{Anagnostou2023HiPart,
   title = {HiPart: Hierarchical Divisive Clustering Toolbox},
-  publisher = {arXiv},
-  year = {2022},
-}
+  author = {Panagiotis Anagnostou and Sotiris Tasoulis and Vassilis P. Plagianakos and Dimitris Tasoulis},
+  year = {2023},
+  journal = {Journal of Open Source Software},
+  publisher = {The Open Journal},
+  volume = {8},
+  number = {84},
+  pages = {5024},
+  doi = {10.21105/joss.05024},
+  url = {https://doi.org/10.21105/joss.05024}
+} 
 ```
 
 Acknowledgments
@@ -60,3 +64,4 @@ Collaborators
 Dimitris Tasoulis [:email:](mailto:d.tasoulis@thesignalgroup.com)
 Panagiotis Anagnostou [:email:](mailto:panagno@uth.gr)
 Sotiris Tasoulis [:email:](mailto:stasoulis@uth.gr)
+Vassilis Plagianakos [:email:](mailto:vpp@uth.gr)

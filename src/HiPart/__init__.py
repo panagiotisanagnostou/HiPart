@@ -37,7 +37,11 @@ from KDEpy.NaiveKDE import NaiveKDE
 from KDEpy.TreeKDE import TreeKDE
 from KDEpy.FFTKDE import FFTKDE
 
+<<<<<<< Updated upstream
 __version__ = "0.3.1"
+=======
+__version__ = "0.3.2"
+>>>>>>> Stashed changes
 __author__ = "Panagiotis Anagnostou"
 
 TreeKDE = TreeKDE
