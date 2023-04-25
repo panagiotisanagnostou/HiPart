@@ -42,19 +42,19 @@ class DePDDP:
 
     Parameters
     ----------
-    decomposition_method : str, optional
+    decomposition_method : str, (optional)
         One of the ('pca', 'kpca', 'ica', 'tsne') supported decomposition
         methods used as kernel for the dePDDP algorithm.
-    max_clusters_number : int, optional
+    max_clusters_number : int, (optional)
         Desired maximum number of clusters to find the dePDDP algorithm.
-    bandwidth_scale : float, optional
+    bandwidth_scale : float, (optional)
         Standard deviation scaler for the density approximation.
-    percentile : float, optional
+    percentile : float, (optional)
         The percentile distance from the dataset's edge in which a split can
         not occur. [0,0.5) values are allowed.
-    min_sample_split : int, optional
+    min_sample_split : int, (optional)
         The minimum number of points needed in a cluster for a split to occur.
-    visualization_utility : bool, optional
+    visualization_utility : bool, (optional)
         If (True) generate the data needed by the visualization utilities of
         the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
@@ -500,17 +500,17 @@ class IPDDP:
 
     Parameters
     ----------
-    decomposition_method : str, optional
+    decomposition_method : str, (optional)
         One of the ('pca', 'kpca', 'ica', 'tsne') supported decomposition
         methods used as kernel for the iPDDP algorithm.
-    max_clusters_number : int, optional
+    max_clusters_number : int, (optional)
         Desired maximum number of clusters for the algorithm.
-    percentile : float, optional
+    percentile : float, (optional)
         The percentile distance from the dataset's edge in which a split can
         not occur. [0,0.5) values are allowed.
-    min_sample_split : int, optional
+    min_sample_split : int, (optional)
         The minimum number of points needed in a cluster for a split to occur.
-    visualization_utility : bool, optional
+    visualization_utility : bool, (optional)
         If (True) generate the data needed by the visualization utilities of
         the package otherwise, if false the split_visualization and
         interactive_visualization of the package can not be created.
