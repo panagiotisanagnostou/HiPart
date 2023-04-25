@@ -16,6 +16,8 @@ Welcome to HiPart's documentation!
    :target: https://www.codacy.com/gh/panagiotisanagnostou/HiPart/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=panagiotisanagnostou/HiPart&amp;utm_campaign=Badge_Grade
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://github.com/panagiotisanagnostou/HiPart/blob/main/LICENSE
+.. image:: https://joss.theoj.org/papers/10.21105/joss.05024/status.svg
+   :target: https://doi.org/10.21105/joss.05024
 
 HiPart: Hierarchical divisive clustering toolbox
 ------------------------------------------------
@@ -50,20 +52,24 @@ Citation
 
    .. code-block:: bibtex
 
-      @misc{anagnostou2022hipart,
-        doi = {10.48550/ARXIV.2209.08680},
-        url = {https://arxiv.org/abs/2209.08680},
-        author = {Anagnostou, Panagiotis and Tasoulis, Sotiris and Plagianakos, Vassilis and Tasoulis, Dimitris},
-        keywords = {Machine Learning (stat.ML), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), FOS: Computer and information sciences, FOS: Computer and information sciences},
+      @article{Anagnostou2023HiPart,
         title = {HiPart: Hierarchical Divisive Clustering Toolbox},
-        publisher = {arXiv},
-        year = {2022},
+        author = {Panagiotis Anagnostou and Sotiris Tasoulis and Vassilis P. Plagianakos and Dimitris Tasoulis},
+        year = {2023},
+        journal = {Journal of Open Source Software},
+        publisher = {The Open Journal},
+        volume = {8},
+        number = {84},
+        pages = {5024},
+        doi = {10.21105/joss.05024},
+        url = {https://doi.org/10.21105/joss.05024}
       }
 
 
 Acknowledgments
 ---------------
 This project has received funding from the Hellenic Foundation for Research and Innovation (HFRI), under grant agreement No 1901.
+
 
 
 Contents

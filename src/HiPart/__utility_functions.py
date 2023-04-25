@@ -31,6 +31,7 @@ import statsmodels.api as sm
 import warnings
 
 from KDEpy import FFTKDE
+from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA, KernelPCA, FastICA
 
 
@@ -88,6 +89,12 @@ def execute_decomposition_method(
             **decomposition_args
         )
         two_dimensions = ica.fit_transform(data_matrix)
+    elif decomposition_method == "tsne":
+        tsne = TSNE(
+            n_components=n_of_dimentions,
+            **decomposition_args
+        )
+        two_dimensions = tsne.fit_transform(data_matrix)
     else:
         raise ValueError(
             ": The decomposition method ("
