@@ -230,10 +230,4 @@ generation in the repository folder docs.
 
 ## Contact
 
-For more information or any questions on the documentation you can contact us in
-the email 
-
-## Attribution
-
-This guide is based on the **contributing-gen
-**. [Make your own](https://github.com/bttger/contributing-gen)!
+For more information or any questions you can contact the maintainer [Panagiotis Anagnostou](mailto:panagno@uth.gr).
