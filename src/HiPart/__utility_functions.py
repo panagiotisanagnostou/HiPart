@@ -21,6 +21,7 @@
 Utility functions of the HiPart package.
 
 @author: Panagiotis Anagnostou
+@author: Nicos Pavlidis
 """
 
 import copy
@@ -31,8 +32,27 @@ import statsmodels.api as sm
 import warnings
 
 from KDEpy import FFTKDE
+from scipy import stats as st
+from scipy.optimize import Bounds, minimize, NonlinearConstraint, SR1
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA, KernelPCA, FastICA
+
+
+def band_const(d):
+    """
+    Calculate the data bandwidth based in their dimensions.
+
+    Parameters
+    ----------
+    d : int
+        Number of dimensions
+
+    Returns
+    -------
+    float
+        Bandwidth
+    """
+    return 0.45 / np.power(d, 0.2)
 
 
 def execute_decomposition_method(
@@ -103,6 +123,276 @@ def execute_decomposition_method(
         )
 
     return two_dimensions
+
+
+def initialize_b(x0, X, depth_init=True):
+    """
+    Initialize the b parameter of the MDH algorithm. The initialization is done
+    by finding the minimum density point of the projection of the data matrix
+    onto the vector v.
+
+    Parameters
+    ----------
+    x0 : numpy.ndarray (1D)
+        The vector v in the first d position of x0 vector and the point b in the
+        last one. The vector v is the projection direction of the data matrix
+        and b is a random estimation of the minimum density point.
+    X : numpy.ndarray (2D)
+        The data matrix.
+    depth_init : bool (default=True)
+        If (True) the b parameter is initialized by finding the maximum depth of
+        the curve created by the projection of the data matrix onto the vector
+        v. If (False) the b parameter is initialized by finding the lowest local
+        minimum density point of the projection of the data matrix onto the
+        vector v.
+
+    Returns
+    -------
+    b : float
+        The initialized b parameter on the local minimum density point of the
+        projection of the data matrix onto the vector v.
+
+    """
+    v = x0[:-1] / np.linalg.norm(x0[:-1])
+    xv = np.sort(np.dot(X, v))
+    # Bandwidth calculation
+    h = np.std(xv) * band_const(X.shape[0])
+
+    # The unitization of vector v produces a vector field with nans due to the norm
+    try:
+        x_ticks, y = FFTKDE(kernel="gaussian", bw=h).fit(xv).evaluate()
+    except ValueError:
+        return np.array([])
+
+    # find all local maxima of the projection's density
+    maxima = np.where(np.diff(1 * (np.diff(y) > 0)) == -1)[0]
+
+    # RuntimeErrors are raised if there are no local maxima this is not possibl
+    # by the definition of the KDE.
+    if len(maxima) == 0:
+        raise RuntimeError("MDH: no local maximum: This shouldn't be possible!")
+    # If there is only one maximum, then the distribution is uni-modal and there
+    # is no need for further searching for a local minimum.
+    elif len(maxima) == 1:
+        warnings.warn(
+            "MDH: uni-modal distribution there is no need for further processing!")
+        return np.array([])
+
+    # locations of maxima in original y array
+    # maxima += 1  # #$$# den exei shmasia an einai maxima h maxima+1 kanonika
+    # #$$# tha prepei an einai sthn mesh outos h allos
+
+    if depth_init:
+        # find minima between every pair of peaks
+        depth = np.inf
+        p = None
+        for i in np.arange(len(maxima) - 1):
+            pos = maxima[i] + np.argmin(y[maxima[i]:maxima[i + 1]])
+            # inverse of depth (to avoid numerical difficulties)
+            tmp_depth = np.amin(
+                [np.amax(y[maxima[:i + 1]]), np.amax(y[maxima[i + 1:]])]) - y[
+                            pos]
+            # No divisions by zero
+            if tmp_depth:
+                d = y[pos] / tmp_depth
+            else:
+                continue
+
+            # Find the minimum depth
+            if d < depth:
+                depth = d
+                p = pos
+
+        # Return, if exists, the location of the minimum density point of the projection
+        if p:
+            return x_ticks[p]
+        else:
+            return None
+
+    else:
+        # Find the lowest minimum between any peaks
+        pos = maxima[0] + np.argmin(y[maxima[0]:maxima[-1] + 1])
+        return x_ticks[pos]
+
+
+def md_sqp(x0, X, k):
+    """
+    MDH through SQP in Python
+
+    Parameters
+    ----------
+    x0 : numpy.ndarray, shape (d,)
+        Initial point (v,b) for optimisation algorithm .The vector v is the
+        projection direction of the data matrix and b is a random estimation of
+        the minimum density point.
+    X : ndarray, shape (n,d)
+        N times D Input data matrix. Must be centred
+    k : float
+        Range parameter
+
+    Returns
+    -------
+    res : OptimizeResult
+        Output from the minimizer.
+    depth : float
+        The depth of the minimum density point of the projection of the data.
+
+    """
+
+    # I need this to avoid division by zero in the Jacobian
+    # kern = np.sqrt(np.finfo("float").eps)
+
+    ub = np.ones(len(x0))
+    lb = np.full(len(x0), -1, dtype=float)
+    lb[0] = 0
+
+    if k == 0:
+        # pad last entry with a zero
+        def Fx(x):
+            return fx(np.append(x, 0), X)
+
+        # remove last derivative
+        def JacF(x):
+            return (dKdeDvb(np.append(x, 0), X))[:-1]
+
+        def cons_f(x):
+            return np.sum(x ** 2)
+
+        def cons_J(x):
+            return 2 * x
+
+        def cons_H(x, v):
+            return v[0] * 2 * np.eye(len(x))
+    else:
+        def Fx(x):
+            return fx(x, X)
+
+        def JacF(x):
+            return dKdeDvb(x, X)
+
+        # l2_norm = 1 constraint
+        def cons_f(x):
+            return np.sum(x[:-1] ** 2)
+
+        def cons_J(x):
+            return np.append(2 * x[:-1], 0)
+
+        def cons_H(x, v):
+            return v[0] * 2 * np.diag(
+                np.append(np.ones(len(x) - 1), 0))
+
+        ub[-1] = k
+        lb[-1] = -k
+
+    nlc = NonlinearConstraint(cons_f, 1, 1, jac=cons_J, hess=cons_H)
+
+    x0 = x0 if x0[0] > 0 else -x0
+    res = minimize(
+        Fx, x0,
+        method="trust-constr",
+        jac=JacF,
+        hess=SR1(),
+        constraints=nlc,
+        options={"verbose": 0},
+        bounds=Bounds(lb, ub),
+    )
+
+    if res:
+        return res, Fx(res.x)
+    else:
+        return res, None
+
+
+def fx(xcur, X):
+    """
+    Evaluate the 1D KDE at xcur[-1] after projecting the data matrix X onto the
+    unit-vector xcur[:-1].
+
+    Parameters
+    ----------
+    xcur: numpy.ndarray, shape (d,)
+        Point (v,b). The vector v is the projection direction of the data matrix
+        X and b is a random estimation of the minimum density point.
+    X: numpy.ndarray, shape (n,d)
+        N times D Input data matrix.
+
+    Returns
+    -------
+    float
+        The value of the 1D KDE at b after projecting the data matrix X onto the
+        unit-vector v.
+
+    """
+    # evaluate 1D kde at xcur[-1] after projecting onto unit-vector xcur[:-1]
+    v = xcur[:-1]
+    b = xcur[-1]
+
+    # compute projections
+    xv = np.dot(X, v)
+    band = np.std(xv) * band_const(len(xv))
+
+    return np.mean(st.norm.pdf(xv, b, band))
+
+
+def dKdeDvb(xcur, X):
+    """
+    Evaluate the derivative of the 1D KDE at v after projecting the data
+    matrix X onto the unit-vector b.
+
+    Parameters
+    ----------
+    xcur : numpy.ndarray, shape (d,)
+        Point (v,b). The vector v (xcur[:-1]) is the projection direction of the
+        data matrix X and b (xcur[-1]) is a random estimation of the minimum
+        density point.
+    X : numpy.ndarray, shape (n,d)
+        N times D Input data matrix.
+
+    Returns
+    -------
+    numpy.ndarray, shape (d,)
+        The derivative of the 1D KDE at v after projecting the data matrix X.
+
+    """
+
+    v = xcur[:-1]
+    b = xcur[-1]
+
+    # compute projection of X onto v
+    proj = np.dot(X, v)
+    N = proj.shape[0]
+    bn = band_const(N)
+
+    # Bandwidth calculation
+    h = np.std(proj) * bn
+
+    # ==========================================================================
+    # Derivative of fx w.r.t. projected points and bandwidth
+    DgF = np.empty(N + 1, dtype=float)
+    # first N entries are derivatives w.r.t. each projected point
+    kde = st.norm.pdf(proj, b, h)
+    DgF[:-1] = kde * (b - proj) / (h * h * N)
+    # derivative w.r.t. bandwidth
+    DgF[-1] = -np.mean(kde) / h + np.mean(kde * (np.power((b - proj), 2))) / (
+            h * h * h)
+
+    # ==========================================================================
+    # Derivative of g = (p_1,p_2, ... p_N,h) w.r.t. full-dimensional projection vector!
+    # Data is CENTRED and X stores observations in rows: Thoroughly debugged
+    # get std of projected data
+    dhdv = (bn ** 2) / (h * (N - 1))
+
+    # last parenthesis: De-means all columns of X
+    last_row = dhdv * (proj @ X)
+    DvG = np.vstack((X, last_row))
+
+    # ==========================================================================
+    # derivative of fx w.r.t to xcur = (v,b)
+    out = np.empty(len(xcur), dtype=float)
+    out[:-1] = DgF @ DvG
+    out[-1] = np.sum((proj - b) * kde) / (h * h * len(proj))
+
+    return out
 
 
 def center_data(data):
@@ -234,7 +524,7 @@ def make_scatter_n_hist(
     if scaler is None:
         hist.plot(s, e)
     else:
-        hist.plot(s, e*(PP.shape[0]/scaler))
+        hist.plot(s, e * (PP.shape[0] / scaler))
     hist.axvline(x=splitPoint, color="red", lw=1)
     hist.set_xticks([])
     hist.set_yticks([])
@@ -402,7 +692,7 @@ def grid_position(current, rows, splits, with_marginal=True):
     if curRow != math.ceil(splits / rows) - 1:
         row_from = curRow * num_of_subgrid_elements
         row_to = (
-            (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
+                (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
         )
         col_from = curCol * num_of_subgrid_elements
         col_to = (curCol * num_of_subgrid_elements) + num_of_subgrid_elements
@@ -410,25 +700,25 @@ def grid_position(current, rows, splits, with_marginal=True):
         if splits % rows == 0:
             row_from = curRow * num_of_subgrid_elements
             row_to = (
-                (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
+                    (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
             )
             col_from = curCol * num_of_subgrid_elements
             col_to = (
-                (curCol * num_of_subgrid_elements) + num_of_subgrid_elements
+                    (curCol * num_of_subgrid_elements) + num_of_subgrid_elements
             )
 
         elif splits % rows != 0:
             position_corection = (rows - 1) / (splits % rows) * sub_grid_size
             row_from = curRow * num_of_subgrid_elements
             row_to = (
-                (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
+                    (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
             )
             col_from = (
                 int((curCol * num_of_subgrid_elements) + position_corection)
             )
             col_to = (
-                int((curCol * num_of_subgrid_elements) + position_corection)
-                + num_of_subgrid_elements
+                    int((curCol * num_of_subgrid_elements) + position_corection)
+                    + num_of_subgrid_elements
             )
 
     return row_from, row_to, col_from, col_to
@@ -529,7 +819,8 @@ def create_linkage(tree_in):
                         children[-1].data["unlinked_nodes"][0],
                         children[-2].data["unlinked_nodes"][0],
                         max_distance - _get_node_depth(path_to_leaves, i),
-                        children[-1].data["counts"] + children[-2].data["counts"],
+                        children[-1].data["counts"] + children[-2].data[
+                            "counts"],
                     ]]
                 )
                 # Update of the data of the algorithm execution tree node
@@ -537,7 +828,8 @@ def create_linkage(tree_in):
                     i
                 ).data["dendromgram_indicator"] = dendrogram_counts
                 tree.get_node(i).data["counts"] = (
-                    children[-1].data["counts"] + children[-2].data["counts"]
+                        children[-1].data["counts"]
+                        + children[-2].data["counts"]
                 )
                 tree.get_node(i).data["unlinked_nodes"] = [dendrogram_counts]
                 dendrogram_counts += 1
