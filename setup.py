@@ -3,7 +3,7 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 setuptools.setup(
     name="HiPart",
