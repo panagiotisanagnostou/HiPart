@@ -3,6 +3,7 @@ from HiPart.clustering import DePDDP
 from HiPart.clustering import IPDDP
 from HiPart.clustering import KMPDDP
 from HiPart.clustering import PDDP
+from HiPart.clustering import MDH
 from sklearn.datasets import make_blobs
 from sklearn.metrics import adjusted_rand_score as ari
 from sklearn.metrics import normalized_mutual_info_score as nmi
@@ -115,4 +116,20 @@ print("bikmeans_ari= {val:.5f}\n".format(val=ari(y, bikmeans.labels_)))
 viz.split_visualization(bikmeans).show()
 # dendrogram
 dn = viz.dendrogram_visualization(bikmeans)
+plt.show()
+
+# %% MDH algorithm execution
+# timer for the execution time in the form of tic-toc
+tic = time.perf_counter()
+mdh = MDH(max_clusters_number=clusters).fit(X)
+toc = time.perf_counter()
+
+print("mdh_time= {val:.5f}".format(val=toc - tic))
+print("mdh_mni= {val:.5f}".format(val=nmi(y, mdh.labels_)))
+print("mdh_ari= {val:.5f}\n".format(val=ari(y, mdh.labels_)))
+
+# scatter visualization
+viz.split_visualization(mdh).show()
+# dendrogram
+dn = viz.dendrogram_visualization(mdh)
 plt.show()
