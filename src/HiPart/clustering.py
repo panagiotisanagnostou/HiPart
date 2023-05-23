@@ -19,6 +19,9 @@
 # SOFTWARE.
 """
 Implementation of the clustering algorithms, members of the HiPart package.
+
+@author Panagiotis Anagnostou
+@author Nicos Pavlidis
 """
 
 import HiPart.__utility_functions as util
@@ -26,6 +29,7 @@ import numpy as np
 import statsmodels.api as sm
 
 from KDEpy import FFTKDE
+from scipy import stats
 from sklearn.cluster import KMeans
 from treelib import Tree
 
@@ -2132,3 +2136,468 @@ class BisectingKmeans:
     @labels_.setter
     def labels_(self, v):
         self._labels_ = v
+
+
+class MDH:
+    """
+    Class MDH. It executes the MDH algorithm.
+
+    References
+    ----------
+    Pavlidis, N. G., Hofmeyr, D. P., & Tasoulis, S. K. (2016). Minimum density
+    hyperplanes. Journal of Machine Learning Research, 17 (156), 1-33.
+
+    Parameters
+    ----------
+    max_clusters_number : int, optional
+        Desired maximum number of clusters to find the MDH algorithm.
+    max_iterations : int, optional
+        Maximum number of iterations on the search for the minimum density
+        hyperplane.
+    k : float, optional
+        The multiples of the standard deviation which the existence of a
+        splitting hyperplane is allowed. The default value is 2.3.
+    percentile : float, optional
+        The percentile distance from the dataset's edge in which a split can
+        not occur. [0,0.5) values are allowed.
+    min_sample_split : int, optional
+        The minimum number of points needed in a cluster for a split to occur.
+    random_seed : int, optional
+        The random seed to be used in the algorithm's execution.
+
+    Attributes
+    ----------
+    output_matrix : numpy.ndarray
+        Model's step by step execution output.
+    labels_ : numpy.ndarray
+        Extracted clusters from the algorithm.
+    tree : treelib.Tree
+        The object which contains all the information about the execution of
+        the MDH algorithm.
+    samples_number : int
+        The number of samples contained in the data.
+
+    """
+
+    def __init__(
+        self,
+        max_clusters_number=100,
+        max_iterations=10,
+        k=2.3,
+        percentile=0.1,
+        min_sample_split=5,
+        random_state=None,
+    ):
+        self.max_clusters_number = max_clusters_number
+        self.k = k
+        self.max_iterations = max_iterations
+        self.percentile = percentile
+        self.min_sample_split = min_sample_split
+        self.random_state = random_state
+
+    def fit(self, X):
+        """
+        Execute the MDH algorithm and return all the execution data in the form
+        of a MDH class object.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Data matrix with the samples on the rows and the variables on the
+            columns.
+
+        Returns
+        -------
+        self
+            A MDH class type object, with complete results on the algorithm's
+            analysis.
+
+        """
+
+        # initialize the random seed
+        np.random.seed(self.random_state)
+
+        # initialize the data matrix and the number of samples
+        self.X = X
+        self.samples_number = np.size(X, 0)
+
+        # create an id vector for the samples of X
+        indices = np.array([int(i) for i in range(self.samples_number)])
+
+        # initialize the tree and root node                           # step (0)
+        den_tree = Tree()
+        # nodes unique IDs indicator
+        self.node_ids = 0
+        # nodes next color indicator (necessary for visualization purposes)
+        self.cluster_color = 0
+        den_tree.create_node(
+            tag="density_cluster_" + str(self.node_ids),
+            identifier=self.node_ids,
+            data=self.calculate_node_data(indices, self.cluster_color),
+        )
+        # indicator for the next node to split
+        selected_node = 0
+
+        # if no possibility of split exists on the data                  # (ST2)
+        if not den_tree.get_node(0).data["split_permission"]:
+            raise RuntimeError("MDH: cannot split the data at all!!!")
+
+        # Initialize the ST1 stopping criterion counter that count the number
+        # of clusters                                                    # (ST1)
+        found_clusters = 1
+        while (found_clusters < self.max_clusters_number) and (
+            selected_node is not None
+        ):  # (ST1) or (ST2)
+
+            self.split_function(den_tree, selected_node)  # step (1, 2)
+
+            # select the next kid for split based on the local minimum density
+            selected_node = self.select_kid(den_tree.leaves())  # step (3)
+            found_clusters = found_clusters + 1  # (ST1)
+
+        self.tree = den_tree
+        return self
+
+    def fit_predict(self, X):
+        """
+        Execute the MDH algorithm and return the results of the execution in the
+        form of labels.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Data matrix with the samples on the rows and the variables on the
+            columns.
+
+        Returns
+        -------
+        labels_ : numpy.ndarray
+            Extracted clusters from the algorithm.
+
+        """
+
+        return self.fit(X).labels_
+
+    def split_function(self, den_tree, selected_node):
+        """
+        Split the indicated node on the minimum of the local minimum density
+        of the data projected on the first principal component.
+
+        Because python passes by reference data this function doesn't need a
+        return statement.
+
+        Parameters
+        ----------
+        den_tree : treelib.tree.Tree
+            The tree build by the MDH algorithm, in order to cluster the
+            input data.
+        selected_node : int
+            The numerical identifier for the tree node that i about to be split.
+
+        Returns
+        -------
+            There no returns in this function. The results of this function
+            pass to execution by utilizing the python's pass-by-reference
+            nature.
+
+        """
+        node = den_tree.get_node(selected_node)
+        node.data["split_permission"] = False
+
+        # left child indices extracted from the nodes split-point and the
+        # indices included in the parent node
+        left_kid_index = node.data["indices"][
+            np.where(node.data["projection"][:, 0] < node.data["splitpoint"])[0]
+        ]
+        # right child indices
+        right_kid_index = node.data["indices"][
+            np.where(node.data["projection"][:, 0] >= node.data["splitpoint"])[0]
+        ]
+
+        # Nodes and data creation for the children
+        # Uses the calculate_node_data function to create the data for the node
+        den_tree.create_node(
+            tag="density_cluster_" + str(self.node_ids + 1),
+            identifier=self.node_ids + 1,
+            parent=node.identifier,
+            data=self.calculate_node_data(left_kid_index, node.data["color_key"]),
+        )
+        den_tree.create_node(
+            tag="density_cluster_" + str(self.node_ids + 2),
+            identifier=self.node_ids + 2,
+            parent=node.identifier,
+            data=self.calculate_node_data(right_kid_index, self.cluster_color + 1),
+        )
+
+        self.cluster_color += 1
+        self.node_ids += 2
+
+    def select_kid(self, possible_splits):
+        """
+        The clusters each time exist in the leaves of the trees. From those
+        leaves select the next leave to split based on the algorithm's
+        specifications.
+
+        This function creates the necessary cause for the stopping criterion
+        ST1.
+
+        Parameters
+        ----------
+        possible_splits : list of treelib.node.Node
+            The list of nodes needed to exam to select the next Node to split.
+
+        Returns
+        -------
+        next_split : int
+            The identifier of the next node to split by the algorithm.
+
+        """
+        min_density_node = None
+
+        # Remove the nodes that can not split further
+        possible_splits = list(
+            np.array(possible_splits)[
+                [
+                    True if i.data["split_criterion"] is not None else False
+                    for i in possible_splits
+                ]
+            ]
+        )
+
+        if len(possible_splits) > 0:
+            for i in sorted(
+                enumerate(possible_splits), key=lambda x: x[1].data["split_criterion"],
+                reverse=True,
+            ):
+                if i[1].data["split_permission"]:
+                    min_density_node = i[1].identifier
+                    break
+
+        return min_density_node
+
+    def calculate_node_data(self, indices, key):
+        """
+        Find a minimum density hyperplane to bisect the data. The determination
+        of the minimum density hyperplane is based on the minimization is found
+        by minimizing the first derivative of the density function. This is made
+        possible through the use of "Sequential Quadratic Programming" (SQP)
+        method, which is used to simultaneously find the optimal projection
+        vector v and minimum density point b.
+
+        This function leads to the second Stopping criterion 2 of the
+        algorithm.
+
+        Parameters
+        ----------
+        indices : numpy.ndarray
+            The index of the samples in the original data matrix.
+        key : int
+            The value of the color for each node.
+
+        Returns
+        -------
+        data : dict
+            The necessary data for each node which are splitting point.
+
+        """
+
+        # Initialization of the return variables
+        projection = None
+        splitpoint = None
+        split_criterion = None
+        flag = False
+        split_vector = None
+
+        # If the number of samples in the node is greater than the minimum allowed for split
+        if indices.shape[0] > self.min_sample_split:
+            node_data = self.X[indices, :]
+            node_size = node_data.shape[0]
+            # Normalize the data of the node to zero mean and unit standard deviation
+            node_data = (node_data - np.mean(node_data, 0)) / np.std(node_data, 0)
+
+            minC = 100 if node_size * self.percentile > 100 else node_size * self.percentile
+
+            solutions = []
+            for i in range(0, self.max_iterations):
+
+                # Generate a random vector in the space of the node's data and
+                # normalize it to unit length
+                # v_n_b: vector v and point b
+                initial_v_n_b = stats.norm.rvs(size=np.shape(node_data)[1])
+                initial_v_n_b = initial_v_n_b / np.linalg.norm(initial_v_n_b)
+                initial_v_n_b = np.append(initial_v_n_b, 0)
+
+                # Find the minimum density point of the data on the projection
+                # direction
+                minimum_b = util.initialize_b(initial_v_n_b, node_data, depth_init=True)
+
+                if minimum_b:
+                    initial_v_n_b[-1] = minimum_b
+                    # res has the following fields that are of interest:
+                    #   1. success (whether algorithm terminated successfully)
+                    #   2. x (solution)
+                    #   3. nfev (number of function evaluations)
+                    #   4. njev (number of jacobian/ gradient evaluations)
+                    results, depth = util.md_sqp(initial_v_n_b, node_data, self.k)
+
+                    # If the algorithm terminated successfully try appending the append the solution
+                    if results.success:
+                        v = results.x[:-1] / np.linalg.norm(results.x[:-1])
+                        projection = np.dot(node_data, v).reshape(-1, 1)
+                        b = results.x[-1]
+                        c0 = np.sum(projection > b)
+                        # Solutions in the edges of the projection are not acceptable
+                        if min(c0, node_size - c0) >= minC:
+                            solutions.append((v, b, depth))
+
+            # Find the solution with the minimum depth
+            if solutions:
+                split = min(solutions, key=lambda x: x[2])
+                if split:
+                    splitpoint = split[1]
+                    projection = np.dot(node_data, split[0]).reshape(-1, 1)
+                    split_criterion = indices.shape[0]
+                    flag = True
+                    split_vector = split[0]
+
+        return {
+            "indices": indices,
+            "projection": projection,
+            "splitpoint": splitpoint,
+            "split_criterion": split_criterion,
+            "split_permission": flag,
+            "split_vector": split_vector,
+            "color_key": key,
+            "dendrogram_check": False,
+        }
+
+    @property
+    def max_clusters_number(self):
+        return self._max_clusters_number
+
+    @max_clusters_number.setter
+    def max_clusters_number(self, v):
+        if v < 0 or (not isinstance(v, int)):
+            raise ValueError(
+                "MDH: min_sample_split: Invalid value it should be int and > 1"
+            )
+        self._max_clusters_number = v
+
+    @property
+    def max_iterations(self):
+        return self._max_iterations
+
+    @max_iterations.setter
+    def max_iterations(self, v):
+        if v < 0 or (not isinstance(v, int)):
+            raise ValueError(
+                "MDH: max_iteration: Invalid value it should be int and > 1"
+            )
+        self._max_iterations = v
+
+    @property
+    def k(self):
+        return self._k
+
+    @k.setter
+    def k(self, v):
+        if v < 0 or (not isinstance(v, float)):
+            raise ValueError(
+                "MDH: k: Invalid value it should be float and > 1"
+            )
+        self._k = v
+
+    @property
+    def percentile(self):
+        return self._percentile
+
+    @percentile.setter
+    def percentile(self, v):
+        if v >= 0.5 or v < 0:
+            raise ValueError("MDH: percentile: Should be between [0,0.5) interval")
+        self._percentile = v
+
+    @property
+    def min_sample_split(self):
+        return self._min_sample_split
+
+    @min_sample_split.setter
+    def min_sample_split(self, v):
+        if v < 0 or (not isinstance(v, int)):
+            raise ValueError(
+                "MDH: min_sample_split: Invalid value it should be int and > 1"
+            )
+        self._min_sample_split = v
+
+    @property
+    def random_state(self):
+        return self._random_state
+
+    @random_state.setter
+    def random_state(self, v):
+        if v is not None and (not isinstance(v, int)):
+            raise ValueError(
+                "MDH: min_sample_split: Invalid value it should be int and > 1"
+            )
+        self._random_state = v
+
+    @property
+    def tree(self):
+        return self._tree
+
+    @tree.setter
+    def tree(self, v):
+        self._tree = v
+
+    @property
+    def output_matrix(self):
+        nd_dict = self.tree.nodes
+        output_matrix = [np.zeros(np.size(self.X, 0))]
+
+        # the dictionary of nodes contains the created node from the MDH
+        # algorithm sorted from the root to the last split
+        for i in nd_dict:
+            # For the output matrix we don't want the leaves of the tree. Each
+            # level of the output matrix represents a split the split exist in
+            # the internal nodes of the tree. Only by checking the children of
+            # those nodes we can extract the data for the current split.
+            if not nd_dict[i].is_leaf():
+                # create output cluster splitting matrix
+                tmp = np.copy(output_matrix[-1])
+                # Left child according to the tree creation process
+                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
+                    0
+                ].identifier
+                # Right child according to the tree creation process
+                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
+                    1
+                ].identifier
+
+                # The output_matrix is created transposed
+                output_matrix.append(tmp)
+        # the first row contains only zeros
+        del output_matrix[0]
+
+        # transpose the output_matrix to be extracted
+        output_matrix = np.array(output_matrix).transpose()
+
+        return output_matrix
+
+    @output_matrix.setter
+    def output_matrix(self, v):
+        raise RuntimeError(
+            "MDH: output_matrix: can only be generated and not to be assigned!"
+        )
+
+    @property
+    def labels_(self):
+        labels_ = np.ones(np.size(self.X, 0))
+        for i in self.tree.leaves():
+            labels_[i.data["indices"]] = i.identifier
+        return labels_
+
+    @labels_.setter
+    def labels_(self, v):
+        raise RuntimeError(
+            "MDH: labels_: can only be generated and not to be assigned!"
+        )

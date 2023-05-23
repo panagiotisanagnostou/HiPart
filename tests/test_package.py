@@ -6,6 +6,7 @@ from HiPart.clustering import IPDDP
 from HiPart.clustering import KMPDDP
 from HiPart.clustering import PDDP
 from HiPart.clustering import BisectingKmeans
+from HiPart.clustering import MDH
 
 import numpy as np
 import os
@@ -67,6 +68,14 @@ def test_bicecting_kmeans_return_type(datadir):
 
     new_obj = BisectingKmeans(max_clusters_number=5).fit(data_import["data"])
     assert isinstance(new_obj, BisectingKmeans)
+
+
+def test_mdh_return_type(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    new_obj = MDH(max_clusters_number=5).fit(data_import["data"])
+    assert isinstance(new_obj, MDH)
 
 
 def test_depddp_parameter_errors():
@@ -213,6 +222,45 @@ def test_bicecting_kmeans_parameter_errors():
     assert success_score == 6
 
 
+def test_mdh_parameter_errors():
+    success_score = 0
+
+    algorithm = MDH(random_state=5)
+    success_score += 1 if isinstance(algorithm.max_clusters_number, int) else 0
+    success_score += 1 if isinstance(algorithm.max_iterations, int) else 0
+    success_score += 1 if isinstance(algorithm.k, float) else 0
+    success_score += 1 if isinstance(algorithm.percentile, float) else 0
+    success_score += 1 if isinstance(algorithm.min_sample_split, int) else 0
+    success_score += 1 if isinstance(algorithm.random_state, int) else 0
+
+    try:
+        MDH(max_clusters_number=-5)
+    except Exception:
+        success_score += 1
+    try:
+        MDH(max_iterations=-5)
+    except Exception:
+        success_score += 1
+    try:
+        MDH(k=-.8)
+    except Exception:
+        success_score += 1
+    try:
+        MDH(percentile=.8)
+    except Exception:
+        success_score += 1
+    try:
+        MDH(random_state=.8)
+    except Exception:
+        success_score += 1
+    try:
+        MDH(min_sample_split=-5)
+    except Exception:
+        success_score += 1
+
+    assert success_score == 12
+
+
 def test_depddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
@@ -245,11 +293,21 @@ def test_pddp_labels__return_type_and_form(datadir):
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
-def test_bicecting_kmeans_labels__return_type_and_form(datadir):
+def test_bicecting_kmeans_labels_return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
     results = BisectingKmeans(
+        max_clusters_number=5,
+    ).fit_predict(data_import["data"])
+    assert isinstance(results, np.ndarray) and results.ndim == 1
+
+
+def test_mdh_labels_return_type_and_form(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    results = MDH(
         max_clusters_number=5,
     ).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
@@ -264,6 +322,19 @@ def test_bicecting_kmeans_results(datadir):
     matrix_test = BisectingKmeans(
         max_clusters_number=5,
         random_seed=1256,
+    ).fit(data_import["data"]).output_matrix
+    assert np.sum(matrix_test == matrix_control) == 6000
+
+
+def test_mdh_results(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    matrix_control = data_import["MDH"]
+
+    matrix_test = MDH(
+        max_clusters_number=5,
+        random_state=1256,
     ).fit(data_import["data"]).output_matrix
     assert np.sum(matrix_test == matrix_control) == 6000
 
@@ -573,6 +644,36 @@ def test_split_visualization_plot_7(datadir):
     clustering = IPDDP(max_clusters_number=2).fit(data_import["data"])
     try:
         viz.split_visualization(clustering)
+        assert True
+    except Exception:
+        assert False
+
+
+def test_split_visualization_plot_8(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    clustering = MDH(
+        max_clusters_number=5,
+        random_state=1256,
+    ).fit(data_import["data"])
+    try:
+        viz.split_visualization(clustering, mdh_split_plot=True)
+        assert True
+    except Exception:
+        assert False
+
+
+def test_split_visualization_plot_9(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    clustering = MDH(
+        max_clusters_number=5,
+        random_state=1256,
+    ).fit(data_import["data"])
+    try:
+        viz.split_visualization(clustering, mdh_split_plot=False)
         assert True
     except Exception:
         assert False
