@@ -23,7 +23,7 @@ setuptools.setup(
     install_requires=[
         "treelib>=1.6",
         "scipy==1.7",
-        "statsmodels>=0.13",
+        "statsmodels==0.13",
         "kdepy",
         "matplotlib==3.5",
         "plotly",
