@@ -69,15 +69,18 @@ def execute_decomposition_method(
 
     Parameters
     ----------
-    two_dimentions
     data_matrix : numpy.ndarray
         The data matrix contains all the data for the samples.
     decomposition_method : str
         One of 'kpca', 'pca' and 'ica' the decomposition methods supported by
         this software.
+    two_dimentions : bool
+        If True the projection will be on the first two components of the 'pca'
+        and 'ica' methods. The 'kpca' and 'tsne' methods will be projected only
+        on one dimension because of the nature.
     decomposition_args : dict
         Arguments to use by each of the decomposition methods utilized by the
-        HIDIV package.
+        HiPart package.
 
     Returns
     -------
@@ -87,6 +90,12 @@ def execute_decomposition_method(
 
     """
     if two_dimentions:
+        if decomposition_method in ["tsne"]:
+            raise ValueError(
+                ": The decomposition method ("
+                + decomposition_method
+                + ") cannot be executed correctly for two dimentions!"
+            )
         n_of_dimentions = 2
     else:
         n_of_dimentions = 1

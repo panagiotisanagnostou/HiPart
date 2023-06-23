@@ -27,6 +27,7 @@ Implementation of the clustering algorithms, members of the HiPart package.
 import HiPart.__utility_functions as util
 import numpy as np
 import statsmodels.api as sm
+import warnings
 
 from KDEpy import FFTKDE
 from scipy import stats
@@ -61,7 +62,9 @@ class DePDDP:
     visualization_utility : bool, (optional)
         If (True) generate the data needed by the visualization utilities of
         the package otherwise, if false the split_visualization and
-        interactive_visualization of the package can not be created.
+        interactive_visualization of the package can not be created. For the
+        'tsne' decomposition method does not support visualization because it
+        affects the correct execution of the dePDDP algorithm.
     **decomposition_args :
         Arguments for each of the decomposition methods ("decomposition.PCA" as
         "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
@@ -97,7 +100,11 @@ class DePDDP:
         self.bandwidth_scale = bandwidth_scale
         self.percentile = percentile
         self.min_sample_split = min_sample_split
-        self.visualization_utility = visualization_utility
+        if decomposition_method in ["tsne"]:
+            self.visualization_utility = False
+            warnings.warn("DePDDP: does not support visualization for 'tsne'.")
+        else:
+            self.visualization_utility = visualization_utility
         self.decomposition_args = decomposition_args
 
     def fit(self, X):
@@ -431,6 +438,24 @@ class DePDDP:
         self._min_sample_split = v
 
     @property
+    def visualization_utility(self):
+        return self._visualization_utility
+
+    @visualization_utility.setter
+    def visualization_utility(self, v):
+        if v is not True and v is not False:
+            raise ValueError(
+                "DePDDP: visualization_utility: Should be True or False"
+            )
+
+        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
+            raise ValueError(
+                "DePDDP: visualization_utility: 'tsne' method is can't be used"
+                + " with the visualization utility."
+            )
+        self._visualization_utility = v
+
+    @property
     def tree(self):
         return self._tree
 
@@ -517,7 +542,9 @@ class IPDDP:
     visualization_utility : bool, (optional)
         If (True) generate the data needed by the visualization utilities of
         the package otherwise, if false the split_visualization and
-        interactive_visualization of the package can not be created.
+        interactive_visualization of the package can not be created. For the
+        'tsne' decomposition method does not support visualization because it
+        affects the correct execution of the iPDDP algorithm.
     **decomposition_args :
         Arguments for each of the decomposition methods ("decomposition.PCA" as
         "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
@@ -551,7 +578,11 @@ class IPDDP:
         self.max_clusters_number = max_clusters_number
         self.percentile = percentile
         self.min_sample_split = min_sample_split
-        self.visualization_utility = visualization_utility
+        if decomposition_method in ["tsne"]:
+            self.visualization_utility = False
+            warnings.warn("IPDDP: does not support visualization for 'tsne'.")
+        else:
+            self.visualization_utility = visualization_utility
         self.decomposition_args = decomposition_args
 
     def fit(self, X):
@@ -869,6 +900,23 @@ class IPDDP:
         self._min_sample_split = v
 
     @property
+    def visualization_utility(self):
+        return self._visualization_utility
+
+    @visualization_utility.setter
+    def visualization_utility(self, v):
+        if v is not True and v is not False:
+            raise ValueError(
+                "IPDDP: visualization_utility: Should be True or False"
+            )
+
+        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
+            raise ValueError(
+                "IPDDP: visualization_utility: Should be pca when visualization_utility is True."
+            )
+        self._visualization_utility = v
+
+    @property
     def tree(self):
         return self._tree
 
@@ -952,7 +1000,9 @@ class KMPDDP:
     visualization_utility : bool, (optional)
         If (True) generate the data needed by the visualization utilities of
         the package otherwise, if false the split_visualization and
-        interactive_visualization of the package can not be created.
+        interactive_visualization of the package can not be created. For the
+        'tsne' decomposition method does not support visualization because it
+        affects the correct execution of the kMeans-PDDP algorithm.
     random_seed : int, (optional)
         The random seed fed in the k-Means algorithm
     **decomposition_args :
@@ -987,7 +1037,11 @@ class KMPDDP:
         self.decomposition_method = decomposition_method
         self.max_clusters_number = max_clusters_number
         self.min_sample_split = min_sample_split
-        self.visualization_utility = visualization_utility
+        if decomposition_method in ["tsne"]:
+            self.visualization_utility = False
+            warnings.warn("KMPDDP: does not support visualization for 'tsne'.")
+        else:
+            self.visualization_utility = visualization_utility
         self.random_seed = random_seed
         self.decomposition_args = decomposition_args
 
@@ -1305,6 +1359,23 @@ class KMPDDP:
         self._random_seed = v
 
     @property
+    def visualization_utility(self):
+        return self._visualization_utility
+
+    @visualization_utility.setter
+    def visualization_utility(self, v):
+        if v is not True and v is not False:
+            raise ValueError(
+                "KMPDDP: visualization_utility: Should be True or False"
+            )
+
+        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
+            raise ValueError(
+                "KMPDDP: visualization_utility: Should be pca when visualization_utility is True"
+            )
+        self._visualization_utility = v
+
+    @property
     def tree(self):
         return self._tree
 
@@ -1385,7 +1456,9 @@ class PDDP:
     visualization_utility : bool, (optional)
         If (True) generate the data needed by the visualization utilities of
         the package otherwise, if false the split_visualization and
-        interactive_visualization of the package can not be created.
+        interactive_visualization of the package can not be created. For the
+        'tsne' decomposition method does not support visualization because it
+        affects the correct execution of the PDDP algorithm.
     **decomposition_args :
         Arguments for each of the decomposition methods ("decomposition.PCA" as
         "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
@@ -1417,7 +1490,11 @@ class PDDP:
         self.decomposition_method = decomposition_method
         self.max_clusters_number = max_clusters_number
         self.min_sample_split = min_sample_split
-        self.visualization_utility = visualization_utility
+        if decomposition_method in ["tsne"]:
+            self.visualization_utility = False
+            warnings.warn("PDDP: does not support visualization for 'tsne'.")
+        else:
+            self.visualization_utility = visualization_utility
         self.decomposition_args = decomposition_args
 
     def fit(self, X):
@@ -1704,6 +1781,23 @@ class PDDP:
                 "PDDP: min_sample_split: Invalid value it should be int and > 1"
             )
         self._min_sample_split = v
+
+    @property
+    def visualization_utility(self):
+        return self._visualization_utility
+
+    @visualization_utility.setter
+    def visualization_utility(self, v):
+        if v is not True and v is not False:
+            raise ValueError(
+                "PDDP: visualization_utility: Should be True or False"
+            )
+
+        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
+            raise ValueError(
+                "PDDP: visualization_utility: Should be pca when visualization_utility is True"
+            )
+        self._visualization_utility = v
 
     @property
     def tree(self):
@@ -2123,19 +2217,22 @@ class BisectingKmeans:
 
     @output_matrix.setter
     def output_matrix(self, v):
-        self._output_matrix = v
+        raise RuntimeError(
+            "BisectingKmeans: output_matrix: can only be generated and not to be assigned!"
+        )
 
     @property
     def labels_(self):
         labels_ = np.ones(np.size(self.X, 0))
         for i in self.tree.leaves():
             labels_[i.data["indices"]] = i.identifier
-        self.labels_ = labels_
-        return self._labels_
+        return labels_
 
     @labels_.setter
     def labels_(self, v):
-        self._labels_ = v
+        raise RuntimeError(
+            "BisectingKmeans: labels_: can only be generated and not to be assigned!"
+        )
 
 
 class MDH:
@@ -2162,7 +2259,7 @@ class MDH:
         not occur. [0,0.5) values are allowed.
     min_sample_split : int, optional
         The minimum number of points needed in a cluster for a split to occur.
-    random_seed : int, optional
+    random_state : int, optional
         The random seed to be used in the algorithm's execution.
 
     Attributes
@@ -2440,7 +2537,7 @@ class MDH:
                     #   4. njev (number of jacobian/ gradient evaluations)
                     results, depth = util.md_sqp(initial_v_n_b, node_data, self.k)
 
-                    # If the algorithm terminated successfully try appending the append the solution
+                    # If the algorithm terminated successfully try to append the solution
                     if results.success:
                         v = results.x[:-1] / np.linalg.norm(results.x[:-1])
                         projection = np.dot(node_data, v).reshape(-1, 1)
