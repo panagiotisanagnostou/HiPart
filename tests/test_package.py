@@ -109,8 +109,18 @@ def test_depddp_parameter_errors():
         DePDDP(min_sample_split=-5)
     except Exception:
         success_score += 1
+    try:
+        obj = DePDDP()
+        obj.output_matrix = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
+    try:
+        obj = DePDDP()
+        obj.labels_ = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
 
-    assert success_score == 11
+    assert success_score == 13
 
 
 def test_ipddp_parameter_errors(datadir):
@@ -139,8 +149,18 @@ def test_ipddp_parameter_errors(datadir):
         IPDDP(min_sample_split=-5)
     except Exception:
         success_score += 1
+    try:
+        obj = IPDDP()
+        obj.output_matrix = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
+    try:
+        obj = IPDDP()
+        obj.labels_ = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
 
-    assert success_score == 9
+    assert success_score == 11
 
 
 def test_kmpddp_parameter_errors(datadir):
@@ -169,8 +189,18 @@ def test_kmpddp_parameter_errors(datadir):
         KMPDDP(min_sample_split=-5)
     except Exception:
         success += 1
+    try:
+        obj = KMPDDP()
+        obj.output_matrix = np.array([1, 2, 3])
+    except Exception:
+        success += 1
+    try:
+        obj = KMPDDP()
+        obj.labels_ = np.array([1, 2, 3])
+    except Exception:
+        success += 1
 
-    assert success == 9
+    assert success == 11
 
 
 def test_pddp_parameter_errors(datadir):
@@ -194,8 +224,18 @@ def test_pddp_parameter_errors(datadir):
         PDDP(min_sample_split=-5)
     except Exception:
         success_score += 1
+    try:
+        obj = PDDP()
+        obj.output_matrix = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
+    try:
+        obj = PDDP()
+        obj.labels_ = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
 
-    assert success_score == 7
+    assert success_score == 9
 
 
 def test_bicecting_kmeans_parameter_errors():
@@ -218,8 +258,18 @@ def test_bicecting_kmeans_parameter_errors():
         BisectingKmeans(min_sample_split=-5)
     except Exception:
         success_score += 1
+    try:
+        obj = BisectingKmeans()
+        obj.output_matrix = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
+    try:
+        obj = BisectingKmeans()
+        obj.labels_ = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
 
-    assert success_score == 6
+    assert success_score == 8
 
 
 def test_mdh_parameter_errors():
@@ -257,8 +307,18 @@ def test_mdh_parameter_errors():
         MDH(min_sample_split=-5)
     except Exception:
         success_score += 1
+    try:
+        obj = MDH()
+        obj.output_matrix = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
+    try:
+        obj = MDH()
+        obj.labels_ = np.array([1, 2, 3])
+    except Exception:
+        success_score += 1
 
-    assert success_score == 12
+    assert success_score == 14
 
 
 def test_depddp_labels__return_type_and_form(datadir):

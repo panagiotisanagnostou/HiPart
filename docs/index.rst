@@ -71,13 +71,16 @@ Acknowledgments
 This project has received funding from the Hellenic Foundation for Research and Innovation (HFRI), under grant agreement No 1901.
 
 
+
+Contents
+-------------
+
 .. toctree::
    :maxdepth: 2
-   :hidden:
 
+   self
    modules
    examples
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
