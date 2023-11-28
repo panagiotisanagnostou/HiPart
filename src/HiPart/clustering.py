@@ -29,13 +29,14 @@ import numpy as np
 import statsmodels.api as sm
 import warnings
 
+from HiPart.__partition_class import Partition
 from KDEpy import FFTKDE
 from scipy import stats
 from sklearn.cluster import KMeans
 from treelib import Tree
 
 
-class DePDDP:
+class DePDDP(Partition):
     """
     Class dePDDP. It executes the dePDDP algorithm.
 
@@ -86,26 +87,24 @@ class DePDDP:
     """
 
     def __init__(
-        self,
-        decomposition_method="pca",
-        max_clusters_number=100,
-        bandwidth_scale=0.5,
-        percentile=0.1,
-        min_sample_split=5,
-        visualization_utility=True,
-        **decomposition_args,
+            self,
+            decomposition_method="pca",
+            max_clusters_number=100,
+            bandwidth_scale=0.5,
+            percentile=0.1,
+            min_sample_split=5,
+            visualization_utility=True,
+            **decomposition_args
     ):
-        self.decomposition_method = decomposition_method
-        self.max_clusters_number = max_clusters_number
+        super().__init__(
+            decomposition_method,
+            max_clusters_number,
+            min_sample_split,
+            visualization_utility,
+            **decomposition_args
+        )
         self.bandwidth_scale = bandwidth_scale
         self.percentile = percentile
-        self.min_sample_split = min_sample_split
-        if decomposition_method in ["tsne"]:
-            self.visualization_utility = False
-            warnings.warn("DePDDP: does not support visualization for 'tsne'.")
-        else:
-            self.visualization_utility = visualization_utility
-        self.decomposition_args = decomposition_args
 
     def fit(self, X):
         """
@@ -164,122 +163,6 @@ class DePDDP:
 
         self.tree = den_tree
         return self
-
-    def fit_predict(self, X):
-        """
-        Execute the dePDDP algorithm and return the results of the execution
-        in the form of labels.
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-            Data matrix with the samples on the rows and the variables on the
-            columns.
-
-        Returns
-        -------
-        labels_ : numpy.ndarray
-            Extracted clusters from the algorithm.
-
-        """
-
-        return self.fit(X).labels_
-
-    def split_function(self, den_tree, selected_node):
-        """
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
-
-        Because python passes by reference data this function doesn't need a
-        return statement.
-
-        Parameters
-        ----------
-        den_tree : treelib.tree.Tree
-            The tree build by the dePDDP algorithm, in order to cluster the
-            input data.
-        selected_node : int
-            The numerical identifier for the tree node that i about to be split.
-
-        Returns
-        -------
-            There no returns in this function. The results of this function
-            pass to execution by utilizing the python's pass-by-reference
-            nature.
-
-        """
-        node = den_tree.get_node(selected_node)
-        node.data["split_permission"] = False
-
-        # left child indices extracted from the nodes split-point and the
-        # indices included in the parent node
-        left_kid_index = node.data["indices"][
-            np.where(node.data["projection"][:, 0] < node.data["splitpoint"])[0]
-        ]
-        # right child indices
-        right_kid_index = node.data["indices"][
-            np.where(node.data["projection"][:, 0] >= node.data["splitpoint"])[0]
-        ]
-
-        # Nodes and data creation for the children
-        # Uses the calculate_node_data function to create the data for the node
-        den_tree.create_node(
-            tag="density_cluster_" + str(self.node_ids + 1),
-            identifier=self.node_ids + 1,
-            parent=node.identifier,
-            data=self.calculate_node_data(left_kid_index, node.data["color_key"]),
-        )
-        den_tree.create_node(
-            tag="density_cluster_" + str(self.node_ids + 2),
-            identifier=self.node_ids + 2,
-            parent=node.identifier,
-            data=self.calculate_node_data(right_kid_index, self.cluster_color + 1),
-        )
-
-        self.cluster_color += 1
-        self.node_ids += 2
-
-    def select_kid(self, possible_splits):
-        """
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the necessary cause for the stopping criterion
-        ST1.
-
-        Parameters
-        ----------
-        possible_splits : list of treelib.node.Node
-            The list of nodes needed to exam to select the next Node to split.
-
-        Returns
-        -------
-        next_split : int
-            The identifier of the next node to split by the algorithm.
-
-        """
-        min_density_node = None
-
-        # Remove the nodes that can not split further
-        possible_splits = list(
-            np.array(possible_splits)[
-                [
-                    True if i.data["split_criterion"] is not None else False
-                    for i in possible_splits
-                ]
-            ]
-        )
-
-        if len(possible_splits) > 0:
-            for i in sorted(
-                enumerate(possible_splits), key=lambda x: x[1].data["split_criterion"]
-            ):
-                if i[1].data["split_permission"]:
-                    min_density_node = i[1].identifier
-                    break
-
-        return min_density_node
 
     def calculate_node_data(self, indices, key):
         """
@@ -380,32 +263,6 @@ class DePDDP:
         }
 
     @property
-    def decomposition_method(self):
-        return self._decomposition_method
-
-    @decomposition_method.setter
-    def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica", "tsne"]):
-            raise ValueError(
-                "DePDDP: decomposition_method: "
-                + str(v)
-                + ": Unknown decomposition method!"
-            )
-        self._decomposition_method = v
-
-    @property
-    def max_clusters_number(self):
-        return self._max_clusters_number
-
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "DePDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._max_clusters_number = v
-
-    @property
     def bandwidth_scale(self):
         return self._bandwidth_scale
 
@@ -425,99 +282,8 @@ class DePDDP:
             raise ValueError("DePDDP: percentile: Should be between [0,0.5) interval")
         self._percentile = v
 
-    @property
-    def min_sample_split(self):
-        return self._min_sample_split
 
-    @min_sample_split.setter
-    def min_sample_split(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "DePDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._min_sample_split = v
-
-    @property
-    def visualization_utility(self):
-        return self._visualization_utility
-
-    @visualization_utility.setter
-    def visualization_utility(self, v):
-        if v is not True and v is not False:
-            raise ValueError(
-                "DePDDP: visualization_utility: Should be True or False"
-            )
-
-        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
-            raise ValueError(
-                "DePDDP: visualization_utility: 'tsne' method is can't be used"
-                + " with the visualization utility."
-            )
-        self._visualization_utility = v
-
-    @property
-    def tree(self):
-        return self._tree
-
-    @tree.setter
-    def tree(self, v):
-        self._tree = v
-
-    @property
-    def output_matrix(self):
-        nd_dict = self.tree.nodes
-        output_matrix = [np.zeros(np.size(self.X, 0))]
-
-        # the dictionary of nodes contains the created node from the DePDDP
-        # algorithm sorted from the root to the last split
-        for i in nd_dict:
-            # For the output matrix we don't want the leaves of the tree. Each
-            # level of the output matrix represents a split the split exist in
-            # the internal nodes of the tree. Only by checking the children of
-            # those nodes we can extract the data for the current split.
-            if not nd_dict[i].is_leaf():
-                # create output cluster splitting matrix
-                tmp = np.copy(output_matrix[-1])
-                # Left child according to the tree creation process
-                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
-                    0
-                ].identifier
-                # Right child according to the tree creation process
-                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
-                    1
-                ].identifier
-
-                # The output_matrix is created transposed
-                output_matrix.append(tmp)
-        # the first row contains only zeros
-        del output_matrix[0]
-
-        # transpose the output_matrix to be extracted
-        output_matrix = np.array(output_matrix).transpose()
-
-        return output_matrix
-
-    @output_matrix.setter
-    def output_matrix(self, v):
-        raise RuntimeError(
-            "DePDDP: output_matrix: can only be generated and not to be assigned!"
-        )
-
-    @property
-    def labels_(self):
-        labels_ = np.ones(np.size(self.X, 0))
-        for i in self.tree.leaves():
-            labels_[i.data["indices"]] = i.identifier
-        return labels_
-
-    @labels_.setter
-    def labels_(self, v):
-        raise RuntimeError(
-            "DePDDP: labels_: can only be generated and not to be assigned!"
-        )
-
-
-class IPDDP:
+class IPDDP(Partition):
     """
     Class IPDDP. It executes the iPDDP algorithm.
 
@@ -574,16 +340,14 @@ class IPDDP:
         visualization_utility=True,
         **decomposition_args,
     ):
-        self.decomposition_method = decomposition_method
-        self.max_clusters_number = max_clusters_number
+        super().__init__(
+            decomposition_method,
+            max_clusters_number,
+            min_sample_split,
+            visualization_utility,
+            **decomposition_args
+        )
         self.percentile = percentile
-        self.min_sample_split = min_sample_split
-        if decomposition_method in ["tsne"]:
-            self.visualization_utility = False
-            warnings.warn("IPDDP: does not support visualization for 'tsne'.")
-        else:
-            self.visualization_utility = visualization_utility
-        self.decomposition_args = decomposition_args
 
     def fit(self, X):
         """
@@ -635,138 +399,13 @@ class IPDDP:
             self.split_function(proj_tree, selected_node)  # step (1 ,2)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(proj_tree.leaves())  # step (3)
+            selected_node = self.select_kid(proj_tree.leaves(),
+                                            decreasing=True)  # step (3)
             splits = splits + 1
 
         self.tree = proj_tree
 
         return self
-
-    def fit_predict(self, X):
-        """
-        Execute the iPDDP algorithm and return the results of the execution
-        in the form of labels.
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-            Data matrix with the samples on the rows and the variables on the
-            columns.
-
-        Returns
-        -------
-        labels_ : numpy.ndarray
-            Extracted clusters from the algorithm.
-
-        """
-
-        return self.fit(X).labels_
-
-    def split_function(self, tree, selected_node):
-        """
-        Split the indicated node on the maximum gap between two consecutive
-        points of the data projected on the first principal component.
-
-        Because python passes by reference data this function doesn't need a
-        return statement.
-
-        Parameters
-        ----------
-        tree : treelib.tree.Tree
-            The tree build by the iPDDP algorithm, in order to cluster the
-            input data.
-        selected_node : int
-            The numerical identifier for the tree node that i about to be split.
-
-        Returns
-        -------
-            There no returns in this function. The results of this function
-            pass to execution by utilizing the python's pass-by-reference
-            nature.
-
-        """
-
-        current_node = tree.get_node(selected_node)
-        current_node.data["split_permission"] = False
-
-        # left child indices extracted from the nodes split-point and the
-        # indices included in the parent node
-        left_indices = current_node.data["indices"][
-            np.where(
-                current_node.data["projection"][:, 0] < current_node.data["splitpoint"]
-            )[0]
-        ]
-        # right child indices
-        right_indices = current_node.data["indices"][
-            np.where(
-                current_node.data["projection"][:, 0] >= current_node.data["splitpoint"]
-            )[0]
-        ]
-
-        # Nodes and data creation for the children
-        # Uses the calculate_node_data function to create the data for the node
-        tree.create_node(
-            tag="cl" + str(self.node_ids + 1),
-            identifier=self.node_ids + 1,
-            parent=current_node.identifier,
-            data=self.calculate_node_data(
-                left_indices,
-                current_node.data["color_key"],
-            ),
-        )
-        tree.create_node(
-            tag="cl" + str(self.node_ids + 2),
-            identifier=self.node_ids + 2,
-            parent=current_node.identifier,
-            data=self.calculate_node_data(
-                right_indices,
-                self.cluster_color + 1,
-            ),
-        )
-
-        self.cluster_color += 1
-        self.node_ids += 2
-
-    def select_kid(self, leaves):
-        """
-        The clusters, in the iPDDP algorithm, exist in the leaves of the trees.
-        From those leaves select the next leave to split based on the
-        specifications of the algorithm.
-
-        Parameters
-        ----------
-        leaves : list of treelib.node.Node
-            The list of nodes needed to exam to select the next Node to split.
-
-        Returns
-        -------
-        next_split : int
-            The identifier of the next node to split by the algorithm.
-
-        """
-        next_split = None
-
-        # Remove the nodes that can not split further
-        leaves = list(
-            np.array(leaves)[
-                [
-                    True if i.data["split_criterion"] is not None else False
-                    for i in leaves
-                ]
-            ]
-        )
-
-        if len(leaves) > 0:
-            for i in sorted(
-                enumerate(leaves),
-                key=lambda x: x[1].data["split_criterion"],
-                reverse=True,
-            ):
-                if i[1].data["split_permission"]:
-                    next_split = i[1].identifier
-                    break
-
-        return next_split
 
     def calculate_node_data(self, indices, key):
         """
@@ -852,32 +491,6 @@ class IPDDP:
         }
 
     @property
-    def max_clusters_number(self):
-        return self._max_clusters_number
-
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "IPDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._max_clusters_number = v
-
-    @property
-    def decomposition_method(self):
-        return self._decomposition_method
-
-    @decomposition_method.setter
-    def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica", "tsne"]):
-            raise ValueError(
-                "IPDDP: decomposition_method: "
-                + str(v)
-                + ": Unknown decomposition method!"
-            )
-        self._decomposition_method = v
-
-    @property
     def percentile(self):
         return self._percentile
 
@@ -887,105 +500,15 @@ class IPDDP:
             raise ValueError("IPDDP: percentile: Should be between [0,0.5) interval")
         self._percentile = v
 
-    @property
-    def min_sample_split(self):
-        return self._min_sample_split
 
-    @min_sample_split.setter
-    def min_sample_split(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "IPDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._min_sample_split = v
-
-    @property
-    def visualization_utility(self):
-        return self._visualization_utility
-
-    @visualization_utility.setter
-    def visualization_utility(self, v):
-        if v is not True and v is not False:
-            raise ValueError(
-                "IPDDP: visualization_utility: Should be True or False"
-            )
-
-        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
-            raise ValueError(
-                "IPDDP: visualization_utility: Should be pca when visualization_utility is True."
-            )
-        self._visualization_utility = v
-
-    @property
-    def tree(self):
-        return self._tree
-
-    @tree.setter
-    def tree(self, v):
-        self._tree = v
-
-    @property
-    def output_matrix(self):
-        nodes = self.tree.nodes
-        output_matrix = [np.zeros(np.size(self.X, 0))]
-
-        # The dictionary of nodes contains the created node from the IPDDP
-        # algorithm sorted from the root to the last split.
-        for i in nodes:
-            # For the output matrix we don't want the leaves of the tree. Each
-            # level of the output matrix represents a split the split exist in
-            # the internal nodes of the tree. Only by checking the children of
-            # those nodes we can extract the data for the current split.
-            if not nodes[i].is_leaf():
-                # create output cluster splitting matrix
-                tmp_array = np.copy(output_matrix[-1])
-                # Left child according to the tree creation process
-                tmp_array[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
-                    0
-                ].identifier
-                # Right child according to the tree creation process
-                tmp_array[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
-                    1
-                ].identifier
-
-                # The output_matrix is created transposed
-                output_matrix.append(tmp_array)
-        # the first row contains only zeros
-        del output_matrix[0]
-
-        # transpose the output_matrix to be extracted
-        output_matrix = np.array(output_matrix).transpose()
-
-        return output_matrix
-
-    @output_matrix.setter
-    def output_matrix(self, v):
-        raise RuntimeError(
-            "IPDDP: output_matrix: can only be generated and not to be assigned!"
-        )
-
-    @property
-    def labels_(self):
-        labels_ = np.ones(np.size(self.X, 0))
-        for i in self.tree.leaves():
-            labels_[i.data["indices"]] = i.identifier
-        return labels_
-
-    @labels_.setter
-    def labels_(self, v):
-        raise RuntimeError(
-            "IPDDP: labels_: can only be generated and not to be assigned!"
-        )
-
-
-class KMPDDP:
+class KMPDDP(Partition):
     """
     Class KMPDDP. It executes the kMeans-PDDP algorithm.
 
     References
     ----------
     Zeimpekis, D., & Gallopoulos, E. (2008). Principal direction divisive
-    partitioning with kernels and k-means steering. In Survey of Text Mining
+    Partition with kernels and k-means steering. In Survey of Text Mining
     II (pp. 45-64). Springer, London.
 
     Parameters
@@ -1034,16 +557,14 @@ class KMPDDP:
         random_seed=None,
         **decomposition_args,
     ):
-        self.decomposition_method = decomposition_method
-        self.max_clusters_number = max_clusters_number
-        self.min_sample_split = min_sample_split
-        if decomposition_method in ["tsne"]:
-            self.visualization_utility = False
-            warnings.warn("KMPDDP: does not support visualization for 'tsne'.")
-        else:
-            self.visualization_utility = visualization_utility
+        super().__init__(
+            decomposition_method,
+            max_clusters_number,
+            min_sample_split,
+            visualization_utility,
+            **decomposition_args
+        )
         self.random_seed = random_seed
-        self.decomposition_args = decomposition_args
 
     def fit(self, X):
         """
@@ -1092,135 +613,13 @@ class KMPDDP:
             self.split_function(bk_tree, selected_node)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(bk_tree.leaves())
+            selected_node = self.select_kid(bk_tree.leaves(), decreasing=True)
 
             # every split adds one new cluster
             found = found + 1
 
         self.tree = bk_tree
         return self
-
-    def fit_predict(self, X):
-        """
-        Execute the kM-PDDP algorithm and return the results of the execution
-        in the form of labels.
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-            Data matrix with the samples on the rows and the variables on the
-            columns.
-
-        Returns
-        -------
-        labels_ : numpy.ndarray
-            Extracted clusters from the algorithm.
-
-        """
-
-        return self.fit(X).labels_
-
-    def split_function(self, tree, selected_node):
-        """
-        Split the indicated node based on the binary k-Means clustering of the
-        node's data projected on one dimension with the decomposition method.
-
-        Because python passes by reference data this function doesn't need a
-        return statement.
-
-        Parameters
-        ----------
-        tree : treelib.tree.Tree
-            The tree build by the kM_PDDP algorithm, in order to cluster the
-            input data.
-        selected_node : int
-            The numerical identifier for the tree node that i about to be split.
-
-        Returns
-        -------
-            There no returns in this function. The results of this function
-            pass to execution by utilizing the python's pass-by-reference
-            nature.
-
-        """
-
-        node = tree.get_node(selected_node)
-        node.data["split_permission"] = False
-
-        # left child indices extracted from the nodes split-point and the
-        # indices included in the parent node
-        left_kid = node.data["left_indices"]
-        # right child indices
-        right_kid = node.data["right_indices"]
-
-        # Nodes and data creation for the children
-        # Uses the calculate_node_data function to create the data for the node
-        tree.create_node(
-            tag="binary_kmeans_node_" + str(self.node_ids + 1),
-            identifier=self.node_ids + 1,
-            parent=node.identifier,
-            data=self.calculate_node_data(
-                left_kid,
-                node.data["color_key"],
-            ),
-        )
-        tree.create_node(
-            tag="binary_kmeans_node_" + str(self.node_ids + 2),
-            identifier=self.node_ids + 2,
-            parent=node.identifier,
-            data=self.calculate_node_data(
-                right_kid,
-                self.cluster_color + 1,
-            ),
-        )
-
-        self.cluster_color += 1
-        self.node_ids += 2
-
-    def select_kid(self, leaves):
-        """
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the necessary cause for the stopping criterion
-        ST1.
-
-        Parameters
-        ----------
-        leaves : list of treelib.node.Node
-            The list of nodes needed to exam to select the next Node to split.
-
-        Returns
-        -------
-        next_split : int
-            The identifier of the next node to split by the algorithm.
-
-        """
-
-        maximum_frobenius = None
-
-        # Remove the nodes that can not split further
-        leaves = list(
-            np.array(leaves)[
-                [
-                    True if i.data["split_criterion"] is not None else False
-                    for i in leaves
-                ]
-            ]
-        )
-
-        if len(leaves) > 0:
-            for i in sorted(
-                enumerate(leaves),
-                key=lambda x: x[1].data["split_criterion"],
-                reverse=True,
-            ):
-                if i[1].data["split_permission"]:
-                    maximum_frobenius = i[1].identifier
-                    break
-
-        return maximum_frobenius
 
     def calculate_node_data(self, indices, key):
         """
@@ -1309,44 +708,6 @@ class KMPDDP:
         }
 
     @property
-    def decomposition_method(self):
-        return self._decomposition_method
-
-    @decomposition_method.setter
-    def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica", "tsne"]):
-            raise ValueError(
-                "KMPDDP: decomposition_method: "
-                + str(v)
-                + ": Unknown decomposition method!"
-            )
-        self._decomposition_method = v
-
-    @property
-    def max_clusters_number(self):
-        return self._max_clusters_number
-
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "KMPDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._max_clusters_number = v
-
-    @property
-    def min_sample_split(self):
-        return self._min_sample_split
-
-    @min_sample_split.setter
-    def min_sample_split(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "KMPDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._min_sample_split = v
-
-    @property
     def random_seed(self):
         return self._random_seed
 
@@ -1358,90 +719,14 @@ class KMPDDP:
             )
         self._random_seed = v
 
-    @property
-    def visualization_utility(self):
-        return self._visualization_utility
 
-    @visualization_utility.setter
-    def visualization_utility(self, v):
-        if v is not True and v is not False:
-            raise ValueError(
-                "KMPDDP: visualization_utility: Should be True or False"
-            )
-
-        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
-            raise ValueError(
-                "KMPDDP: visualization_utility: Should be pca when visualization_utility is True"
-            )
-        self._visualization_utility = v
-
-    @property
-    def tree(self):
-        return self._tree
-
-    @tree.setter
-    def tree(self, v):
-        self._tree = v
-
-    @property
-    def output_matrix(self):
-        nds = self.tree.nodes
-        output_matrix = [np.zeros(self.samples_number)]
-
-        # The dictionary of nodes contains the created node from the KMPDDP
-        # algorithm sorted from the root to the last split.
-        for j in nds:
-            # For the output matrix we don't want the leaves of the tree. Each
-            # level of the output matrix represents a split the split exist in
-            # the internal nodes of the tree. Only by checking the children of
-            # those nodes we can extract the data for the current split.
-            if not nds[j].is_leaf():
-                # create output cluster splitting matrix
-                tmp = np.copy(output_matrix[-1])
-                # Left child according to the tree creation process
-                tmp[self.tree.children(j)[0].data["indices"]] =\
-                    self.tree.children(j)[0].identifier
-                # Right child according to the tree creation process
-                tmp[self.tree.children(j)[1].data["indices"]] =\
-                    self.tree.children(j)[1].identifier
-
-                # The output_matrix is created transposed
-                output_matrix.append(tmp)
-        # the first row contains only zeros
-        del output_matrix[0]
-
-        # transpose the output_matrix to be extracted
-        output_matrix = np.array(output_matrix).transpose()
-
-        return output_matrix
-
-    @output_matrix.setter
-    def output_matrix(self, v):
-        raise RuntimeError(
-            "KMPDDP: output_matrix: can only be generated and not to be assigned!"
-        )
-
-    @property
-    def labels_(self):
-        labels_ = np.ones(np.size(self.X, 0))
-        for i in self.tree.leaves():
-            labels_[i.data["indices"]] = i.identifier
-        return labels_
-
-    @labels_.setter
-    def labels_(self, v):
-        raise RuntimeError(
-            "KMPDDP: labels_: can only be generated and not to be assigned!"
-        )
-
-
-class PDDP:
+class PDDP(Partition):
     """
     Class PDDP. It executes the PDDP algorithm.
 
     References
     ----------
-    Boley, D. (1998). Principal direction divisive partitioning. Data mining
+    Boley, D. (1998). Principal direction divisive Partition. Data mining
     and knowledge discovery, 2(4), 325-344.
 
     Parameters
@@ -1487,15 +772,13 @@ class PDDP:
         visualization_utility=True,
         **decomposition_args,
     ):
-        self.decomposition_method = decomposition_method
-        self.max_clusters_number = max_clusters_number
-        self.min_sample_split = min_sample_split
-        if decomposition_method in ["tsne"]:
-            self.visualization_utility = False
-            warnings.warn("PDDP: does not support visualization for 'tsne'.")
-        else:
-            self.visualization_utility = visualization_utility
-        self.decomposition_args = decomposition_args
+        super().__init__(
+            decomposition_method,
+            max_clusters_number,
+            min_sample_split,
+            visualization_utility,
+            **decomposition_args
+        )
 
     def fit(self, X):
         """
@@ -1549,138 +832,11 @@ class PDDP:
             self.split_function(tree, selected)  # step (1)
 
             # select the next kid for split based on the local minimum density
-            selected = self.select_kid(tree.leaves())  # step (2)
+            selected = self.select_kid(tree.leaves(), decreasing=True)  # step (2)
             counter = counter + 1  # (ST1)
 
         self.tree = tree
         return self
-
-    def fit_predict(self, X):
-        """
-        Execute the PDDP algorithm and return the results of the execution in
-        the form of labels.
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-            Data matrix with the samples on the rows and the variables on the
-            columns.
-
-        Returns
-        -------
-        labels_ : numpy.ndarray
-            Extracted clusters from the algorithm.
-
-        """
-
-        return self.fit(X).labels_
-
-    def split_function(self, tree, selected_node):
-        """
-        Split the indicated node on the minimum of the median of the data
-        projected on the first principal component.
-
-        Because python passes by reference data this function doesn't need a
-        return statement.
-
-        Parameters
-        ----------
-        tree : treelib.tree.Tree
-            The tree build by the PDDP algorithm, in order to cluster the
-            input data.
-        selected_node : int
-            The numerical identifier for the tree node that i about to be split.
-
-        Returns
-        -------
-            There no returns in this function. The results of this function
-            pass to execution by utilizing the python's pass-by-reference
-            nature.
-
-        """
-
-        node = tree.get_node(selected_node)
-        node.data["split_permission"] = False
-
-        # left child indices extracted from the nodes split-point and the
-        # indices included in the parent node
-        left_kid_index = node.data["indices"][
-            np.where(node.data["projection"][:, 0] < node.data["splitpoint"])[0]
-        ]
-        # right child indices
-        right_kid_index = node.data["indices"][
-            np.where(node.data["projection"][:, 0] >= node.data["splitpoint"])[0]
-        ]
-
-        # Nodes and data creation for the children
-        # Uses the calculate_node_data function to create the data for the node
-        tree.create_node(
-            tag="cl" + str(self.node_ids + 1),
-            identifier=self.node_ids + 1,
-            parent=node.identifier,
-            data=self.calculate_node_data(
-                left_kid_index,
-                node.data["color_key"],
-            ),
-        )
-        tree.create_node(
-            tag="cl" + str(self.node_ids + 2),
-            identifier=self.node_ids + 2,
-            parent=node.identifier,
-            data=self.calculate_node_data(
-                right_kid_index,
-                self.cluster_color + 1,
-            ),
-        )
-
-        self.cluster_color += 1
-        self.node_ids += 2
-
-    def select_kid(self, leaves):
-        """
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the necessary cause for the stopping criterion
-        ST1.
-
-        Parameters
-        ----------
-        leaves : list of treelib.node.Node
-            The list of nodes needed to exam to select the next Node to split.
-
-        Returns
-        -------
-        int
-            A PDDP class type object, with complete results on the algorithm's
-            analysis.
-
-        """
-
-        maximum_scatter = None
-
-        # Remove the nodes that can not split further
-        scatter_leaves = list(
-            np.array(leaves)[
-                [
-                    True if i.data["split_criterion"] is not None else False
-                    for i in leaves
-                ]
-            ]
-        )
-
-        if len(scatter_leaves) > 0:
-            for i in sorted(
-                enumerate(scatter_leaves),
-                key=lambda x: x[1].data["split_criterion"],
-                reverse=True,
-            ):
-                if i[1].data["split_permission"]:
-                    maximum_scatter = i[1].identifier
-                    break
-
-        return maximum_scatter
 
     def calculate_node_data(self, indices, key):
         """
@@ -1746,120 +902,8 @@ class PDDP:
             "dendrogram_check": False,
         }
 
-    @property
-    def decomposition_method(self):
-        return self._decomposition_method
 
-    @decomposition_method.setter
-    def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica", "tsne"]):
-            raise ValueError(
-                "PDDP: decomposition_method: " + str(v) + ": Unknown decomposition method!"
-            )
-        self._decomposition_method = v
-
-    @property
-    def max_clusters_number(self):
-        return self._max_clusters_number
-
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "PDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._max_clusters_number = v
-
-    @property
-    def min_sample_split(self):
-        return self._min_sample_split
-
-    @min_sample_split.setter
-    def min_sample_split(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "PDDP: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._min_sample_split = v
-
-    @property
-    def visualization_utility(self):
-        return self._visualization_utility
-
-    @visualization_utility.setter
-    def visualization_utility(self, v):
-        if v is not True and v is not False:
-            raise ValueError(
-                "PDDP: visualization_utility: Should be True or False"
-            )
-
-        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
-            raise ValueError(
-                "PDDP: visualization_utility: Should be pca when visualization_utility is True"
-            )
-        self._visualization_utility = v
-
-    @property
-    def tree(self):
-        return self._tree
-
-    @tree.setter
-    def tree(self, v):
-        self._tree = v
-
-    @property
-    def output_matrix(self):
-        nd_dict = self.tree.nodes
-        output_matrix = [np.full(self.samples_number, 0)]
-
-        # The dictionary of nodes contains the created node from the KMPDDP
-        # algorithm sorted from the root to the last split.
-        for k in nd_dict:
-            # For the output matrix we don't want the leaves of the tree. Each
-            # level of the output matrix represents a split the split exist in
-            # the internal nodes of the tree. Only by checking the children of
-            # those nodes we can extract the data for the current split.
-            if not nd_dict[k].is_leaf():
-                # create output cluster splitting matrix
-                tmp = np.copy(output_matrix[-1])
-                # Left child according to the tree creation process
-                tmp[self.tree.children(k)[0].data["indices"]] = \
-                    self.tree.children(k)[0].identifier
-                # Right child according to the tree creation process
-                tmp[self.tree.children(k)[1].data["indices"]] = \
-                    self.tree.children(k)[1].identifier
-
-                # The output_matrix is created transposed
-                output_matrix.append(tmp)
-        # the first row contains only zeros
-        del output_matrix[0]
-
-        # transpose the output_matrix to be extracted
-        output_matrix = np.array(output_matrix).transpose()
-
-        return output_matrix
-
-    @output_matrix.setter
-    def output_matrix(self, v):
-        raise RuntimeError(
-            "PDDP: output_matrix: can only be generated and not to be assigned!"
-        )
-
-    @property
-    def labels_(self):
-        labels_ = np.ones(np.size(self.X, 0))
-        for i in self.tree.leaves():
-            labels_[i.data["indices"]] = i.identifier
-        return labels_
-
-    @labels_.setter
-    def labels_(self, v):
-        raise RuntimeError(
-            "PDDP: labels_: can only be generated and not to be assigned!"
-        )
-
-
-class BisectingKmeans:
+class BisectingKmeans(Partition):
     """
     Class BisectingKmeans. It executes the bisecting k-Means algorithm.
 
@@ -1894,8 +938,10 @@ class BisectingKmeans:
     """
 
     def __init__(self, max_clusters_number=100, min_sample_split=5, random_seed=None):
-        self.max_clusters_number = max_clusters_number
-        self.min_sample_split = min_sample_split
+        super().__init__(
+            max_clusters_number=max_clusters_number,
+            min_sample_split=min_sample_split,
+        )
         self.random_seed = random_seed
 
     def fit(self, X):
@@ -1931,7 +977,7 @@ class BisectingKmeans:
         tree.create_node(
             tag="cl_" + str(self.node_ids),
             identifier=self.node_ids,
-            data=self.calculate_node_data(indices, self.X, self.cluster_color),
+            data=self.calculate_node_data(indices, self.cluster_color),
         )
         # indicator for the next node to split
         selected_node = 0
@@ -1950,31 +996,11 @@ class BisectingKmeans:
             self.split_function(tree, selected_node)  # step (1)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(tree.leaves())  # step (2)
+            selected_node = self.select_kid(tree.leaves(), decreasing=True)  # step (2)
             found_clusters = found_clusters + 1  # (ST1)
 
         self.tree = tree
         return self
-
-    def fit_predict(self, X):
-        """
-        Execute the BisectingKmeans algorithm and return the results of the
-        execution in the form of labels.
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-            Data matrix with the samples on the rows and the variables on the
-            columns.
-
-        Returns
-        -------
-        labels_ : numpy.ndarray
-            Extracted clusters from the algorithm.
-
-        """
-
-        return self.fit(X).labels_
 
     def split_function(self, tree, selected_node):
         """
@@ -2017,7 +1043,6 @@ class BisectingKmeans:
             parent=node.identifier,
             data=self.calculate_node_data(
                 left_index,
-                self.X[left_index, :],
                 node.data["color_key"],
             ),
         )
@@ -2027,7 +1052,6 @@ class BisectingKmeans:
             parent=node.identifier,
             data=self.calculate_node_data(
                 right_index,
-                self.X[right_index, :],
                 self.cluster_color + 1,
             ),
         )
@@ -2035,51 +1059,7 @@ class BisectingKmeans:
         self.cluster_color += 1
         self.node_ids += 2
 
-    def select_kid(self, leaves):
-        """
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the necessary data for further execution of the
-        algorithm.
-
-        Parameters
-        ----------
-        leaves : list of treelib.node.Node
-            The list of nodes needed to exam to select the next Node to split.
-
-        Returns
-        -------
-        next_split : int
-            The identifier of the next node to split by the algorithm.
-
-        """
-        next_split = None
-
-        # Remove the nodes that can not split further
-        leaves = list(
-            np.array(leaves)[
-                [
-                    True if i.data["split_criterion"] is not None else False
-                    for i in leaves
-                ]
-            ]
-        )
-
-        if len(leaves) > 0:
-            for i in sorted(
-                enumerate(leaves),
-                key=lambda x: x[1].data["split_criterion"],
-                reverse=True,
-            ):
-                if i[1].data["split_permission"]:
-                    next_split = i[1].identifier
-                    break
-
-        return next_split
-
-    def calculate_node_data(self, indices, data_matrix, key):
+    def calculate_node_data(self, indices, key):
         """
         Execution of the binary k-Means algorithm on the samples presented by
         the data_matrix. The two resulted clusters are the two new clusters if
@@ -2105,15 +1085,14 @@ class BisectingKmeans:
         if indices.shape[0] > self.min_sample_split:
 
             model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_seed)
-            model.fit(data_matrix)
-            labels = model.predict(data_matrix)
+            labels = model.fit_predict(self.X[indices, :])
             centers = model.cluster_centers_
 
             left_child = indices[np.where(labels == 0)]
             right_child = indices[np.where(labels == 1)]
             centers = centers
 
-            centered = util.center_data(data_matrix)
+            centered = util.center_data(self.X[indices, :])
             # Total scatter value calculation for the selection of the next
             # cluster to split.
             scat = np.linalg.norm(centered, ord="fro")
@@ -2140,30 +1119,6 @@ class BisectingKmeans:
         }
 
     @property
-    def max_clusters_number(self):
-        return self._max_clusters_number
-
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "BisectingKmeans: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._max_clusters_number = v
-
-    @property
-    def min_sample_split(self):
-        return self._min_sample_split
-
-    @min_sample_split.setter
-    def min_sample_split(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "BisectingKmeans: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._min_sample_split = v
-
-    @property
     def random_seed(self):
         return self._random_seed
 
@@ -2175,67 +1130,8 @@ class BisectingKmeans:
             )
         self._random_seed = v
 
-    @property
-    def tree(self):
-        return self._tree
 
-    @tree.setter
-    def tree(self, v):
-        self._tree = v
-
-    @property
-    def output_matrix(self):
-        tnds = self.tree.nodes
-        output_matrix = [np.full(self.samples_number, 0)]
-
-        # The dictionary of nodes contains the created node from the KMPDDP
-        # algorithm sorted from the root to the last split.
-        for t in tnds:
-            # For the output matrix we don't want the leaves of the tree. Each
-            # level of the output matrix represents a split the split exist in
-            # the internal nodes of the tree. Only by checking the children of
-            # those nodes we can extract the data for the current split.
-            if not tnds[t].is_leaf():
-                # create output cluster splitting matrix
-                tmp = np.copy(output_matrix[-1])
-                # Left child according to the tree creation process
-                tmp[self.tree.children(t)[0].data["indices"]] = \
-                    self.tree.children(t)[0].identifier
-                # Right child according to the tree creation process
-                tmp[self.tree.children(t)[1].data["indices"]] = \
-                    self.tree.children(t)[1].identifier
-
-                # The output_matrix is created transposed
-                output_matrix.append(tmp)
-        # the first row contains only zeros
-        del output_matrix[0]
-
-        # transpose the output_matrix to be extracted
-        output_matrix = np.array(output_matrix).transpose()
-
-        return output_matrix
-
-    @output_matrix.setter
-    def output_matrix(self, v):
-        raise RuntimeError(
-            "BisectingKmeans: output_matrix: can only be generated and not to be assigned!"
-        )
-
-    @property
-    def labels_(self):
-        labels_ = np.ones(np.size(self.X, 0))
-        for i in self.tree.leaves():
-            labels_[i.data["indices"]] = i.identifier
-        return labels_
-
-    @labels_.setter
-    def labels_(self, v):
-        raise RuntimeError(
-            "BisectingKmeans: labels_: can only be generated and not to be assigned!"
-        )
-
-
-class MDH:
+class MDH(Partition):
     """
     Class MDH. It executes the MDH algorithm.
 
@@ -2285,11 +1181,13 @@ class MDH:
         min_sample_split=5,
         random_state=None,
     ):
-        self.max_clusters_number = max_clusters_number
+        super().__init__(
+            max_clusters_number=max_clusters_number,
+            min_sample_split=min_sample_split,
+        )
         self.k = k
         self.max_iterations = max_iterations
         self.percentile = percentile
-        self.min_sample_split = min_sample_split
         self.random_state = random_state
 
     def fit(self, X):
@@ -2349,128 +1247,11 @@ class MDH:
             self.split_function(den_tree, selected_node)  # step (1, 2)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(den_tree.leaves())  # step (3)
+            selected_node = self.select_kid(den_tree.leaves(), decreasing=True)  # step (3)
             found_clusters = found_clusters + 1  # (ST1)
 
         self.tree = den_tree
         return self
-
-    def fit_predict(self, X):
-        """
-        Execute the MDH algorithm and return the results of the execution in the
-        form of labels.
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-            Data matrix with the samples on the rows and the variables on the
-            columns.
-
-        Returns
-        -------
-        labels_ : numpy.ndarray
-            Extracted clusters from the algorithm.
-
-        """
-
-        return self.fit(X).labels_
-
-    def split_function(self, den_tree, selected_node):
-        """
-        Split the indicated node on the minimum of the local minimum density
-        of the data projected on the first principal component.
-
-        Because python passes by reference data this function doesn't need a
-        return statement.
-
-        Parameters
-        ----------
-        den_tree : treelib.tree.Tree
-            The tree build by the MDH algorithm, in order to cluster the
-            input data.
-        selected_node : int
-            The numerical identifier for the tree node that i about to be split.
-
-        Returns
-        -------
-            There no returns in this function. The results of this function
-            pass to execution by utilizing the python's pass-by-reference
-            nature.
-
-        """
-        node = den_tree.get_node(selected_node)
-        node.data["split_permission"] = False
-
-        # left child indices extracted from the nodes split-point and the
-        # indices included in the parent node
-        left_kid_index = node.data["indices"][
-            np.where(node.data["projection"][:, 0] < node.data["splitpoint"])[0]
-        ]
-        # right child indices
-        right_kid_index = node.data["indices"][
-            np.where(node.data["projection"][:, 0] >= node.data["splitpoint"])[0]
-        ]
-
-        # Nodes and data creation for the children
-        # Uses the calculate_node_data function to create the data for the node
-        den_tree.create_node(
-            tag="density_cluster_" + str(self.node_ids + 1),
-            identifier=self.node_ids + 1,
-            parent=node.identifier,
-            data=self.calculate_node_data(left_kid_index, node.data["color_key"]),
-        )
-        den_tree.create_node(
-            tag="density_cluster_" + str(self.node_ids + 2),
-            identifier=self.node_ids + 2,
-            parent=node.identifier,
-            data=self.calculate_node_data(right_kid_index, self.cluster_color + 1),
-        )
-
-        self.cluster_color += 1
-        self.node_ids += 2
-
-    def select_kid(self, possible_splits):
-        """
-        The clusters each time exist in the leaves of the trees. From those
-        leaves select the next leave to split based on the algorithm's
-        specifications.
-
-        This function creates the necessary cause for the stopping criterion
-        ST1.
-
-        Parameters
-        ----------
-        possible_splits : list of treelib.node.Node
-            The list of nodes needed to exam to select the next Node to split.
-
-        Returns
-        -------
-        next_split : int
-            The identifier of the next node to split by the algorithm.
-
-        """
-        min_density_node = None
-
-        # Remove the nodes that can not split further
-        possible_splits = list(
-            np.array(possible_splits)[
-                [
-                    True if i.data["split_criterion"] is not None else False
-                    for i in possible_splits
-                ]
-            ]
-        )
-
-        if len(possible_splits) > 0:
-            for i in sorted(
-                enumerate(possible_splits), key=lambda x: x[1].data["split_criterion"],
-                reverse=True,
-            ):
-                if i[1].data["split_permission"]:
-                    min_density_node = i[1].identifier
-                    break
-
-        return min_density_node
 
     def calculate_node_data(self, indices, key):
         """
@@ -2569,18 +1350,6 @@ class MDH:
         }
 
     @property
-    def max_clusters_number(self):
-        return self._max_clusters_number
-
-    @max_clusters_number.setter
-    def max_clusters_number(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "MDH: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._max_clusters_number = v
-
-    @property
     def max_iterations(self):
         return self._max_iterations
 
@@ -2615,18 +1384,6 @@ class MDH:
         self._percentile = v
 
     @property
-    def min_sample_split(self):
-        return self._min_sample_split
-
-    @min_sample_split.setter
-    def min_sample_split(self, v):
-        if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "MDH: min_sample_split: Invalid value it should be int and > 1"
-            )
-        self._min_sample_split = v
-
-    @property
     def random_state(self):
         return self._random_state
 
@@ -2637,64 +1394,3 @@ class MDH:
                 "MDH: min_sample_split: Invalid value it should be int and > 1"
             )
         self._random_state = v
-
-    @property
-    def tree(self):
-        return self._tree
-
-    @tree.setter
-    def tree(self, v):
-        self._tree = v
-
-    @property
-    def output_matrix(self):
-        nd_dict = self.tree.nodes
-        output_matrix = [np.zeros(np.size(self.X, 0))]
-
-        # the dictionary of nodes contains the created node from the MDH
-        # algorithm sorted from the root to the last split
-        for i in nd_dict:
-            # For the output matrix we don't want the leaves of the tree. Each
-            # level of the output matrix represents a split the split exist in
-            # the internal nodes of the tree. Only by checking the children of
-            # those nodes we can extract the data for the current split.
-            if not nd_dict[i].is_leaf():
-                # create output cluster splitting matrix
-                tmp = np.copy(output_matrix[-1])
-                # Left child according to the tree creation process
-                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
-                    0
-                ].identifier
-                # Right child according to the tree creation process
-                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
-                    1
-                ].identifier
-
-                # The output_matrix is created transposed
-                output_matrix.append(tmp)
-        # the first row contains only zeros
-        del output_matrix[0]
-
-        # transpose the output_matrix to be extracted
-        output_matrix = np.array(output_matrix).transpose()
-
-        return output_matrix
-
-    @output_matrix.setter
-    def output_matrix(self, v):
-        raise RuntimeError(
-            "MDH: output_matrix: can only be generated and not to be assigned!"
-        )
-
-    @property
-    def labels_(self):
-        labels_ = np.ones(np.size(self.X, 0))
-        for i in self.tree.leaves():
-            labels_[i.data["indices"]] = i.identifier
-        return labels_
-
-    @labels_.setter
-    def labels_(self, v):
-        raise RuntimeError(
-            "MDH: labels_: can only be generated and not to be assigned!"
-        )

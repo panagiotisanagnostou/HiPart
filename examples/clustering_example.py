@@ -43,8 +43,8 @@ print("depddp_ari= {val:.5f}\n".format(val=ari(y, depddp.labels_)))
 # scatter visualization
 viz.split_visualization(depddp).show()
 # dendrogram
-dn = viz.dendrogram_visualization(depddp)
-plt.show()
+# dn = viz.dendrogram_visualization(depddp)
+# plt.show()
 
 # %% iPDDP algorithm execution
 # timer for the execution time in the form of tic-toc
@@ -62,8 +62,8 @@ print("ipddp_ari= {val:.5f}\n".format(val=ari(y, ipddp.labels_)))
 # scatter visualization
 viz.split_visualization(ipddp).show()
 # dendrogram
-dn = viz.dendrogram_visualization(ipddp)
-plt.show()
+# dn = viz.dendrogram_visualization(ipddp)
+# plt.show()
 
 # %% kMeans-PDDP algorithm execution
 # timer for the execution time in the form of tic-toc
@@ -82,8 +82,8 @@ print("kmpddp_ari= {val:.5f}\n".format(val=ari(y, kmpddp.labels_)))
 # scatter visualization
 viz.split_visualization(kmpddp).show()
 # dendrogram
-dn = viz.dendrogram_visualization(kmpddp)
-plt.show()
+# dn = viz.dendrogram_visualization(kmpddp)
+# plt.show()
 
 # %% PDDP algorithm execution
 # timer for the execution time in the form of tic-toc
@@ -99,8 +99,8 @@ print("pddp_ari= {val:.5f}\n".format(val=ari(y, pddp.labels_)))
 # scatter visualization
 viz.split_visualization(pddp).show()
 # dendrogram
-dn = viz.dendrogram_visualization(pddp)
-plt.show()
+# dn = viz.dendrogram_visualization(pddp)
+# plt.show()
 
 # %% Bisecting kMeans algorithm execution
 # timer for the execution time in the form of tic-toc
@@ -115,8 +115,8 @@ print("bikmeans_ari= {val:.5f}\n".format(val=ari(y, bikmeans.labels_)))
 # scatter visualization
 viz.split_visualization(bikmeans).show()
 # dendrogram
-dn = viz.dendrogram_visualization(bikmeans)
-plt.show()
+# dn = viz.dendrogram_visualization(bikmeans)
+# plt.show()
 
 # %% MDH algorithm execution
 # timer for the execution time in the form of tic-toc
@@ -131,5 +131,5 @@ print("mdh_ari= {val:.5f}\n".format(val=ari(y, mdh.labels_)))
 # scatter visualization
 viz.split_visualization(mdh).show()
 # dendrogram
-dn = viz.dendrogram_visualization(mdh)
-plt.show()
+# dn = viz.dendrogram_visualization(mdh)
+# plt.show()
