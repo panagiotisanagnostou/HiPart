@@ -659,8 +659,7 @@ class KMPDDP(Partition):
             one_dimension = np.array([[i] for i in projection[:, 0]])
 
             model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_seed)
-            model.fit(one_dimension)
-            labels = model.predict(one_dimension)
+            labels = model.fit_predict(one_dimension)
             centers = model.cluster_centers_
 
             # Labels for the split selection
