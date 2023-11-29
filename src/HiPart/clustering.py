@@ -86,6 +86,8 @@ class DePDDP(Partition):
 
     """
 
+    decreasing = False
+
     def __init__(
             self,
             decomposition_method="pca",
@@ -158,7 +160,7 @@ class DePDDP(Partition):
             self.split_function(den_tree, selected_node)  # step (1, 2)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(den_tree.leaves())  # step (3)
+            selected_node = self.select_kid(den_tree.leaves(), self.decreasing)  # step (3)
             found_clusters = found_clusters + 1  # (ST1)
 
         self.tree = den_tree
@@ -193,6 +195,7 @@ class DePDDP(Partition):
 
         """
 
+        method = None # (ST2)
         proj = None  # (ST2)
         splitpoint = None  # (ST2)
         split_criterion = None  # (ST2)
@@ -201,12 +204,13 @@ class DePDDP(Partition):
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
             # execute pca on the data matrix
-            proj = util.execute_decomposition_method(
+            method = util.execute_decomposition_method(
                 data_matrix=self.X[indices, :],
                 decomposition_method=self.decomposition_method,
                 two_dimentions=self.visualization_utility,
                 decomposition_args=self.decomposition_args,
             )
+            proj = method.transform(self.X[indices, :])
             one_dimension = proj[:, 0]
 
             # calculate the standard deviation of the data
@@ -255,6 +259,7 @@ class DePDDP(Partition):
         return {
             "indices": indices,
             "projection": proj,
+            "projection_vectors": method,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
             "split_permission": flag,
@@ -331,6 +336,8 @@ class IPDDP(Partition):
 
     """
 
+    decreasing = True
+
     def __init__(
         self,
         decomposition_method="pca",
@@ -399,8 +406,7 @@ class IPDDP(Partition):
             self.split_function(proj_tree, selected_node)  # step (1 ,2)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(proj_tree.leaves(),
-                                            decreasing=True)  # step (3)
+            selected_node = self.select_kid(proj_tree.leaves(), decreasing=self.decreasing)  # step (3)
             splits = splits + 1
 
         self.tree = proj_tree
@@ -438,17 +444,18 @@ class IPDDP(Partition):
         # =========================
         if indices.shape[0] > self.min_sample_split:
             # execute pca on the data matrix
-            proj_vector = util.execute_decomposition_method(
+            proj_vectors = util.execute_decomposition_method(
                 data_matrix=self.X[indices, :],
                 decomposition_method=self.decomposition_method,
                 two_dimentions=self.visualization_utility,
                 decomposition_args=self.decomposition_args,
             )
-            one_dimension = proj_vector[:, 0]
+            projection = proj_vectors.transform(self.X[indices, :])
+            one_dimension = projection[:, 0]
 
             sort_indices = np.argsort(one_dimension)
-            proj_vector = proj_vector[sort_indices, :]
-            one_dimension = proj_vector[:, 0]
+            projection = projection[sort_indices, :]
+            one_dimension = projection[:, 0]
             indices = indices[sort_indices]
 
             quantile_value = np.quantile(
@@ -475,14 +482,16 @@ class IPDDP(Partition):
                 flag = False
         # =========================
         else:
-            proj_vector = None
+            proj_vectors = None
+            projection = None
             splitpoint = None
             split_criterion = None
             flag = False
 
         return {
             "indices": indices,
-            "projection": proj_vector,
+            "projection": projection,
+            "projection_vectors": proj_vectors,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
             "split_permission": flag,
@@ -526,7 +535,7 @@ class KMPDDP(Partition):
         interactive_visualization of the package can not be created. For the
         'tsne' decomposition method does not support visualization because it
         affects the correct execution of the kMeans-PDDP algorithm.
-    random_seed : int, (optional)
+    random_state : int, (optional)
         The random seed fed in the k-Means algorithm
     **decomposition_args :
         Arguments for each of the decomposition methods ("decomposition.PCA" as
@@ -548,13 +557,15 @@ class KMPDDP(Partition):
 
     """
 
+    decreasing = True
+
     def __init__(
         self,
         decomposition_method="pca",
         max_clusters_number=100,
         min_sample_split=15,
         visualization_utility=True,
-        random_seed=None,
+        random_state=None,
         **decomposition_args,
     ):
         super().__init__(
@@ -564,7 +575,7 @@ class KMPDDP(Partition):
             visualization_utility,
             **decomposition_args
         )
-        self.random_seed = random_seed
+        self.random_state = random_state
 
     def fit(self, X):
         """
@@ -613,7 +624,7 @@ class KMPDDP(Partition):
             self.split_function(bk_tree, selected_node)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(bk_tree.leaves(), decreasing=True)
+            selected_node = self.select_kid(bk_tree.leaves(), decreasing=self.decreasing)
 
             # every split adds one new cluster
             found = found + 1
@@ -650,15 +661,16 @@ class KMPDDP(Partition):
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
             # execute pca on the data matrix
-            projection = util.execute_decomposition_method(
+            method = util.execute_decomposition_method(
                 data_matrix=self.X[indices, :],
                 decomposition_method=self.decomposition_method,
                 two_dimentions=self.visualization_utility,
                 decomposition_args=self.decomposition_args,
             )
+            projection = method.transform(self.X[indices, :])
             one_dimension = np.array([[i] for i in projection[:, 0]])
 
-            model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_seed)
+            model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_state)
             labels = model.fit_predict(one_dimension)
             centers = model.cluster_centers_
 
@@ -688,6 +700,7 @@ class KMPDDP(Partition):
             left_child = None  # (ST2)
             right_child = None  # (ST2)
             projection = None  # (ST2)
+            method = None  # (ST2)
             centers = None  # (ST2)
             splitpoint = None  # (ST2)
             split_criterion = None  # (ST2)
@@ -698,6 +711,7 @@ class KMPDDP(Partition):
             "left_indices": left_child,
             "right_indices": right_child,
             "projection": projection,
+            "projection_vectors": method,
             "centers": centers,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
@@ -707,11 +721,11 @@ class KMPDDP(Partition):
         }
 
     @property
-    def random_seed(self):
+    def random_state(self):
         return self._random_seed
 
-    @random_seed.setter
-    def random_seed(self, v):
+    @random_state.setter
+    def random_state(self, v):
         if v is not None and (not isinstance(v, int)):
             raise ValueError(
                 "KMPDDP: min_sample_split: Invalid value it should be int and > 1"
@@ -762,6 +776,8 @@ class PDDP(Partition):
         The number of samples contained in the data.
 
     """
+
+    decreasing = True
 
     def __init__(
         self,
@@ -831,7 +847,7 @@ class PDDP(Partition):
             self.split_function(tree, selected)  # step (1)
 
             # select the next kid for split based on the local minimum density
-            selected = self.select_kid(tree.leaves(), decreasing=True)  # step (2)
+            selected = self.select_kid(tree.leaves(), decreasing=self.decreasing)  # step (2)
             counter = counter + 1  # (ST1)
 
         self.tree = tree
@@ -864,6 +880,7 @@ class PDDP(Partition):
 
         """
 
+        projection_vectors = None
         projection = None
         splitpoint = None
         split_criterion = None
@@ -875,12 +892,13 @@ class PDDP(Partition):
             centered = util.center_data(self.X[indices, :])
 
             # execute pca on the data matrix
-            projection = util.execute_decomposition_method(
+            projection_vectors = util.execute_decomposition_method(
                 data_matrix=centered,
                 decomposition_method=self.decomposition_method,
                 two_dimentions=self.visualization_utility,
                 decomposition_args=self.decomposition_args,
             )
+            projection = projection_vectors.transform(centered)
 
             # Total scatter value calculation for the selection of the next
             # cluster to split.
@@ -894,6 +912,7 @@ class PDDP(Partition):
         return {
             "indices": indices,
             "projection": projection,
+            "projection_vectors": projection_vectors,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
             "split_permission": flag,
@@ -919,7 +938,7 @@ class BisectingKmeans(Partition):
         Desired maximum number of clusters for the algorithm.
     min_sample_split : int, (optional)
         The minimum number of points needed in a cluster for a split to occur.
-    random_seed : int, (optional)
+    random_state : int, (optional)
         The random seed fed in the k-Means algorithm.
 
     Attributes
@@ -936,12 +955,14 @@ class BisectingKmeans(Partition):
 
     """
 
-    def __init__(self, max_clusters_number=100, min_sample_split=5, random_seed=None):
+    decreasing = True
+
+    def __init__(self, max_clusters_number=100, min_sample_split=5, random_state=None):
         super().__init__(
             max_clusters_number=max_clusters_number,
             min_sample_split=min_sample_split,
         )
-        self.random_seed = random_seed
+        self.random_state = random_state
 
     def fit(self, X):
         """
@@ -995,7 +1016,7 @@ class BisectingKmeans(Partition):
             self.split_function(tree, selected_node)  # step (1)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(tree.leaves(), decreasing=True)  # step (2)
+            selected_node = self.select_kid(tree.leaves(), decreasing=self.decreasing)  # step (2)
             found_clusters = found_clusters + 1  # (ST1)
 
         self.tree = tree
@@ -1083,7 +1104,7 @@ class BisectingKmeans(Partition):
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
 
-            model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_seed)
+            model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_state)
             labels = model.fit_predict(self.X[indices, :])
             centers = model.cluster_centers_
 
@@ -1118,11 +1139,11 @@ class BisectingKmeans(Partition):
         }
 
     @property
-    def random_seed(self):
+    def random_state(self):
         return self._random_seed
 
-    @random_seed.setter
-    def random_seed(self, v):
+    @random_state.setter
+    def random_state(self, v):
         if v is not None and (not isinstance(v, int)):
             raise ValueError(
                 "BisectingKmeans: min_sample_split: Invalid value it should be int and > 1"
@@ -1170,6 +1191,8 @@ class MDH(Partition):
         The number of samples contained in the data.
 
     """
+
+    decreasing = True
 
     def __init__(
         self,
@@ -1246,7 +1269,7 @@ class MDH(Partition):
             self.split_function(den_tree, selected_node)  # step (1, 2)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(den_tree.leaves(), decreasing=True)  # step (3)
+            selected_node = self.select_kid(den_tree.leaves(), decreasing=self.decreasing)  # step (3)
             found_clusters = found_clusters + 1  # (ST1)
 
         self.tree = den_tree
@@ -1340,10 +1363,10 @@ class MDH(Partition):
         return {
             "indices": indices,
             "projection": projection,
+            "projection_vectors": split_vector,
             "splitpoint": splitpoint,
             "split_criterion": split_criterion,
             "split_permission": flag,
-            "split_vector": split_vector,
             "color_key": key,
             "dendrogram_check": False,
         }

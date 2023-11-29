@@ -1366,7 +1366,7 @@ def _partial_predict(hipart_object):
         hipart_object.split_function(tree, selected_node)  # step (1)
 
         # select the next kid for split based on the local minimum density
-        selected_node = hipart_object.select_kid(tree.leaves())  # step (2)
+        selected_node = hipart_object.select_kid(tree.leaves(), hipart_object.decreasing)  # step (2)
         found_clusters = found_clusters + 1  # (ST1)
 
     return tree

@@ -166,11 +166,11 @@ def test_ipddp_parameter_errors(datadir):
 def test_kmpddp_parameter_errors(datadir):
     success = 0
 
-    algorithm = KMPDDP(random_seed=123)
+    algorithm = KMPDDP(random_state=123)
     success += 1 if isinstance(algorithm.decomposition_method, str) else 0
     success += 1 if isinstance(algorithm.max_clusters_number, int) else 0
     success += 1 if isinstance(algorithm.min_sample_split, int) else 0
-    success += 1 if isinstance(algorithm.random_seed, int) else 0
+    success += 1 if isinstance(algorithm.random_state, int) else 0
     success += 1 if isinstance(algorithm.visualization_utility, bool) else 0
 
     try:
@@ -182,7 +182,7 @@ def test_kmpddp_parameter_errors(datadir):
     except Exception:
         success += 1
     try:
-        KMPDDP(random_seed=.8)
+        KMPDDP(random_state=.8)
     except Exception:
         success += 1
     try:
@@ -241,17 +241,17 @@ def test_pddp_parameter_errors(datadir):
 def test_bicecting_kmeans_parameter_errors():
     success_score = 0
 
-    algorithm = BisectingKmeans(random_seed=5)
+    algorithm = BisectingKmeans(random_state=5)
     success_score += 1 if isinstance(algorithm.max_clusters_number, int) else 0
     success_score += 1 if isinstance(algorithm.min_sample_split, int) else 0
-    success_score += 1 if isinstance(algorithm.random_seed, int) else 0
+    success_score += 1 if isinstance(algorithm.random_state, int) else 0
 
     try:
         BisectingKmeans(max_clusters_number=-5)
     except Exception:
         success_score += 1
     try:
-        BisectingKmeans(random_seed=.8)
+        BisectingKmeans(random_state=.8)
     except Exception:
         success_score += 1
     try:
@@ -381,7 +381,7 @@ def test_bicecting_kmeans_results(datadir):
 
     matrix_test = BisectingKmeans(
         max_clusters_number=5,
-        random_seed=1256,
+        random_state=1256,
     ).fit(data_import["data"]).output_matrix
     assert np.sum(matrix_test == matrix_control) == 6000
 
@@ -433,7 +433,6 @@ def test_kmpddp_pca_results(datadir):
 
     matrix_test = KMPDDP(
         max_clusters_number=5,
-        random_seed=1256,
         random_state=1256,
     ).fit(data_import["data"]).output_matrix
     assert np.sum(matrix_test == matrix_control) == 6000
@@ -489,7 +488,6 @@ def test_kmpddp_ica_results(datadir):
     matrix_test = KMPDDP(
         decomposition_method="ica",
         max_clusters_number=5,
-        random_seed=1256,
         random_state=1256,
     ).fit(data_import["data"]).output_matrix
     assert np.sum(matrix_test == matrix_control) == 6000
@@ -546,7 +544,6 @@ def test_kmpddp_kpca_results(datadir):
     matrix_test = KMPDDP(
         decomposition_method="kpca",
         max_clusters_number=5,
-        random_seed=1256,
         random_state=1256,
     ).fit(data_import["data"]).output_matrix
     assert np.sum(matrix_test == matrix_control) == 6000
@@ -603,7 +600,6 @@ def test_kmpddp_tsne_results(datadir):
     matrix_test = KMPDDP(
         decomposition_method="tsne",
         max_clusters_number=5,
-        random_seed=1256,
         random_state=1256,
     ).fit(data_import["data"]).output_matrix
     assert np.sum(matrix_test == matrix_control) == 6000

@@ -273,13 +273,18 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
                 isinstance(hipart_object, BisectingKmeans)
                 or isinstance(hipart_object, MDH)
             ):
-                principal_projections = util.execute_decomposition_method(
+                projeciton_vectors = util.execute_decomposition_method(
                     data_matrix=hipart_object.X[
                         dictionary_of_nodes[internal_nodes[i]].data["indices"]
                     ],
                     decomposition_method="pca",
                     two_dimentions=True,
                     decomposition_args={},
+                )
+                principal_projections = projeciton_vectors.transform(
+                    hipart_object.X[
+                        dictionary_of_nodes[internal_nodes[i]].data["indices"]
+                    ]
                 )
                 show_split = False
                 splitPoint = None
@@ -417,7 +422,7 @@ def mdh_visualization(mdh_obj, color_map="tab20"):
 
         pca = PCA(n_components=2)
         pcaproj = pca.fit_transform(node_data)
-        v = dictionary_of_nodes[internal_nodes[i]].data["split_vector"]
+        v = dictionary_of_nodes[internal_nodes[i]].data["projection_vectors"]
         b = dictionary_of_nodes[internal_nodes[i]].data["splitpoint"]
 
         v_norm = np.linalg.norm(v)

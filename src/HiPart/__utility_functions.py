@@ -69,8 +69,6 @@ def execute_decomposition_method(
 
     Parameters
     ----------
-    data_matrix : numpy.ndarray
-        The data matrix contains all the data for the samples.
     decomposition_method : str
         One of 'kpca', 'pca' and 'ica' the decomposition methods supported by
         this software.
@@ -101,29 +99,25 @@ def execute_decomposition_method(
         n_of_dimentions = 1
 
     if decomposition_method == "pca":
-        pca = PCA(
+        method = PCA(
             n_components=n_of_dimentions,
             **decomposition_args
         )
-        two_dimensions = pca.fit_transform(data_matrix)
     elif decomposition_method == "kpca":
-        kernel_pca = KernelPCA(
+        method = KernelPCA(
             n_components=n_of_dimentions,
             **decomposition_args
         )
-        two_dimensions = kernel_pca.fit_transform(data_matrix)
     elif decomposition_method == "ica":
-        ica = FastICA(
+        method = FastICA(
             n_components=n_of_dimentions,
             **decomposition_args
         )
-        two_dimensions = ica.fit_transform(data_matrix)
     elif decomposition_method == "tsne":
-        tsne = TSNE(
+        method = TSNE(
             n_components=n_of_dimentions,
             **decomposition_args
         )
-        two_dimensions = tsne.fit_transform(data_matrix)
     else:
         raise ValueError(
             ": The decomposition method ("
@@ -131,7 +125,7 @@ def execute_decomposition_method(
             + ") is not supported!"
         )
 
-    return two_dimensions
+    return method.fit(data_matrix)
 
 
 def initialize_b(x0, X, depth_init=True):
