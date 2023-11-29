@@ -118,6 +118,7 @@ def execute_decomposition_method(
             n_components=n_of_dimentions,
             **decomposition_args
         )
+        method.transform = method.fit_transform
     else:
         raise ValueError(
             ": The decomposition method ("

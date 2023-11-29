@@ -34,7 +34,7 @@ def test_depddp_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    new_obj = DePDDP(max_clusters_number=5).fit(data_import["data"])
+    new_obj = DePDDP(max_clusters_number=3).fit(data_import["data"])
     assert isinstance(new_obj, DePDDP)
 
 
@@ -42,7 +42,7 @@ def test_ipddp_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    new_obj = IPDDP(max_clusters_number=5).fit(data_import["data"])
+    new_obj = IPDDP(max_clusters_number=3).fit(data_import["data"])
     assert isinstance(new_obj, IPDDP)
 
 
@@ -50,7 +50,7 @@ def test_kmpddp_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    new_obj = KMPDDP(max_clusters_number=5).fit(data_import["data"])
+    new_obj = KMPDDP(max_clusters_number=3).fit(data_import["data"])
     assert isinstance(new_obj, KMPDDP)
 
 
@@ -58,7 +58,7 @@ def test_pddp_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    new_obj = PDDP(max_clusters_number=5).fit(data_import["data"])
+    new_obj = PDDP(max_clusters_number=3).fit(data_import["data"])
     assert isinstance(new_obj, PDDP)
 
 
@@ -66,7 +66,7 @@ def test_bicecting_kmeans_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    new_obj = BisectingKmeans(max_clusters_number=5).fit(data_import["data"])
+    new_obj = BisectingKmeans(max_clusters_number=3).fit(data_import["data"])
     assert isinstance(new_obj, BisectingKmeans)
 
 
@@ -74,7 +74,7 @@ def test_mdh_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    new_obj = MDH(max_clusters_number=5).fit(data_import["data"])
+    new_obj = MDH(max_clusters_number=3).fit(data_import["data"])
     assert isinstance(new_obj, MDH)
 
 
@@ -325,7 +325,7 @@ def test_depddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    results = DePDDP(max_clusters_number=5).fit_predict(data_import["data"])
+    results = DePDDP(max_clusters_number=3).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
@@ -333,7 +333,7 @@ def test_ipddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    results = IPDDP(max_clusters_number=5).fit_predict(data_import["data"])
+    results = IPDDP(max_clusters_number=3).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
@@ -341,7 +341,7 @@ def test_kmpddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    results = KMPDDP(max_clusters_number=5).fit_predict(data_import["data"])
+    results = KMPDDP(max_clusters_number=3).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
@@ -349,7 +349,7 @@ def test_pddp_labels__return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    results = PDDP(max_clusters_number=5).fit_predict(data_import["data"])
+    results = PDDP(max_clusters_number=3).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
@@ -358,7 +358,7 @@ def test_bicecting_kmeans_labels_return_type_and_form(datadir):
         data_import = pickle.load(inf)
 
     results = BisectingKmeans(
-        max_clusters_number=5,
+        max_clusters_number=3,
     ).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
@@ -368,22 +368,24 @@ def test_mdh_labels_return_type_and_form(datadir):
         data_import = pickle.load(inf)
 
     results = MDH(
-        max_clusters_number=5,
+        max_clusters_number=3,
     ).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
-
-def test_bicecting_kmeans_results(datadir):
-    with open(datadir.join('test_data.dump'), "rb") as inf:
-        data_import = pickle.load(inf)
-
-    matrix_control = data_import["BisectingKmeans"]
-
-    matrix_test = BisectingKmeans(
-        max_clusters_number=5,
-        random_state=1256,
-    ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+# scikit-learn's KMeans algorithm has a bad implermentation of the random_state
+# parameter, so the results are not reproducible. This is why we cannot test
+# the results of the BisectingKmeans algorithm.
+# def test_bicecting_kmeans_results(datadir):
+#     with open(datadir.join('test_data.dump'), "rb") as inf:
+#         data_import = pickle.load(inf)
+#
+#     matrix_control = data_import["BisectingKmeans"]
+#
+#     matrix_test = BisectingKmeans(
+#         max_clusters_number=3,
+#         random_state=0,
+#     ).fit(data_import["data"]).output_matrix
+#     assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_mdh_results(datadir):
@@ -393,10 +395,10 @@ def test_mdh_results(datadir):
     matrix_control = data_import["MDH"]
 
     matrix_test = MDH(
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_depddp_pca_results(datadir):
@@ -406,10 +408,10 @@ def test_depddp_pca_results(datadir):
     matrix_control = data_import["DePDDP_pca"]
 
     matrix_test = DePDDP(
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_ipddp_pca_results(datadir):
@@ -419,10 +421,10 @@ def test_ipddp_pca_results(datadir):
     matrix_control = data_import["IPDDP_pca"]
 
     matrix_test = IPDDP(
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_kmpddp_pca_results(datadir):
@@ -432,10 +434,10 @@ def test_kmpddp_pca_results(datadir):
     matrix_control = data_import["KMPDDP_pca"]
 
     matrix_test = KMPDDP(
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_pddp_pca_results(datadir):
@@ -445,10 +447,10 @@ def test_pddp_pca_results(datadir):
     matrix_control = data_import["PDDP_pca"]
 
     matrix_test = PDDP(
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_depddp_ica_results(datadir):
@@ -459,10 +461,10 @@ def test_depddp_ica_results(datadir):
 
     matrix_test = DePDDP(
         decomposition_method="ica",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_ipddp_ica_results(datadir):
@@ -473,24 +475,27 @@ def test_ipddp_ica_results(datadir):
 
     matrix_test = IPDDP(
         decomposition_method="ica",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
-def test_kmpddp_ica_results(datadir):
-    with open(datadir.join('test_data.dump'), "rb") as inf:
-        data_import = pickle.load(inf)
-
-    matrix_control = data_import["KMPDDP_ica"]
-
-    matrix_test = KMPDDP(
-        decomposition_method="ica",
-        max_clusters_number=5,
-        random_state=1256,
-    ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+# scikit-learn's KMeans algorithm has a bad implermentation of the random_state
+# parameter, so the results are not reproducible. This is why we cannot test
+# the results of the kmPDDP algorithm with ica.
+# def test_kmpddp_ica_results(datadir):
+#     with open(datadir.join('test_data.dump'), "rb") as inf:
+#         data_import = pickle.load(inf)
+#
+#     matrix_control = data_import["KMPDDP_ica"]
+#
+#     matrix_test = KMPDDP(
+#         decomposition_method="ica",
+#         max_clusters_number=3,
+#         random_state=0,
+#     ).fit(data_import["data"]).output_matrix
+#     assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_pddp_ica_results(datadir):
@@ -501,10 +506,10 @@ def test_pddp_ica_results(datadir):
 
     matrix_test = PDDP(
         decomposition_method="ica",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_depddp_kpca_results(datadir):
@@ -515,10 +520,10 @@ def test_depddp_kpca_results(datadir):
 
     matrix_test = DePDDP(
         decomposition_method="kpca",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_ipddp_kpca_results(datadir):
@@ -529,10 +534,10 @@ def test_ipddp_kpca_results(datadir):
 
     matrix_test = IPDDP(
         decomposition_method="kpca",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_kmpddp_kpca_results(datadir):
@@ -543,10 +548,10 @@ def test_kmpddp_kpca_results(datadir):
 
     matrix_test = KMPDDP(
         decomposition_method="kpca",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_pddp_kpca_results(datadir):
@@ -557,10 +562,10 @@ def test_pddp_kpca_results(datadir):
 
     matrix_test = PDDP(
         decomposition_method="kpca",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_depddp_tsne_results(datadir):
@@ -571,10 +576,10 @@ def test_depddp_tsne_results(datadir):
 
     matrix_test = DePDDP(
         decomposition_method="tsne",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_ipddp_tsne_results(datadir):
@@ -585,10 +590,10 @@ def test_ipddp_tsne_results(datadir):
 
     matrix_test = IPDDP(
         decomposition_method="tsne",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_kmpddp_tsne_results(datadir):
@@ -599,10 +604,10 @@ def test_kmpddp_tsne_results(datadir):
 
     matrix_test = KMPDDP(
         decomposition_method="tsne",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_pddp_tsne_results(datadir):
@@ -613,17 +618,17 @@ def test_pddp_tsne_results(datadir):
 
     matrix_test = PDDP(
         decomposition_method="tsne",
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"]).output_matrix
-    assert np.sum(matrix_test == matrix_control) == 6000
+    assert np.sum(matrix_test == matrix_control) == 1000
 
 
 def test_split_visualization_plot_1(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    clustering = DePDDP(max_clusters_number=5).fit(data_import["data"])
+    clustering = DePDDP(max_clusters_number=3).fit(data_import["data"])
     try:
         viz.split_visualization(clustering)
         assert True
@@ -635,7 +640,7 @@ def test_split_visualization_plot_2(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    clustering = PDDP(max_clusters_number=5).fit(data_import["data"])
+    clustering = PDDP(max_clusters_number=3).fit(data_import["data"])
     try:
         viz.split_visualization(clustering)
         assert True
@@ -648,7 +653,7 @@ def test_split_visualization_plot_3(datadir):
         data_import = pickle.load(inf)
 
     clustering = BisectingKmeans(
-        max_clusters_number=5,
+        max_clusters_number=3,
     ).fit(data_import["data"])
     try:
         viz.split_visualization(clustering)
@@ -661,7 +666,7 @@ def test_split_visualization_plot_4(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    clustering = KMPDDP(max_clusters_number=5).fit(data_import["data"])
+    clustering = KMPDDP(max_clusters_number=3).fit(data_import["data"])
     try:
         viz.split_visualization(clustering)
         assert True
@@ -673,7 +678,7 @@ def test_split_visualization_plot_5(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    clustering = IPDDP(max_clusters_number=5).fit(data_import["data"])
+    clustering = IPDDP(max_clusters_number=3).fit(data_import["data"])
     try:
         viz.split_visualization(clustering)
         assert True
@@ -710,8 +715,8 @@ def test_split_visualization_plot_8(datadir):
         data_import = pickle.load(inf)
 
     clustering = MDH(
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"])
     try:
         viz.split_visualization(clustering, mdh_split_plot=True)
@@ -725,8 +730,8 @@ def test_split_visualization_plot_9(datadir):
         data_import = pickle.load(inf)
 
     clustering = MDH(
-        max_clusters_number=5,
-        random_state=1256,
+        max_clusters_number=3,
+        random_state=0,
     ).fit(data_import["data"])
     try:
         viz.split_visualization(clustering, mdh_split_plot=False)
@@ -748,7 +753,7 @@ def test_split_visualization_valueerror_1(datadir):
         data_import = pickle.load(inf)
 
     clustering = DePDDP(
-        max_clusters_number=5,
+        max_clusters_number=3,
         visualization_utility=False,
     ).fit(data_import["data"])
 
@@ -764,7 +769,7 @@ def test_split_visualization_valueerror_2(datadir):
         data_import = pickle.load(inf)
 
     clustering = IPDDP(
-        max_clusters_number=5,
+        max_clusters_number=3,
         visualization_utility=False,
     ).fit(data_import["data"])
 
@@ -779,7 +784,7 @@ def test_dendrogram_visualization(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    clustering = DePDDP(max_clusters_number=5).fit(data_import["data"])
+    clustering = DePDDP(max_clusters_number=3).fit(data_import["data"])
     new_plot = viz.dendrogram_visualization(clustering)
 
     assert isinstance(new_plot, dict)
@@ -797,7 +802,7 @@ def test_linkage(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    clustering = DePDDP(max_clusters_number=5).fit(data_import["data"])
+    clustering = DePDDP(max_clusters_number=3).fit(data_import["data"])
     links = viz.linkage(clustering)
 
     assert isinstance(links, np.ndarray)

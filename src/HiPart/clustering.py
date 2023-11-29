@@ -670,7 +670,7 @@ class KMPDDP(Partition):
             projection = method.transform(self.X[indices, :])
             one_dimension = np.array([[i] for i in projection[:, 0]])
 
-            model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_state)
+            model = KMeans(n_clusters=2, n_init=10, random_state=self.random_state)
             labels = model.fit_predict(one_dimension)
             centers = model.cluster_centers_
 
@@ -1104,7 +1104,7 @@ class BisectingKmeans(Partition):
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
 
-            model = KMeans(n_clusters=2, n_init="auto", random_state=self.random_state)
+            model = KMeans(n_clusters=2, n_init=10, random_state=self.random_state)
             labels = model.fit_predict(self.X[indices, :])
             centers = model.cluster_centers_
 
@@ -1148,6 +1148,7 @@ class BisectingKmeans(Partition):
             raise ValueError(
                 "BisectingKmeans: min_sample_split: Invalid value it should be int and > 1"
             )
+        np.random.seed(v)
         self._random_seed = v
 
 
@@ -1415,4 +1416,5 @@ class MDH(Partition):
             raise ValueError(
                 "MDH: min_sample_split: Invalid value it should be int and > 1"
             )
+        np.random.seed(v)
         self._random_state = v
