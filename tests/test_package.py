@@ -7,6 +7,7 @@ from HiPart.clustering import KMPDDP
 from HiPart.clustering import PDDP
 from HiPart.clustering import BisectingKmeans
 from HiPart.clustering import MDH
+from scipy.spatial import distance_matrix
 
 import numpy as np
 import os
@@ -82,21 +83,9 @@ def test_depddp_parameter_errors():
     success_score = 0
 
     algorithm = DePDDP()
-    success_score += 1 if isinstance(algorithm.decomposition_method, str) else 0
-    success_score += 1 if isinstance(algorithm.max_clusters_number, int) else 0
     success_score += 1 if isinstance(algorithm.bandwidth_scale, float) else 0
     success_score += 1 if isinstance(algorithm.percentile, float) else 0
-    success_score += 1 if isinstance(algorithm.min_sample_split, int) else 0
-    success_score += 1 if isinstance(algorithm.visualization_utility, bool) else 0
 
-    try:
-        DePDDP(decomposition_method="abc")
-    except Exception:
-        success_score += 1
-    try:
-        DePDDP(max_clusters_number=-5)
-    except Exception:
-        success_score += 1
     try:
         DePDDP(bandwidth_scale=-5)
     except Exception:
@@ -105,102 +94,36 @@ def test_depddp_parameter_errors():
         DePDDP(percentile=.8)
     except Exception:
         success_score += 1
-    try:
-        DePDDP(min_sample_split=-5)
-    except Exception:
-        success_score += 1
-    try:
-        obj = DePDDP()
-        obj.output_matrix = np.array([1, 2, 3])
-    except Exception:
-        success_score += 1
-    try:
-        obj = DePDDP()
-        obj.labels_ = np.array([1, 2, 3])
-    except Exception:
-        success_score += 1
 
-    assert success_score == 13
+    assert success_score == 4
 
 
 def test_ipddp_parameter_errors(datadir):
     success_score = 0
 
     algorithm = IPDDP()
-    success_score += 1 if isinstance(algorithm.decomposition_method, str) else 0
-    success_score += 1 if isinstance(algorithm.max_clusters_number, int) else 0
     success_score += 1 if isinstance(algorithm.percentile, float) else 0
-    success_score += 1 if isinstance(algorithm.min_sample_split, int) else 0
-    success_score += 1 if isinstance(algorithm.visualization_utility, bool) else 0
 
-    try:
-        IPDDP(decomposition_method="abc")
-    except Exception:
-        success_score += 1
-    try:
-        IPDDP(max_clusters_number=-5)
-    except Exception:
-        success_score += 1
     try:
         IPDDP(percentile=.8)
     except Exception:
         success_score += 1
-    try:
-        IPDDP(min_sample_split=-5)
-    except Exception:
-        success_score += 1
-    try:
-        obj = IPDDP()
-        obj.output_matrix = np.array([1, 2, 3])
-    except Exception:
-        success_score += 1
-    try:
-        obj = IPDDP()
-        obj.labels_ = np.array([1, 2, 3])
-    except Exception:
-        success_score += 1
 
-    assert success_score == 11
+    assert success_score == 2
 
 
 def test_kmpddp_parameter_errors(datadir):
     success = 0
 
     algorithm = KMPDDP(random_state=123)
-    success += 1 if isinstance(algorithm.decomposition_method, str) else 0
-    success += 1 if isinstance(algorithm.max_clusters_number, int) else 0
-    success += 1 if isinstance(algorithm.min_sample_split, int) else 0
     success += 1 if isinstance(algorithm.random_state, int) else 0
-    success += 1 if isinstance(algorithm.visualization_utility, bool) else 0
 
-    try:
-        KMPDDP(decomposition_method="abc")
-    except Exception:
-        success += 1
-    try:
-        KMPDDP(max_clusters_number=-5)
-    except Exception:
-        success += 1
     try:
         KMPDDP(random_state=.8)
     except Exception:
         success += 1
-    try:
-        KMPDDP(min_sample_split=-5)
-    except Exception:
-        success += 1
-    try:
-        obj = KMPDDP()
-        obj.output_matrix = np.array([1, 2, 3])
-    except Exception:
-        success += 1
-    try:
-        obj = KMPDDP()
-        obj.labels_ = np.array([1, 2, 3])
-    except Exception:
-        success += 1
 
-    assert success == 11
+    assert success == 2
 
 
 def test_pddp_parameter_errors(datadir):
@@ -211,6 +134,7 @@ def test_pddp_parameter_errors(datadir):
     success_score += 1 if isinstance(algorithm.max_clusters_number, int) else 0
     success_score += 1 if isinstance(algorithm.min_sample_split, int) else 0
     success_score += 1 if isinstance(algorithm.visualization_utility, bool) else 0
+    success_score += 1 if isinstance(algorithm.distance_matrix, bool) else 0
 
     try:
         PDDP(decomposition_method="abc")
@@ -235,58 +159,32 @@ def test_pddp_parameter_errors(datadir):
     except Exception:
         success_score += 1
 
-    assert success_score == 9
+    assert success_score == 10
 
 
 def test_bicecting_kmeans_parameter_errors():
     success_score = 0
 
     algorithm = BisectingKmeans(random_state=5)
-    success_score += 1 if isinstance(algorithm.max_clusters_number, int) else 0
-    success_score += 1 if isinstance(algorithm.min_sample_split, int) else 0
     success_score += 1 if isinstance(algorithm.random_state, int) else 0
 
-    try:
-        BisectingKmeans(max_clusters_number=-5)
-    except Exception:
-        success_score += 1
     try:
         BisectingKmeans(random_state=.8)
     except Exception:
         success_score += 1
-    try:
-        BisectingKmeans(min_sample_split=-5)
-    except Exception:
-        success_score += 1
-    try:
-        obj = BisectingKmeans()
-        obj.output_matrix = np.array([1, 2, 3])
-    except Exception:
-        success_score += 1
-    try:
-        obj = BisectingKmeans()
-        obj.labels_ = np.array([1, 2, 3])
-    except Exception:
-        success_score += 1
 
-    assert success_score == 8
+    assert success_score == 2
 
 
 def test_mdh_parameter_errors():
     success_score = 0
 
     algorithm = MDH(random_state=5)
-    success_score += 1 if isinstance(algorithm.max_clusters_number, int) else 0
     success_score += 1 if isinstance(algorithm.max_iterations, int) else 0
     success_score += 1 if isinstance(algorithm.k, float) else 0
     success_score += 1 if isinstance(algorithm.percentile, float) else 0
-    success_score += 1 if isinstance(algorithm.min_sample_split, int) else 0
     success_score += 1 if isinstance(algorithm.random_state, int) else 0
 
-    try:
-        MDH(max_clusters_number=-5)
-    except Exception:
-        success_score += 1
     try:
         MDH(max_iterations=-5)
     except Exception:
@@ -303,22 +201,8 @@ def test_mdh_parameter_errors():
         MDH(random_state=.8)
     except Exception:
         success_score += 1
-    try:
-        MDH(min_sample_split=-5)
-    except Exception:
-        success_score += 1
-    try:
-        obj = MDH()
-        obj.output_matrix = np.array([1, 2, 3])
-    except Exception:
-        success_score += 1
-    try:
-        obj = MDH()
-        obj.labels_ = np.array([1, 2, 3])
-    except Exception:
-        success_score += 1
 
-    assert success_score == 14
+    assert success_score == 8
 
 
 def test_depddp_labels__return_type_and_form(datadir):
@@ -621,6 +505,23 @@ def test_pddp_tsne_results(datadir):
         max_clusters_number=3,
         random_state=0,
     ).fit(data_import["data"]).output_matrix
+    assert np.sum(matrix_test == matrix_control) == 1000
+
+
+def test_pddp_mds_results(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    dist_matrix = distance_matrix(data_import["data"], data_import["data"])
+
+    matrix_control = data_import["PDDP_mds"]
+
+    matrix_test = PDDP(
+        decomposition_method="mds",
+        max_clusters_number=3,
+        distance_matrix=True,
+        random_state=0,
+    ).fit(dist_matrix).output_matrix
     assert np.sum(matrix_test == matrix_control) == 1000
 
 

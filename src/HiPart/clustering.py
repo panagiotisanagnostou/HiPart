@@ -1029,7 +1029,7 @@ class PDDP(Partition):
                     two_dimentions=self.visualization_utility,
                     decomposition_args=self.decomposition_args,
                 )
-                projection = projection_vectors.transform(centered)
+                projection = projection_vectors.fit_transform(centered)
 
                 # Total scatter value calculation for the selection of the next
                 # cluster to split.

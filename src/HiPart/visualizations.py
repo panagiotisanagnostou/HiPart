@@ -281,7 +281,7 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
                     two_dimentions=True,
                     decomposition_args={},
                 )
-                principal_projections = projeciton_vectors.transform(
+                principal_projections = projeciton_vectors.fit_transform(
                     hipart_object.X[
                         dictionary_of_nodes[internal_nodes[i]].data["indices"]
                     ]
