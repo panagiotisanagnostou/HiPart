@@ -34,7 +34,7 @@ import warnings
 from KDEpy import FFTKDE
 from scipy import stats as st
 from scipy.optimize import Bounds, minimize, NonlinearConstraint, SR1
-from sklearn.manifold import TSNE
+from sklearn.manifold import MDS, TSNE
 from sklearn.decomposition import PCA, KernelPCA, FastICA
 
 
@@ -117,8 +117,15 @@ def execute_decomposition_method(
         method = TSNE(
             n_components=n_of_dimentions,
             **decomposition_args
+        ).fit(data_matrix)
+        # method.transform = method.fit_transform
+    elif decomposition_method == "mds":
+        method = MDS(
+            n_components=n_of_dimentions,
+            dissimilarity='precomputed',
+            **decomposition_args
         )
-        method.transform = method.fit_transform
+        # method.transform = method.fit_transform
     else:
         raise ValueError(
             ": The decomposition method ("
@@ -126,7 +133,28 @@ def execute_decomposition_method(
             + ") is not supported!"
         )
 
-    return method.fit(data_matrix)
+    return method
+
+
+def select_from_distance_matrix(distance_matrix, indices):
+    """
+    Select the rows and columns of a distance matrix based on the indices
+    provided.
+
+    Parameters
+    ----------
+    distance_matrix : numpy.ndarray
+        The distance matrix to be manipulated.
+    indices : list
+        The indices of the rows and columns to be selected.
+
+    Returns
+    -------
+    numpy.ndarray
+        The distance matrix with the selected rows and columns.
+
+    """
+    return distance_matrix[np.ix_(indices, indices)]
 
 
 def initialize_b(x0, X, depth_init=True):

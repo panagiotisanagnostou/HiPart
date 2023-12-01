@@ -27,7 +27,6 @@ Implementation of the clustering algorithms, members of the HiPart package.
 import HiPart.__utility_functions as util
 import numpy as np
 import statsmodels.api as sm
-import warnings
 
 from HiPart.__partition_class import Partition
 from KDEpy import FFTKDE
@@ -66,6 +65,12 @@ class DePDDP(Partition):
         interactive_visualization of the package can not be created. For the
         'tsne' decomposition method does not support visualization because it
         affects the correct execution of the dePDDP algorithm.
+    distance_matrix : bool, (optional)
+        If (True) the input data are considered as a distance matrix and not as
+        a data matrix. The distance matrix is a square matrix with the samples
+        on the rows and the variables on the columns. The distance matrix is
+        used only in conjunction with the 'mds' decomposition method and no
+        other from the supported decomposition methods.
     **decomposition_args :
         Arguments for each of the decomposition methods ("decomposition.PCA" as
         "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
@@ -89,21 +94,23 @@ class DePDDP(Partition):
     decreasing = False
 
     def __init__(
-            self,
-            decomposition_method="pca",
-            max_clusters_number=100,
-            bandwidth_scale=0.5,
-            percentile=0.1,
-            min_sample_split=5,
-            visualization_utility=True,
-            **decomposition_args
+        self,
+        decomposition_method="pca",
+        max_clusters_number=100,
+        bandwidth_scale=0.5,
+        percentile=0.1,
+        min_sample_split=5,
+        visualization_utility=True,
+        distance_matrix=False,
+        **decomposition_args,
     ):
         super().__init__(
             decomposition_method,
             max_clusters_number,
             min_sample_split,
             visualization_utility,
-            **decomposition_args
+            distance_matrix,
+            **decomposition_args,
         )
         self.bandwidth_scale = bandwidth_scale
         self.percentile = percentile
@@ -117,7 +124,8 @@ class DePDDP(Partition):
         ----------
         X : numpy.ndarray
             Data matrix with the samples on the rows and the variables on the
-            columns.
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
 
         Returns
         -------
@@ -128,6 +136,10 @@ class DePDDP(Partition):
         """
         self.X = X
         self.samples_number = np.size(X, 0)
+
+        if self.distance_matrix:
+            if X.shape[0] != X.shape[1]:
+                raise ValueError("dePDDP: distance_matrix: Should be a square matrix")
 
         # create an id vector for the samples of X
         indices = np.array([int(i) for i in range(self.samples_number)])
@@ -156,11 +168,12 @@ class DePDDP(Partition):
         while (found_clusters < self.max_clusters_number) and (
             selected_node is not None
         ):  # (ST1) or (ST2)
-
             self.split_function(den_tree, selected_node)  # step (1, 2)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(den_tree.leaves(), self.decreasing)  # step (3)
+            selected_node = self.select_kid(
+                den_tree.leaves(), self.decreasing
+            )  # step (3)
             found_clusters = found_clusters + 1  # (ST1)
 
         self.tree = den_tree
@@ -172,6 +185,12 @@ class DePDDP(Partition):
         utilization of the "Principal Components Analysis" or the "Kernel
         Principal Components Analysis" or the "Independent Component Analysis"
         or "t-SNE" methods.
+
+        With the incorporation of the "Multi-Dimensional Scaling" method the
+        function can also be used for distance matrices. The distance matrix is
+        used only in correlation with the "mds" decomposition method. This makes
+        us check for the correct configuration of the parameters each time the
+        function is executed.
 
         Determination of the projection's density and search for its local
         minima. The lowest local minimum point within the allowed sample
@@ -195,7 +214,7 @@ class DePDDP(Partition):
 
         """
 
-        method = None # (ST2)
+        method = None  # (ST2)
         proj = None  # (ST2)
         splitpoint = None  # (ST2)
         split_criterion = None  # (ST2)
@@ -203,14 +222,30 @@ class DePDDP(Partition):
 
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
-            # execute pca on the data matrix
-            method = util.execute_decomposition_method(
-                data_matrix=self.X[indices, :],
-                decomposition_method=self.decomposition_method,
-                two_dimentions=self.visualization_utility,
-                decomposition_args=self.decomposition_args,
-            )
-            proj = method.transform(self.X[indices, :])
+            # Apply the decomposition method on the data matrix
+            if self.distance_matrix:
+                if self.decomposition_method != "mds":
+                    raise ValueError(
+                        "dePDDP: decomposition_method: Should be 'mds' for distance_matrix"
+                    )
+
+                method = util.execute_decomposition_method(
+                    data_matrix=util.select_from_distance_matrix(self.X, indices),
+                    decomposition_method=self.decomposition_method,
+                    two_dimentions=self.visualization_utility,
+                    decomposition_args=self.decomposition_args,
+                )
+                proj = method.fit_transform(
+                    util.select_from_distance_matrix(self.X, indices)
+                )
+            else:
+                method = util.execute_decomposition_method(
+                    data_matrix=self.X[indices, :],
+                    decomposition_method=self.decomposition_method,
+                    two_dimentions=self.visualization_utility,
+                    decomposition_args=self.decomposition_args,
+                )
+                proj = method.fit_transform(self.X[indices, :])
             one_dimension = proj[:, 0]
 
             # calculate the standard deviation of the data
@@ -316,6 +351,12 @@ class IPDDP(Partition):
         interactive_visualization of the package can not be created. For the
         'tsne' decomposition method does not support visualization because it
         affects the correct execution of the iPDDP algorithm.
+    distance_matrix : bool, (optional)
+        If (True) the input data are considered as a distance matrix and not as
+        a data matrix. The distance matrix is a square matrix with the samples
+        on the rows and the variables on the columns. The distance matrix is
+        used only in conjunction with the 'mds' decomposition method and no
+        other from the supported decomposition methods.
     **decomposition_args :
         Arguments for each of the decomposition methods ("decomposition.PCA" as
         "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
@@ -345,6 +386,7 @@ class IPDDP(Partition):
         percentile=0.1,
         min_sample_split=5,
         visualization_utility=True,
+        distance_matrix=False,
         **decomposition_args,
     ):
         super().__init__(
@@ -352,7 +394,8 @@ class IPDDP(Partition):
             max_clusters_number,
             min_sample_split,
             visualization_utility,
-            **decomposition_args
+            distance_matrix,
+            **decomposition_args,
         )
         self.percentile = percentile
 
@@ -376,6 +419,11 @@ class IPDDP(Partition):
         """
         self.X = X
         self.samples_number = X.shape[0]
+
+        # check for the correct form of the input data matrix
+        if self.distance_matrix:
+            if X.shape[0] != X.shape[1]:
+                raise ValueError("dePDDP: distance_matrix: Should be a square matrix")
 
         # create an id vector for the samples of X
         indices = np.array([int(i) for i in range(X.shape[0])])
@@ -406,7 +454,9 @@ class IPDDP(Partition):
             self.split_function(proj_tree, selected_node)  # step (1 ,2)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(proj_tree.leaves(), decreasing=self.decreasing)  # step (3)
+            selected_node = self.select_kid(
+                proj_tree.leaves(), decreasing=self.decreasing
+            )  # step (3)
             splits = splits + 1
 
         self.tree = proj_tree
@@ -443,14 +493,30 @@ class IPDDP(Partition):
         # Application of the minimum sample number split
         # =========================
         if indices.shape[0] > self.min_sample_split:
-            # execute pca on the data matrix
-            proj_vectors = util.execute_decomposition_method(
-                data_matrix=self.X[indices, :],
-                decomposition_method=self.decomposition_method,
-                two_dimentions=self.visualization_utility,
-                decomposition_args=self.decomposition_args,
-            )
-            projection = proj_vectors.transform(self.X[indices, :])
+            # Apply the decomposition method on the data matrix
+            if self.distance_matrix:
+                if self.decomposition_method != "mds":
+                    raise ValueError(
+                        "iPDDP: decomposition_method: Should be 'mds' for distance_matrix"
+                    )
+
+                proj_vectors = util.execute_decomposition_method(
+                    data_matrix=util.select_from_distance_matrix(self.X, indices),
+                    decomposition_method=self.decomposition_method,
+                    two_dimentions=self.visualization_utility,
+                    decomposition_args=self.decomposition_args,
+                )
+                projection = proj_vectors.fit_transform(
+                    util.select_from_distance_matrix(self.X, indices)
+                )
+            else:
+                proj_vectors = util.execute_decomposition_method(
+                    data_matrix=self.X[indices, :],
+                    decomposition_method=self.decomposition_method,
+                    two_dimentions=self.visualization_utility,
+                    decomposition_args=self.decomposition_args,
+                )
+                projection = proj_vectors.fit_transform(self.X[indices, :])
             one_dimension = projection[:, 0]
 
             sort_indices = np.argsort(one_dimension)
@@ -535,6 +601,12 @@ class KMPDDP(Partition):
         interactive_visualization of the package can not be created. For the
         'tsne' decomposition method does not support visualization because it
         affects the correct execution of the kMeans-PDDP algorithm.
+    distance_matrix : bool, (optional)
+        If (True) the input data are considered as a distance matrix and not as
+        a data matrix. The distance matrix is a square matrix with the samples
+        on the rows and the variables on the columns. The distance matrix is
+        used only in conjunction with the 'mds' decomposition method and no
+        other from the supported decomposition methods.
     random_state : int, (optional)
         The random seed fed in the k-Means algorithm
     **decomposition_args :
@@ -565,6 +637,7 @@ class KMPDDP(Partition):
         max_clusters_number=100,
         min_sample_split=15,
         visualization_utility=True,
+        distance_matrix=False,
         random_state=None,
         **decomposition_args,
     ):
@@ -573,7 +646,8 @@ class KMPDDP(Partition):
             max_clusters_number,
             min_sample_split,
             visualization_utility,
-            **decomposition_args
+            distance_matrix,
+            **decomposition_args,
         )
         self.random_state = random_state
 
@@ -597,6 +671,10 @@ class KMPDDP(Partition):
         """
         self.X = X
         self.samples_number = np.size(X, 0)
+
+        if self.distance_matrix:
+            if X.shape[0] != X.shape[1]:
+                raise ValueError("dePDDP: distance_matrix: Should be a square matrix")
 
         # create an id vector for the samples of X
         indices = np.arange(self.samples_number)
@@ -624,7 +702,9 @@ class KMPDDP(Partition):
             self.split_function(bk_tree, selected_node)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(bk_tree.leaves(), decreasing=self.decreasing)
+            selected_node = self.select_kid(
+                bk_tree.leaves(), decreasing=self.decreasing
+            )
 
             # every split adds one new cluster
             found = found + 1
@@ -660,14 +740,37 @@ class KMPDDP(Partition):
         """
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
-            # execute pca on the data matrix
-            method = util.execute_decomposition_method(
-                data_matrix=self.X[indices, :],
-                decomposition_method=self.decomposition_method,
-                two_dimentions=self.visualization_utility,
-                decomposition_args=self.decomposition_args,
-            )
-            projection = method.transform(self.X[indices, :])
+            # Apply the decomposition method on the data matrix
+            if self.distance_matrix:
+                if self.decomposition_method != "mds":
+                    raise ValueError(
+                        "KMPDDP: decomposition_method: Should be 'mds' for distance_matrix"
+                    )
+
+                method = util.execute_decomposition_method(
+                    data_matrix=util.select_from_distance_matrix(self.X, indices),
+                    decomposition_method=self.decomposition_method,
+                    two_dimentions=self.visualization_utility,
+                    decomposition_args=self.decomposition_args,
+                )
+                projection = method.fit_transform(
+                    util.select_from_distance_matrix(self.X, indices)
+                )
+                split_criterion = np.linalg.norm(projection, ord="fro")
+            else:
+                method = util.execute_decomposition_method(
+                    data_matrix=self.X[indices, :],
+                    decomposition_method=self.decomposition_method,
+                    two_dimentions=self.visualization_utility,
+                    decomposition_args=self.decomposition_args,
+                )
+                projection = method.fit_transform(self.X[indices, :])
+
+                # Total scatter value calculation for the selection of the next
+                # cluster to split.
+                centered = util.center_data(self.X[indices, :])
+                split_criterion = np.linalg.norm(centered, ord="fro")
+
             one_dimension = np.array([[i] for i in projection[:, 0]])
 
             model = KMeans(n_clusters=2, n_init=10, random_state=self.random_state)
@@ -681,11 +784,6 @@ class KMPDDP(Partition):
             # The indices of the
             left_child = indices[label_zero]
             right_child = indices[label_one]
-
-            # Total scatter value calculation for the selection of the next
-            # cluster to split.
-            centered = util.center_data(self.X[indices, :])
-            split_criterion = np.linalg.norm(centered, ord="fro")
 
             right_min = np.min(one_dimension[label_one])
             left_max = np.max(one_dimension[label_zero])
@@ -757,6 +855,12 @@ class PDDP(Partition):
         interactive_visualization of the package can not be created. For the
         'tsne' decomposition method does not support visualization because it
         affects the correct execution of the PDDP algorithm.
+    distance_matrix : bool, (optional)
+        If (True) the input data are considered as a distance matrix and not as
+        a data matrix. The distance matrix is a square matrix with the samples
+        on the rows and the variables on the columns. The distance matrix is
+        used only in conjunction with the 'mds' decomposition method and no
+        other from the supported decomposition methods.
     **decomposition_args :
         Arguments for each of the decomposition methods ("decomposition.PCA" as
         "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
@@ -785,6 +889,7 @@ class PDDP(Partition):
         max_clusters_number=100,
         min_sample_split=5,
         visualization_utility=True,
+        distance_matrix=False,
         **decomposition_args,
     ):
         super().__init__(
@@ -792,7 +897,8 @@ class PDDP(Partition):
             max_clusters_number,
             min_sample_split,
             visualization_utility,
-            **decomposition_args
+            distance_matrix,
+            **decomposition_args,
         )
 
     def fit(self, X):
@@ -815,6 +921,10 @@ class PDDP(Partition):
 
         self.X = X
         self.samples_number = X.shape[0]
+
+        if self.distance_matrix:
+            if X.shape[0] != X.shape[1]:
+                raise ValueError("dePDDP: distance_matrix: Should be a square matrix")
 
         # create an id vector for the samples of X
         indices = np.arange(X.shape[0])
@@ -843,11 +953,12 @@ class PDDP(Partition):
         while (selected is not None) and (
             counter < self.max_clusters_number
         ):  # (ST1) or (ST2)
-
             self.split_function(tree, selected)  # step (1)
 
             # select the next kid for split based on the local minimum density
-            selected = self.select_kid(tree.leaves(), decreasing=self.decreasing)  # step (2)
+            selected = self.select_kid(
+                tree.leaves(), decreasing=self.decreasing
+            )  # step (2)
             counter = counter + 1  # (ST1)
 
         self.tree = tree
@@ -888,21 +999,41 @@ class PDDP(Partition):
 
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
+            # Apply the decomposition method on the data matrix
+            if self.distance_matrix:
+                if self.decomposition_method != "mds":
+                    raise ValueError(
+                        "PDDP: decomposition_method: Should be 'mds' for distance_matrix"
+                    )
 
-            centered = util.center_data(self.X[indices, :])
+                projection_vectors = util.execute_decomposition_method(
+                    data_matrix=util.select_from_distance_matrix(self.X, indices),
+                    decomposition_method=self.decomposition_method,
+                    two_dimentions=self.visualization_utility,
+                    decomposition_args=self.decomposition_args,
+                )
+                projection = projection_vectors.fit_transform(
+                    util.select_from_distance_matrix(self.X, indices)
+                )
 
-            # execute pca on the data matrix
-            projection_vectors = util.execute_decomposition_method(
-                data_matrix=centered,
-                decomposition_method=self.decomposition_method,
-                two_dimentions=self.visualization_utility,
-                decomposition_args=self.decomposition_args,
-            )
-            projection = projection_vectors.transform(centered)
+                # Total scatter value calculation for the selection of the next
+                # cluster to split.
+                scat = np.linalg.norm(projection, ord="fro")
+            else:
+                centered = util.center_data(self.X[indices, :])
 
-            # Total scatter value calculation for the selection of the next
-            # cluster to split.
-            scat = np.linalg.norm(centered, ord="fro")
+                # execute pca on the data matrix
+                projection_vectors = util.execute_decomposition_method(
+                    data_matrix=centered,
+                    decomposition_method=self.decomposition_method,
+                    two_dimentions=self.visualization_utility,
+                    decomposition_args=self.decomposition_args,
+                )
+                projection = projection_vectors.transform(centered)
+
+                # Total scatter value calculation for the selection of the next
+                # cluster to split.
+                scat = np.linalg.norm(centered, ord="fro")
 
             if not np.allclose(scat, 0):
                 splitpoint = 0.0
@@ -1016,7 +1147,9 @@ class BisectingKmeans(Partition):
             self.split_function(tree, selected_node)  # step (1)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(tree.leaves(), decreasing=self.decreasing)  # step (2)
+            selected_node = self.select_kid(
+                tree.leaves(), decreasing=self.decreasing
+            )  # step (2)
             found_clusters = found_clusters + 1  # (ST1)
 
         self.tree = tree
@@ -1103,7 +1236,6 @@ class BisectingKmeans(Partition):
         """
         # if the number of samples
         if indices.shape[0] > self.min_sample_split:
-
             model = KMeans(n_clusters=2, n_init=10, random_state=self.random_state)
             labels = model.fit_predict(self.X[indices, :])
             centers = model.cluster_centers_
@@ -1266,11 +1398,12 @@ class MDH(Partition):
         while (found_clusters < self.max_clusters_number) and (
             selected_node is not None
         ):  # (ST1) or (ST2)
-
             self.split_function(den_tree, selected_node)  # step (1, 2)
 
             # select the next kid for split based on the local minimum density
-            selected_node = self.select_kid(den_tree.leaves(), decreasing=self.decreasing)  # step (3)
+            selected_node = self.select_kid(
+                den_tree.leaves(), decreasing=self.decreasing
+            )  # step (3)
             found_clusters = found_clusters + 1  # (ST1)
 
         self.tree = den_tree
@@ -1316,11 +1449,14 @@ class MDH(Partition):
             # Normalize the data of the node to zero mean and unit standard deviation
             node_data = (node_data - np.mean(node_data, 0)) / np.std(node_data, 0)
 
-            minC = 100 if node_size * self.percentile > 100 else node_size * self.percentile
+            minC = (
+                100
+                if node_size * self.percentile > 100
+                else node_size * self.percentile
+            )
 
             solutions = []
             for i in range(0, self.max_iterations):
-
                 # Generate a random vector in the space of the node's data and
                 # normalize it to unit length
                 # v_n_b: vector v and point b
@@ -1391,9 +1527,7 @@ class MDH(Partition):
     @k.setter
     def k(self, v):
         if v < 0 or (not isinstance(v, float)):
-            raise ValueError(
-                "MDH: k: Invalid value it should be float and > 1"
-            )
+            raise ValueError("MDH: k: Invalid value it should be float and > 1")
         self._k = v
 
     @property

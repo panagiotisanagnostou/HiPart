@@ -21,19 +21,10 @@
 Implementation of the clustering algorithms, members of the HiPart package.
 
 @author Panagiotis Anagnostou
-@author Nicos Pavlidis
 """
 
-import HiPart.__utility_functions as util
 import numpy as np
-import statsmodels.api as sm
 import warnings
-
-from KDEpy import FFTKDE
-from scipy import stats
-from sklearn.cluster import KMeans
-from treelib import Tree
-
 
 class Partition:
     """
@@ -56,6 +47,12 @@ class Partition:
         interactive_visualization of the package can not be created. For the
         'tsne' decomposition method does not support visualization because it
         affects the correct execution of the dePDDP algorithm.
+    distance_matrix : bool, (optional)
+        If (True) the input data are considered as a distance matrix and not as
+        a data matrix. The distance matrix is a square matrix with the samples
+        on the rows and the variables on the columns. The distance matrix is
+        used only in conjunction with the 'mds' decomposition method and no
+        other from the supported decomposition methods.
     **decomposition_args :
         Arguments for each of the decomposition methods ("decomposition.PCA" as
         "pca", "decomposition.KernelPCA" as "kpca", "decomposition.FastICA" as
@@ -82,6 +79,7 @@ class Partition:
         max_clusters_number=100,
         min_sample_split=5,
         visualization_utility=True,
+        distance_matrix=False,
         **decomposition_args,
     ):
         self.decomposition_method = decomposition_method
@@ -92,6 +90,9 @@ class Partition:
             warnings.warn("does not support visualization for 'tsne'.")
         else:
             self.visualization_utility = visualization_utility
+        self.distance_matrix = distance_matrix
+        if self.distance_matrix:
+            self.decomposition_method = "mds"
         self.decomposition_args = decomposition_args
 
     def fit(self, X):
@@ -104,7 +105,8 @@ class Partition:
         ----------
         X : numpy.ndarray
             Data matrix with the samples on the rows and the variables on the
-            columns.
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
 
         Returns
         -------
@@ -124,7 +126,8 @@ class Partition:
         ----------
         X : numpy.ndarray
             Data matrix with the samples on the rows and the variables on the
-            columns.
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
 
         Returns
         -------
@@ -135,7 +138,7 @@ class Partition:
 
         return self.fit(X).labels_
 
-    def split_function(self, den_tree, selected_node):
+    def split_function(self, tree, selected_node):
         """
         Split the indicated node on the minimum of the local minimum density
         of the data projected on the first principal component.
@@ -145,7 +148,7 @@ class Partition:
 
         Parameters
         ----------
-        den_tree : treelib.tree.Tree
+        tree : treelib.tree.Tree
             The tree build by the dePDDP algorithm, in order to cluster the
             input data.
         selected_node : int
@@ -158,7 +161,7 @@ class Partition:
             nature.
 
         """
-        node = den_tree.get_node(selected_node)
+        node = tree.get_node(selected_node)
         node.data["split_permission"] = False
 
         # left child indices extracted from the nodes split-point and the
@@ -173,13 +176,13 @@ class Partition:
 
         # Nodes and data creation for the children
         # Uses the calculate_node_data function to create the data for the node
-        den_tree.create_node(
+        tree.create_node(
             tag="density_cluster_" + str(self.node_ids + 1),
             identifier=self.node_ids + 1,
             parent=node.identifier,
             data=self.calculate_node_data(left_kid_index, node.data["color_key"]),
         )
-        den_tree.create_node(
+        tree.create_node(
             tag="density_cluster_" + str(self.node_ids + 2),
             identifier=self.node_ids + 2,
             parent=node.identifier,
@@ -239,14 +242,17 @@ class Partition:
         Execution of the necessary calculations for the creation of the data for
         each node of the tree. The data are the following:
 
-        1. The indices of the samples that are included in the node.
+        1. The indices of the samples that are included in the node. ("indices")
         2. The projection of the samples on the first principal component.
-        3. The split point of the node.
-        4. The split criterion of the node.
-        5. The split permission of the node.
-        6. The color key of the node.
+        ("projection")
+        3. The projection vectors of the samples on the first principal
+        component. ("projection_vectors")
+        3. The split point of the node. ("splitpoint")
+        4. The split criterion of the node. ("split_criterion")
+        5. The split permission of the node. ("split_permission")
+        6. The color key of the node. ("color_key")
         7. The dendrogram check of the node. Utility variable for the dendrogram
-        visualization.
+        visualization. ("dendrogram_check")
 
         This function leads to the second Stopping criterion 2 of the
         algorithm.
@@ -272,11 +278,9 @@ class Partition:
 
     @decomposition_method.setter
     def decomposition_method(self, v):
-        if not (v in ["pca", "kpca", "ica", "tsne"]):
+        if not (v in ["pca", "kpca", "ica", "tsne", "mds"]):
             raise ValueError(
-                "decomposition_method: "
-                + str(v)
-                + ": Unknown decomposition method!"
+                "decomposition_method: " + str(v) + ": Unknown decomposition method!"
             )
         self._decomposition_method = v
 
@@ -315,12 +319,24 @@ class Partition:
                 "visualization_utility: Should be True or False"
             )
 
-        if v is True and self.decomposition_method not in ["pca", "ica", "kpca"]:
+        if v is True and self.decomposition_method not in ["pca", "ica", "kpca", "mds"]:
             raise ValueError(
-                "visualization_utility: 'tsne' method is can't be used"
-                + " with the visualization utility."
+                "visualization_utility: " + str(self.decomposition_method)
+                + ": is not supported from the HiPart package!"
             )
         self._visualization_utility = v
+
+    @property
+    def distance_matrix(self):
+        return self._distance_matrix
+
+    @distance_matrix.setter
+    def distance_matrix(self, v):
+        if v is not True and v is not False:
+            raise ValueError(
+                "distance_matrix: Should be boolean (True or False)"
+            )
+        self._distance_matrix = v
 
     @property
     def tree(self):
@@ -372,9 +388,14 @@ class Partition:
 
     @property
     def labels_(self):
+        # Regenerate the labels_ each time from the tree leafs
         labels_ = np.ones(np.size(self.X, 0))
+        # Iterate through the leaves of the tree and assign the labels in
+        # increasing order based on the j counter variable
+        j = 0
         for i in self.tree.leaves():
-            labels_[i.data["indices"]] = i.identifier
+            labels_[i.data["indices"]] = j
+            j += 1
         return labels_
 
     @labels_.setter
