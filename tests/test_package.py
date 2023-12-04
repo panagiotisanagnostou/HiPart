@@ -76,7 +76,10 @@ def test_mdh_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
-    new_obj = MDH(max_clusters_number=3).fit(data_import["data"])
+    new_obj = MDH(
+        max_clusters_number=3,
+        random_state=0,
+    ).fit(data_import["data"])
     assert isinstance(new_obj, MDH)
 
 
@@ -269,6 +272,7 @@ def test_mdh_labels_return_type_and_form(datadir):
 
     results = MDH(
         max_clusters_number=3,
+        random_state=0,
     ).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
@@ -279,6 +283,7 @@ def test_mdh_projections(datadir):
 
     results = MDH(
         max_clusters_number=3,
+        random_state=0,
     ).fit_predict(data)
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
