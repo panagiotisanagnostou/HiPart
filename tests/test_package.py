@@ -321,7 +321,7 @@ def test_ipddp_distance_matrix_executions(datadir):
     except Exception:
         success_score += 1
     try:
-         IPDDP(
+        IPDDP(
             decomposition_method="pca",
             max_clusters_number=3,
             distance_matrix=True,
@@ -901,6 +901,7 @@ def test_linkage_typeerror(datadir):
         assert False
     except Exception:
         assert True
+
 
 def test_utility_functions():
     success = 0

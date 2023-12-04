@@ -26,6 +26,7 @@ Implementation of the clustering algorithms, members of the HiPart package.
 import numpy as np
 import warnings
 
+
 class Partition:
     """
     Class Partition. Is an abstract class that contains the necessary methods
