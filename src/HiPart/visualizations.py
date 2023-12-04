@@ -139,10 +139,7 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
         with_hist = False
         with_marginal_scatter = True
         grid_size = 4
-    elif (
-        isinstance(hipart_object, BisectingKmeans)
-        or isinstance(hipart_object, MDH)
-    ):
+    elif isinstance(hipart_object, BisectingKmeans) or isinstance(hipart_object, MDH):
         with_hist = False
         with_marginal_scatter = False
         grid_size = 2
@@ -150,9 +147,12 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
         raise TypeError("can only process objects of the 'HiPart' package.")
 
     # prepare the necessary data for this visualization
-    dictionary_of_nodes, internal_nodes, _, sample_color = util.visualization_preparation(
-        hipart_object, color_map
-    )
+    (
+        dictionary_of_nodes,
+        internal_nodes,
+        _,
+        sample_color,
+    ) = util.visualization_preparation(hipart_object, color_map)
     number_of_splits = len(internal_nodes)
 
     # Ensure that the root node will be always an internal node while is the
@@ -195,21 +195,21 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
         # differentiate the visualizations which need explanatory margin plot
         # from simple visualizations
         if with_hist:
-            principal_projections = dictionary_of_nodes[
-                internal_nodes[i]
-            ].data["projection"]
-            splitPoint = dictionary_of_nodes[
-                internal_nodes[i]
-            ].data["splitpoint"]
+            principal_projections = dictionary_of_nodes[internal_nodes[i]].data[
+                "projection"
+            ]
+            splitPoint = dictionary_of_nodes[internal_nodes[i]].data["splitpoint"]
 
-            scatter = plt.subplot(gs[row_from + 1: row_to, col_from:col_to])
+            scatter = plt.subplot(gs[row_from + 1 : row_to, col_from:col_to])
             if i == 0:
-                total_elements = hipart_object.tree.get_node(
-                    internal_nodes[i]
-                ).data["indices"].shape[0]
+                total_elements = (
+                    hipart_object.tree.get_node(internal_nodes[i])
+                    .data["indices"]
+                    .shape[0]
+                )
 
             hist = plt.subplot(
-                gs[row_from: row_to - 3,  col_from:col_to],
+                gs[row_from : row_to - 3, col_from:col_to],
                 sharex=scatter,
             )
             hists.append(hist)
@@ -236,20 +236,20 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
             ) if i == 0 else hist.title.set_text("Split no. " + str(i + 1))
 
         elif with_marginal_scatter:
-            principal_projections = dictionary_of_nodes[
-                internal_nodes[i]
-            ].data["projection"]
-            splitPoint = dictionary_of_nodes[
-                internal_nodes[i]
-            ].data["splitpoint"]
+            principal_projections = dictionary_of_nodes[internal_nodes[i]].data[
+                "projection"
+            ]
+            splitPoint = dictionary_of_nodes[internal_nodes[i]].data["splitpoint"]
 
-            scatter = plt.subplot(gs[row_from + 1: row_to, col_from:col_to])
+            scatter = plt.subplot(gs[row_from + 1 : row_to, col_from:col_to])
             marginal_scatter = plt.subplot(
-                gs[row_from: row_to - 3, col_from:col_to], sharex=scatter
+                gs[row_from : row_to - 3, col_from:col_to], sharex=scatter
             )
-            centers = dictionary_of_nodes[
-                internal_nodes[i]
-            ].data["centers"] if isinstance(hipart_object, KMPDDP) else None
+            centers = (
+                dictionary_of_nodes[internal_nodes[i]].data["centers"]
+                if isinstance(hipart_object, KMPDDP)
+                else None
+            )
             util.make_scatter_n_marginal_scatter(
                 scatter=scatter,
                 marginal_scatter=marginal_scatter,
@@ -261,17 +261,13 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
 
             marginal_scatter.title.set_text(
                 "Original data with 1st split"
-            ) if i == 0 else marginal_scatter.title.set_text(
-                "Split no. "
-                + str(i + 1)
-            )
+            ) if i == 0 else marginal_scatter.title.set_text("Split no. " + str(i + 1))
 
         else:
             # Bisecting k-Means doesn't execute PCA, so we execute it here for
             # the visualization
-            if (
-                isinstance(hipart_object, BisectingKmeans)
-                or isinstance(hipart_object, MDH)
+            if isinstance(hipart_object, BisectingKmeans) or isinstance(
+                hipart_object, MDH
             ):
                 projeciton_vectors = util.execute_decomposition_method(
                     data_matrix=hipart_object.X[
@@ -289,13 +285,11 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
                 show_split = False
                 splitPoint = None
             else:
-                principal_projections = dictionary_of_nodes[
-                    internal_nodes[i]
-                ].data["projection"]
+                principal_projections = dictionary_of_nodes[internal_nodes[i]].data[
+                    "projection"
+                ]
                 show_split = True
-                splitPoint = dictionary_of_nodes[
-                    internal_nodes[i]
-                ].data["splitpoint"]
+                splitPoint = dictionary_of_nodes[internal_nodes[i]].data["splitpoint"]
 
             # create each individual visualization
             ax = plt.subplot(gs[row_from:row_to, col_from:col_to])
@@ -411,13 +405,9 @@ def mdh_visualization(mdh_obj, color_map="tab20"):
         ax = plt.subplot(gs[row_from:row_to, col_from:col_to])
 
         # get the color of the sample that belong to the i internal node
-        pr_col = sample_color[
-            mdh_obj.tree.get_node(internal_nodes[i]).data["indices"]
-        ]
+        pr_col = sample_color[mdh_obj.tree.get_node(internal_nodes[i]).data["indices"]]
 
-        node_data = mdh_obj.X[
-            dictionary_of_nodes[internal_nodes[i]].data["indices"]
-        ]
+        node_data = mdh_obj.X[dictionary_of_nodes[internal_nodes[i]].data["indices"]]
         node_data = (node_data - np.mean(node_data, 0)) / np.std(node_data, 0)
 
         pca = PCA(n_components=2)
@@ -440,25 +430,21 @@ def mdh_visualization(mdh_obj, color_map="tab20"):
 
         if np.abs(np.abs(pv[1]) - 1) <= 1.0e-8:
             ax.vlines(
-                x=0, ymin=np.amin(x_grid), ymax=np.amax(x_grid), colors="cyan",
-                zorder=2
+                x=0, ymin=np.amin(x_grid), ymax=np.amax(x_grid), colors="cyan", zorder=2
             )
             phi = np.sign(pv[1]) * 0.5 * np.pi
         else:
             phi = np.arctan2(pv[1], pv[0])
             ax.plot(x_grid, np.tan(phi) * x_grid, c="cyan", zorder=2)
 
-        ax.plot(np.cos(phi) * proj, np.sin(phi) * proj, c="r", alpha=0.7,
-                zorder=3)
+        ax.plot(np.cos(phi) * proj, np.sin(phi) * proj, c="r", alpha=0.7, zorder=3)
 
         ax.scatter(
-            np.cos(phi) * b, np.sin(phi) * b, marker="o", c="r", alpha=1,
-            zorder=4
+            np.cos(phi) * b, np.sin(phi) * b, marker="o", c="r", alpha=1, zorder=4
         )
         ax.plot(
             x_grid,
-            np.sin(phi) * b + np.tan(phi + np.pi / 2) * (
-                        x_grid - np.cos(phi) * b),
+            np.sin(phi) * b + np.tan(phi + np.pi / 2) * (x_grid - np.cos(phi) * b),
             ":r",
             zorder=4,
         )
@@ -473,8 +459,7 @@ def mdh_visualization(mdh_obj, color_map="tab20"):
         Y = np.matmul(R, np.row_stack((x_grid, out)))
         ax.plot(Y.A[0], Y.A[1], c="DarkBlue", lw=1, label="kde", zorder=4)
 
-        ax.scatter(pcaproj[:, 0], pcaproj[:, 1], c=pr_col, s=5, marker=".",
-                   zorder=1)
+        ax.scatter(pcaproj[:, 0], pcaproj[:, 1], c=pr_col, s=5, marker=".", zorder=1)
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_xlim(

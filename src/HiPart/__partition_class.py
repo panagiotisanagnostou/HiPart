@@ -229,7 +229,8 @@ class Partition:
 
         if len(possible_splits) > 0:
             for i in sorted(
-                enumerate(possible_splits), key=lambda x: x[1].data["split_criterion"],
+                enumerate(possible_splits),
+                key=lambda x: x[1].data["split_criterion"],
                 reverse=decreasing,
             ):
                 if i[1].data["split_permission"]:
@@ -292,9 +293,7 @@ class Partition:
     @max_clusters_number.setter
     def max_clusters_number(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "min_sample_split: Invalid value it should be int and > 1"
-            )
+            raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._max_clusters_number = v
 
     @property
@@ -304,9 +303,7 @@ class Partition:
     @min_sample_split.setter
     def min_sample_split(self, v):
         if v < 0 or (not isinstance(v, int)):
-            raise ValueError(
-                "min_sample_split: Invalid value it should be int and > 1"
-            )
+            raise ValueError("min_sample_split: Invalid value it should be int and > 1")
         self._min_sample_split = v
 
     @property
@@ -316,13 +313,12 @@ class Partition:
     @visualization_utility.setter
     def visualization_utility(self, v):
         if v is not True and v is not False:
-            raise ValueError(
-                "visualization_utility: Should be True or False"
-            )
+            raise ValueError("visualization_utility: Should be True or False")
 
         if v is True and self.decomposition_method not in ["pca", "ica", "kpca", "mds"]:
             raise ValueError(
-                "visualization_utility: " + str(self.decomposition_method)
+                "visualization_utility: "
+                + str(self.decomposition_method)
                 + ": is not supported from the HiPart package!"
             )
         self._visualization_utility = v
@@ -334,9 +330,7 @@ class Partition:
     @distance_matrix.setter
     def distance_matrix(self, v):
         if v is not True and v is not False:
-            raise ValueError(
-                "distance_matrix: Should be boolean (True or False)"
-            )
+            raise ValueError("distance_matrix: Should be boolean (True or False)")
         self._distance_matrix = v
 
     @property
@@ -401,6 +395,4 @@ class Partition:
 
     @labels_.setter
     def labels_(self, v):
-        raise RuntimeError(
-            "labels_: can only be generated and not to be assigned!"
-        )
+        raise RuntimeError("labels_: can only be generated and not to be assigned!")
