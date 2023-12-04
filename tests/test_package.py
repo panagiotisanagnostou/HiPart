@@ -37,7 +37,7 @@ def test_depddp_return_type(datadir):
         data_import = pickle.load(inf)
 
     new_obj = DePDDP(max_clusters_number=3).fit(data_import["data"])
-    assert isinstance(new_obj, DePDDP)
+    assert  isinstance(new_obj, DePDDP)
 
 
 def test_ipddp_return_type(datadir):
@@ -150,6 +150,21 @@ def test_pddp_parameter_errors(datadir):
     except Exception:
         success_score += 1
     try:
+        PDDP(visualization_utility=5)
+    except Exception:
+        success_score += 1
+    try:
+        tmp = PDDP(
+            decomposition_method="tsne",
+        )
+        tmp.visualization_utility = True
+    except Exception:
+        success_score += 1
+    try:
+        PDDP(distance_matrix=5)
+    except Exception:
+        success_score += 1
+    try:
         obj = PDDP()
         obj.output_matrix = np.array([1, 2, 3])
     except Exception:
@@ -160,7 +175,7 @@ def test_pddp_parameter_errors(datadir):
     except Exception:
         success_score += 1
 
-    assert success_score == 10
+    assert success_score == 13
 
 
 def test_bicecting_kmeans_parameter_errors():
@@ -255,6 +270,16 @@ def test_mdh_labels_return_type_and_form(datadir):
     results = MDH(
         max_clusters_number=3,
     ).fit_predict(data_import["data"])
+    assert isinstance(results, np.ndarray) and results.ndim == 1
+
+
+def test_mdh_projections(datadir):
+    np.random.seed(0)
+    data = np.random.normal(size=(100, 2), loc=0, scale=0.001)
+
+    results = MDH(
+        max_clusters_number=3,
+    ).fit_predict(data)
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
