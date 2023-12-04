@@ -66,8 +66,11 @@ def main(inputData):
     inputData : dePDDP or iPDDP or kM_PDDP or PDDP object
         The object to be visualized.
 
-    Returns (Currently not working correctly)
-    ----------------------------------------
+    Returns
+    -------
+    obj : dePDDP or iPDDP or kM_PDDP or PDDP object
+        The manipulated object after the execution of the interactive
+        visualization. (Currently not working correctly)
 
     """
 
