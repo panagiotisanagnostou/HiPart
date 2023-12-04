@@ -88,6 +88,21 @@ class DePDDP(Partition):
         the dePDDP algorithm.
     samples_number : int
         The number of samples contained in the data.
+    fit_predict(X) :
+        Returns the results of the fit method in the form of the labels of the
+        predicted clustering labels.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Data matrix with the samples on the rows and the variables on the
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
+
+        Returns
+        -------
+        labels_ : numpy.ndarray
+            Extracted clusters from the algorithm.
 
     """
 
@@ -374,6 +389,21 @@ class IPDDP(Partition):
         the iPDDP algorithm.
     samples_number : int
         The number of samples contained in the data.
+    fit_predict(X) :
+        Returns the results of the fit method in the form of the labels of the
+        predicted clustering labels.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Data matrix with the samples on the rows and the variables on the
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
+
+        Returns
+        -------
+        labels_ : numpy.ndarray
+            Extracted clusters from the algorithm.
 
     """
 
@@ -626,6 +656,21 @@ class KMPDDP(Partition):
         the iPDDP algorithm.
     samples_number : int
         The number of samples contained in the data.
+    fit_predict(X) :
+        Returns the results of the fit method in the form of the labels of the
+        predicted clustering labels.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Data matrix with the samples on the rows and the variables on the
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
+
+        Returns
+        -------
+        labels_ : numpy.ndarray
+            Extracted clusters from the algorithm.
 
     """
 
@@ -878,6 +923,21 @@ class PDDP(Partition):
         the iPDDP algorithm.
     samples_number : int
         The number of samples contained in the data.
+    fit_predict(X) :
+        Returns the results of the fit method in the form of the labels of the
+        predicted clustering labels.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Data matrix with the samples on the rows and the variables on the
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
+
+        Returns
+        -------
+        labels_ : numpy.ndarray
+            Extracted clusters from the algorithm.
 
     """
 
@@ -1083,6 +1143,21 @@ class BisectingKmeans(Partition):
         the bisecting k-Means algorithm.
     samples_number : int
         The number of samples contained in the data.
+    fit_predict(X) :
+        Returns the results of the fit method in the form of the labels of the
+        predicted clustering labels.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Data matrix with the samples on the rows and the variables on the
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
+
+        Returns
+        -------
+        labels_ : numpy.ndarray
+            Extracted clusters from the algorithm.
 
     """
 
@@ -1322,6 +1397,21 @@ class MDH(Partition):
         the MDH algorithm.
     samples_number : int
         The number of samples contained in the data.
+    fit_predict(X) :
+        Returns the results of the fit method in the form of the labels of the
+        predicted clustering labels.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            Data matrix with the samples on the rows and the variables on the
+            columns. If the distance_matrix is True then X should be a square
+            distance matrix.
+
+        Returns
+        -------
+        labels_ : numpy.ndarray
+            Extracted clusters from the algorithm.
 
     """
 

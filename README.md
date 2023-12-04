@@ -2,7 +2,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/HiPart)](https://pypi.org/project/HiPart/)
 [![example workflow](https://github.com/panagiotisanagnostou/HiPart/actions/workflows/python-app.yml/badge.svg)](https://github.com/panagiotisanagnostou/HiPart/blob/main/.github/workflows/python-app.yml)
 [![codecov](https://codecov.io/gh/panagiotisanagnostou/HiPart/branch/main/graph/badge.svg?token=FHoZrLjqfj)](https://codecov.io/gh/panagiotisanagnostou/HiPart)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/60c751d914474e288b369461e6e3466a)](https://www.codacy.com/gh/panagiotisanagnostou/HiPart/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=panagiotisanagnostou/HiPart&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/60c751d914474e288b369461e6e3466a)](https://app.codacy.com/gh/panagiotisanagnostou/HiPart/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/panagiotisanagnostou/HiPart/blob/main/LICENSE)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.05024/status.svg)](https://doi.org/10.21105/joss.05024)
 
@@ -31,7 +31,17 @@ X, y = make_blobs(n_samples=1500, centers=6, random_state=0)
 clustered_class = DePDDP(max_clusters_number=6).fit_predict(X)
 ```
 
-Users can find complete execution examples for all the algorithms of the HiPart package in the [clustering_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_example.py) file of the repository. Also, the users can find a KernelPCA method usage example in the [clustering_with_kpca_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_with_kpca_example.py) file of the repository. Finally, the file [interactive_visualization_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/interactive_visualization_example.py) contains an example execution of the interactive visualization. The instructions for the interactive visualization GUI can be found with the execution of this visualization.
+The HiPart package offers a comprehensive suite of examples to guide users in utilizing its various algorithms. These examples are conveniently located in the repository's examples directory.
+
+For a general understanding of the package's capabilities, users can refer to the [clustering_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_example.py) file. This file serves as a foundational guide, providing complete examples of the package's algorithms in action.
+
+Additionally, for those interested in incorporating KernelPCA methods, the [clustering_with_kpca_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/clustering_with_kpca_example.py) file is an invaluable resource. It offers a detailed example of how to apply KernelPCA within the context of the HiPart package.
+
+Recognizing the importance of clustering via similarity or dissimilarity matrices, such as distance matrices, the HiPart package includes the [clustering_with_distance_matrix_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/distance_matrix_example.py) file. This specific example demonstrates the use of the DePDDP algorithm with a distance matrix, offering a practical application scenario.
+
+Lastly, the package features an interactive visualization component, which is exemplified in the [interactive_visualization_example](https://github.com/panagiotisanagnostou/HiPart/blob/main/examples/interactive_visualization_example.py) file. This example not only showcases the execution of the interactive visualization but also provides comprehensive instructions for navigating the visualization GUI. 
+
+These resources collectively ensure that users of the HiPart package have a well-rounded and practical understanding of its functionalities and applications.
 
 Documentation
 -------------

@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from distutils import dir_util
+from HiPart import __utility_functions as uf
 from HiPart import visualizations as viz
 from HiPart.clustering import DePDDP
 from HiPart.clustering import IPDDP
@@ -255,6 +256,191 @@ def test_mdh_labels_return_type_and_form(datadir):
         max_clusters_number=3,
     ).fit_predict(data_import["data"])
     assert isinstance(results, np.ndarray) and results.ndim == 1
+
+
+def test_depddp_distance_matrix_executions(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    dist_matrix = distance_matrix(data_import["data"], data_import["data"])
+
+    success_score = 0
+
+    try:
+        DePDDP(
+            decomposition_method="mds",
+            max_clusters_number=3,
+            distance_matrix=False,
+        ).fit(dist_matrix)
+    except Exception:
+        success_score += 1
+    try:
+        DePDDP(
+            decomposition_method="pca",
+            max_clusters_number=3,
+            distance_matrix=True,
+        ).fit(dist_matrix)
+    except Exception:
+        success_score -= 1
+    try:
+        tmp = DePDDP(
+            decomposition_method="pca",
+            max_clusters_number=3,
+            distance_matrix=True,
+        )
+        tmp.decomposition_method = "pca"
+        tmp.fit(dist_matrix)
+    except Exception:
+        success_score += 1
+    try:
+        DePDDP(
+            decomposition_method="mds",
+            max_clusters_number=3,
+            distance_matrix=True,
+        ).fit(data_import["data"])
+    except Exception:
+        success_score += 1
+
+    assert success_score == 3
+
+
+def test_ipddp_distance_matrix_executions(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    dist_matrix = distance_matrix(data_import["data"], data_import["data"])
+
+    success_score = 0
+
+    try:
+        IPDDP(
+            decomposition_method="mds",
+            max_clusters_number=3,
+            distance_matrix=False,
+        ).fit(dist_matrix)
+    except Exception:
+        success_score += 1
+    try:
+         IPDDP(
+            decomposition_method="pca",
+            max_clusters_number=3,
+            distance_matrix=True,
+        ).fit(dist_matrix)
+    except Exception:
+        success_score -= 1
+    try:
+        tmp = IPDDP(
+            decomposition_method="pca",
+            max_clusters_number=3,
+            distance_matrix=True,
+        )
+        tmp.decomposition_method = "pca"
+        tmp.fit(dist_matrix)
+    except Exception:
+        success_score += 1
+    try:
+        IPDDP(
+            decomposition_method="mds",
+            max_clusters_number=3,
+            distance_matrix=True,
+        ).fit(data_import["data"])
+    except Exception:
+        success_score += 1
+
+    assert success_score == 3
+
+
+def test_kmpddp_distance_matrix_executions(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    dist_matrix = distance_matrix(data_import["data"], data_import["data"])
+
+    success_score = 0
+
+    try:
+        KMPDDP(
+            decomposition_method="mds",
+            max_clusters_number=3,
+            distance_matrix=False,
+        ).fit(dist_matrix)
+    except Exception:
+        success_score += 1
+    try:
+        KMPDDP(
+            decomposition_method="pca",
+            max_clusters_number=3,
+            distance_matrix=True,
+        ).fit(dist_matrix)
+    except Exception:
+        success_score -= 1
+    try:
+        tmp = KMPDDP(
+            decomposition_method="pca",
+            max_clusters_number=3,
+            distance_matrix=True,
+        )
+        tmp.decomposition_method = "pca"
+        tmp.fit(dist_matrix)
+    except Exception:
+        success_score += 1
+    try:
+        KMPDDP(
+            decomposition_method="mds",
+            max_clusters_number=3,
+            distance_matrix=True,
+        ).fit(data_import["data"])
+    except Exception:
+        success_score += 1
+
+    assert success_score == 3
+
+
+def test_pddp_distance_matrix_executions(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    dist_matrix = distance_matrix(data_import["data"], data_import["data"])
+
+    success_score = 0
+
+    try:
+        PDDP(
+            decomposition_method="mds",
+            max_clusters_number=3,
+            distance_matrix=False,
+        ).fit(dist_matrix)
+    except Exception:
+        success_score += 1
+    try:
+        PDDP(
+            decomposition_method="pca",
+            max_clusters_number=3,
+            distance_matrix=True,
+        ).fit(dist_matrix)
+    except Exception:
+        success_score -= 1
+    try:
+        tmp = PDDP(
+            decomposition_method="pca",
+            max_clusters_number=3,
+            distance_matrix=True,
+        )
+        tmp.decomposition_method = "pca"
+        tmp.fit(dist_matrix)
+    except Exception:
+        success_score += 1
+    try:
+        PDDP(
+            decomposition_method="mds",
+            max_clusters_number=3,
+            distance_matrix=True,
+        ).fit(data_import["data"])
+    except Exception:
+        success_score += 1
+
+    assert success_score == 3
+
 
 # scikit-learn's KMeans algorithm has a bad implermentation of the random_state
 # parameter, so the results are not reproducible. This is why we cannot test
@@ -715,3 +901,27 @@ def test_linkage_typeerror(datadir):
         assert False
     except Exception:
         assert True
+
+def test_utility_functions():
+    success = 0
+
+    try:
+        uf.execute_decomposition_method(
+            np.array([[1, 2, 3], [4, 5, 6]]),
+            "tsne",
+            True,
+            {},
+        )
+    except Exception:
+        success += 1
+    try:
+        uf.execute_decomposition_method(
+            np.array([[1, 2, 3], [4, 5, 6]]),
+            "asdf",
+            False,
+            {},
+        )
+    except Exception:
+        success += 1
+
+    assert success == 2
