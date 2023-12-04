@@ -34,7 +34,7 @@ import warnings
 from KDEpy import FFTKDE
 from scipy import stats as st
 from scipy.optimize import Bounds, minimize, NonlinearConstraint, SR1
-from sklearn.manifold import TSNE
+from sklearn.manifold import MDS, TSNE
 from sklearn.decomposition import PCA, KernelPCA, FastICA
 
 
@@ -56,10 +56,10 @@ def band_const(d):
 
 
 def execute_decomposition_method(
-        data_matrix,
-        decomposition_method,
-        two_dimentions,
-        decomposition_args,
+    data_matrix,
+    decomposition_method,
+    two_dimentions,
+    decomposition_args,
 ):
     """
     Projection of the data matrix onto its first two Components with the
@@ -69,8 +69,6 @@ def execute_decomposition_method(
 
     Parameters
     ----------
-    data_matrix : numpy.ndarray
-        The data matrix contains all the data for the samples.
     decomposition_method : str
         One of 'kpca', 'pca' and 'ica' the decomposition methods supported by
         this software.
@@ -101,29 +99,23 @@ def execute_decomposition_method(
         n_of_dimentions = 1
 
     if decomposition_method == "pca":
-        pca = PCA(
-            n_components=n_of_dimentions,
-            **decomposition_args
-        )
-        two_dimensions = pca.fit_transform(data_matrix)
+        method = PCA(n_components=n_of_dimentions, **decomposition_args)
     elif decomposition_method == "kpca":
-        kernel_pca = KernelPCA(
-            n_components=n_of_dimentions,
-            **decomposition_args
-        )
-        two_dimensions = kernel_pca.fit_transform(data_matrix)
+        method = KernelPCA(n_components=n_of_dimentions, **decomposition_args)
     elif decomposition_method == "ica":
-        ica = FastICA(
-            n_components=n_of_dimentions,
-            **decomposition_args
-        )
-        two_dimensions = ica.fit_transform(data_matrix)
+        method = FastICA(n_components=n_of_dimentions, **decomposition_args)
     elif decomposition_method == "tsne":
-        tsne = TSNE(
+        method = TSNE(n_components=n_of_dimentions, **decomposition_args).fit(
+            data_matrix
+        )
+        # method.transform = method.fit_transform
+    elif decomposition_method == "mds":
+        method = MDS(
             n_components=n_of_dimentions,
+            dissimilarity="precomputed",
             **decomposition_args
         )
-        two_dimensions = tsne.fit_transform(data_matrix)
+        # method.transform = method.fit_transform
     else:
         raise ValueError(
             ": The decomposition method ("
@@ -131,7 +123,28 @@ def execute_decomposition_method(
             + ") is not supported!"
         )
 
-    return two_dimensions
+    return method
+
+
+def select_from_distance_matrix(distance_matrix, indices):
+    """
+    Select the rows and columns of a distance matrix based on the indices
+    provided.
+
+    Parameters
+    ----------
+    distance_matrix : numpy.ndarray
+        The distance matrix to be manipulated.
+    indices : list
+        The indices of the rows and columns to be selected.
+
+    Returns
+    -------
+    numpy.ndarray
+        The distance matrix with the selected rows and columns.
+
+    """
+    return distance_matrix[np.ix_(indices, indices)]
 
 
 def initialize_b(x0, X, depth_init=True):
@@ -184,7 +197,8 @@ def initialize_b(x0, X, depth_init=True):
     # is no need for further searching for a local minimum.
     elif len(maxima) == 1:
         warnings.warn(
-            "MDH: uni-modal distribution there is no need for further processing!")
+            "MDH: uni-modal distribution there is no need for further processing!"
+        )
         return np.array([])
 
     # locations of maxima in original y array
@@ -196,11 +210,12 @@ def initialize_b(x0, X, depth_init=True):
         depth = np.inf
         p = None
         for i in np.arange(len(maxima) - 1):
-            pos = maxima[i] + np.argmin(y[maxima[i]:maxima[i + 1]])
+            pos = maxima[i] + np.argmin(y[maxima[i] : maxima[i + 1]])
             # inverse of depth (to avoid numerical difficulties)
-            tmp_depth = np.amin(
-                [np.amax(y[maxima[:i + 1]]), np.amax(y[maxima[i + 1:]])]) - y[
-                            pos]
+            tmp_depth = (
+                np.amin([np.amax(y[maxima[: i + 1]]), np.amax(y[maxima[i + 1 :]])])
+                - y[pos]
+            )
             # No divisions by zero
             if tmp_depth:
                 d = y[pos] / tmp_depth
@@ -220,7 +235,7 @@ def initialize_b(x0, X, depth_init=True):
 
     else:
         # Find the lowest minimum between any peaks
-        pos = maxima[0] + np.argmin(y[maxima[0]:maxima[-1] + 1])
+        pos = maxima[0] + np.argmin(y[maxima[0] : maxima[-1] + 1])
         return x_ticks[pos]
 
 
@@ -265,14 +280,16 @@ def md_sqp(x0, X, k):
             return (dKdeDvb(np.append(x, 0), X))[:-1]
 
         def cons_f(x):
-            return np.sum(x ** 2)
+            return np.sum(x**2)
 
         def cons_J(x):
             return 2 * x
 
         def cons_H(x, v):
             return v[0] * 2 * np.eye(len(x))
+
     else:
+
         def Fx(x):
             return fx(x, X)
 
@@ -287,8 +304,7 @@ def md_sqp(x0, X, k):
             return np.append(2 * x[:-1], 0)
 
         def cons_H(x, v):
-            return v[0] * 2 * np.diag(
-                np.append(np.ones(len(x) - 1), 0))
+            return v[0] * 2 * np.diag(np.append(np.ones(len(x) - 1), 0))
 
         ub[-1] = k
         lb[-1] = -k
@@ -297,7 +313,8 @@ def md_sqp(x0, X, k):
 
     x0 = x0 if x0[0] > 0 else -x0
     res = minimize(
-        Fx, x0,
+        Fx,
+        x0,
         method="trust-constr",
         jac=JacF,
         hess=SR1(),
@@ -382,14 +399,13 @@ def dKdeDvb(xcur, X):
     kde = st.norm.pdf(proj, b, h)
     DgF[:-1] = kde * (b - proj) / (h * h * N)
     # derivative w.r.t. bandwidth
-    DgF[-1] = -np.mean(kde) / h + np.mean(kde * (np.power((b - proj), 2))) / (
-            h * h * h)
+    DgF[-1] = -np.mean(kde) / h + np.mean(kde * (np.power((b - proj), 2))) / (h * h * h)
 
     # ==========================================================================
     # Derivative of g = (p_1,p_2, ... p_N,h) w.r.t. full-dimensional projection vector!
     # Data is CENTRED and X stores observations in rows: Thoroughly debugged
     # get std of projected data
-    dhdv = (bn ** 2) / (h * (N - 1))
+    dhdv = (bn**2) / (h * (N - 1))
 
     # last parenthesis: De-means all columns of X
     last_row = dhdv * (proj @ X)
@@ -480,13 +496,7 @@ def make_simple_scatter(sp, splitPoint, PP, pr_col, show_split=True):
 
 
 def make_scatter_n_hist(
-        scatter,
-        hist,
-        PP,
-        splitPoint,
-        bandwidth_scale,
-        pr_col,
-        scaler=None
+    scatter, hist, PP, splitPoint, bandwidth_scale, pr_col, scaler=None
 ):
     """
     Create an Axes plot visualizing the split and data of a cloud of data. With
@@ -494,18 +504,20 @@ def make_scatter_n_hist(
 
     Parameters
     ----------
-    bandwidth_scale
-    scaler
     scatter : matplotlib.axes.Axes object
         The Axes for the main plot to be drawn.
     hist : matplotlib.axes.Axes object
         The Axes for the x-axis marginal plot to be drawn.
     splitPoint : int
         The values of the point the data are split for this plot.
+    bandwidth_scale : float
+        The scale of the bandwidth of the KDE.
     PP : numpy.ndarray object
         The projection of the data on the first two Principal Components.
     pr_col : numpy.ndarray object
         An array containing the color of each sample as RGBa tuple.
+    scaler : int or None, optional
+        The number of samples the data were split. The default is None.
 
     Returns
     -------
@@ -542,12 +554,7 @@ def make_scatter_n_hist(
 
 
 def make_scatter_n_marginal_scatter(
-        scatter,
-        marginal_scatter,
-        PP,
-        splitPoint,
-        pr_col,
-        centers=None
+    scatter, marginal_scatter, PP, splitPoint, pr_col, centers=None
 ):
     """
     Create an Axes plot visualizing the split and data of a cloud of data. With
@@ -588,13 +595,7 @@ def make_scatter_n_marginal_scatter(
     )
     marginal_scatter.axvline(x=splitPoint, color="red", lw=1)
     if centers is not None:
-        marginal_scatter.scatter(
-            centers,
-            np.zeros(2),
-            color="black",
-            s=50,
-            marker="2"
-        )
+        marginal_scatter.scatter(centers, np.zeros(2), color="black", s=50, marker="2")
     marginal_scatter.set_xticks([])
     marginal_scatter.set_yticks([])
     marginal_scatter.grid()
@@ -633,10 +634,7 @@ def visualization_preparation(hipart_object, color_map):
     dictionary_of_nodes = hipart_object.tree.nodes
 
     # get colormap
-    color_map = matplotlib.cm.get_cmap(
-        color_map,
-        len(list(dictionary_of_nodes.keys()))
-    )
+    color_map = matplotlib.cm.get_cmap(color_map, len(list(dictionary_of_nodes.keys())))
     color_list = [color_map(i) for i in range(color_map.N)]
 
     # find the clusters from the tree generated by the divisive clustering
@@ -655,9 +653,7 @@ def visualization_preparation(hipart_object, color_map):
     # the tree
     number_of_nodes = len(list(dictionary_of_nodes.keys()))
     leaf_node_list = [j.identifier for j in clusters]
-    internal_nodes = [
-        i for i in range(number_of_nodes) if not (i in leaf_node_list)
-    ]
+    internal_nodes = [i for i in range(number_of_nodes) if not (i in leaf_node_list)]
 
     return dictionary_of_nodes, internal_nodes, color_list, sample_color
 
@@ -700,34 +696,24 @@ def grid_position(current, rows, splits, with_marginal=True):
     # the middle of the plot
     if curRow != math.ceil(splits / rows) - 1:
         row_from = curRow * num_of_subgrid_elements
-        row_to = (
-                (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
-        )
+        row_to = (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
         col_from = curCol * num_of_subgrid_elements
         col_to = (curCol * num_of_subgrid_elements) + num_of_subgrid_elements
     else:
         if splits % rows == 0:
             row_from = curRow * num_of_subgrid_elements
-            row_to = (
-                    (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
-            )
+            row_to = (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
             col_from = curCol * num_of_subgrid_elements
-            col_to = (
-                    (curCol * num_of_subgrid_elements) + num_of_subgrid_elements
-            )
+            col_to = (curCol * num_of_subgrid_elements) + num_of_subgrid_elements
 
         elif splits % rows != 0:
             position_corection = (rows - 1) / (splits % rows) * sub_grid_size
             row_from = curRow * num_of_subgrid_elements
-            row_to = (
-                    (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
-            )
-            col_from = (
-                int((curCol * num_of_subgrid_elements) + position_corection)
-            )
+            row_to = (curRow * num_of_subgrid_elements) + num_of_subgrid_elements
+            col_from = int((curCol * num_of_subgrid_elements) + position_corection)
             col_to = (
-                    int((curCol * num_of_subgrid_elements) + position_corection)
-                    + num_of_subgrid_elements
+                int((curCol * num_of_subgrid_elements) + position_corection)
+                + num_of_subgrid_elements
             )
 
     return row_from, row_to, col_from, col_to
@@ -803,19 +789,16 @@ def create_linkage(tree_in):
             if not tree.get_node(i).data["dendrogram_check"]:
                 # Set all the samples of the included in the node/cluster as
                 # unlinked nodes on the dendrogram tree
-                tree.get_node(i).data["unlinked_nodes"] = tree.get_node(
-                    i
-                ).data["indices"]
+                tree.get_node(i).data["unlinked_nodes"] = tree.get_node(i).data[
+                    "indices"
+                ]
                 # Create the dendrogram`s subtree and update the algorithm tree
                 # node`s data and the index for the next free node
                 (
                     cluster_linkage,
                     tree.get_node(i).data,
                     dendrogram_counts,
-                ) = linkage_data_maestro(
-                    tree.get_node(i),
-                    dendrogram_counts, 0.2
-                )
+                ) = linkage_data_maestro(tree.get_node(i), dendrogram_counts, 0.2)
                 dendrogram_counts += 1
                 Z = np.vstack((Z, cluster_linkage))
         else:
@@ -824,21 +807,20 @@ def create_linkage(tree_in):
                 # a new node on the dendrogram tree
                 children = tree.children(i)
                 Z = np.vstack(
-                    [Z, [
-                        children[-1].data["unlinked_nodes"][0],
-                        children[-2].data["unlinked_nodes"][0],
-                        max_distance - _get_node_depth(path_to_leaves, i),
-                        children[-1].data["counts"] + children[-2].data[
-                            "counts"],
-                    ]]
+                    [
+                        Z,
+                        [
+                            children[-1].data["unlinked_nodes"][0],
+                            children[-2].data["unlinked_nodes"][0],
+                            max_distance - _get_node_depth(path_to_leaves, i),
+                            children[-1].data["counts"] + children[-2].data["counts"],
+                        ],
+                    ]
                 )
                 # Update of the data of the algorithm execution tree node
-                tree.get_node(
-                    i
-                ).data["dendromgram_indicator"] = dendrogram_counts
+                tree.get_node(i).data["dendromgram_indicator"] = dendrogram_counts
                 tree.get_node(i).data["counts"] = (
-                        children[-1].data["counts"]
-                        + children[-2].data["counts"]
+                    children[-1].data["counts"] + children[-2].data["counts"]
                 )
                 tree.get_node(i).data["unlinked_nodes"] = [dendrogram_counts]
                 dendrogram_counts += 1
@@ -954,11 +936,7 @@ def create_cluster_linkage(points, samples_count, node_indicator, distance):
 
         # Add the last unlinked node`s subtree
         Z = np.vstack(
-            [Z, [
-                forever_alone,
-                alone_conection,
-                distance, Z[0, 3] + alone_count
-            ]]
+            [Z, [forever_alone, alone_conection, distance, Z[0, 3] + alone_count]]
         )
         node_indicator += 1
         counts[0] += alone_count
@@ -1014,9 +992,14 @@ def create_the_connections(points, samples_count, node_indicator, distance):
 
     distance = np.full(elements // 2, distance)
 
-    return np.column_stack((
-        left,
-        right,
-        distance,
-        samples_count,
-    )), elements // 2
+    return (
+        np.column_stack(
+            (
+                left,
+                right,
+                distance,
+                samples_count,
+            )
+        ),
+        elements // 2,
+    )

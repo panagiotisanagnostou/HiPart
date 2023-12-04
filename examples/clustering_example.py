@@ -8,9 +8,9 @@ from sklearn.datasets import make_blobs
 from sklearn.metrics import adjusted_rand_score as ari
 from sklearn.metrics import normalized_mutual_info_score as nmi
 
+import HiPart.visualizations as viz
 import matplotlib.pyplot as plt
 import time
-import HiPart.visualizations as viz
 
 # %% Example data creation
 # number of cluster in the data

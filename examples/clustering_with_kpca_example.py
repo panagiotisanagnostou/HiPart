@@ -1,10 +1,10 @@
-import HiPart.visualizations as viz
-import matplotlib.pyplot as plt
-import numpy as np
-
 from HiPart.clustering import DePDDP
 from sklearn.decomposition import KernelPCA
 from sklearn.datasets import make_circles
+
+import HiPart.visualizations as viz
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plot_manafolds(X, y, vals, gamma, title):
