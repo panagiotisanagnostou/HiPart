@@ -166,7 +166,7 @@ class DePDDP(Partition):
         # nodes next color indicator (necessary for visualization purposes)
         self.cluster_color = 0
         den_tree.create_node(
-            tag="density_cluster_" + str(self.node_ids),
+            tag="cl_" + str(self.node_ids),
             identifier=self.node_ids,
             data=self.calculate_node_data(indices, self.cluster_color),
         )
@@ -733,7 +733,7 @@ class KMPDDP(Partition):
 
         # Root node initialization
         bk_tree.create_node(
-            tag="binary_kmeans_node_" + str(self.node_ids),
+            tag="cl_" + str(self.node_ids),
             identifier=self.node_ids,
             data=self.calculate_node_data(indices, self.cluster_color),
         )
@@ -1471,7 +1471,7 @@ class MDH(Partition):
         # nodes next color indicator (necessary for visualization purposes)
         self.cluster_color = 0
         den_tree.create_node(
-            tag="density_cluster_" + str(self.node_ids),
+            tag="cl_" + str(self.node_ids),
             identifier=self.node_ids,
             data=self.calculate_node_data(indices, self.cluster_color),
         )

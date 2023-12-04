@@ -178,13 +178,13 @@ class Partition:
         # Nodes and data creation for the children
         # Uses the calculate_node_data function to create the data for the node
         tree.create_node(
-            tag="density_cluster_" + str(self.node_ids + 1),
+            tag="cl_" + str(self.node_ids + 1),
             identifier=self.node_ids + 1,
             parent=node.identifier,
             data=self.calculate_node_data(left_kid_index, node.data["color_key"]),
         )
         tree.create_node(
-            tag="density_cluster_" + str(self.node_ids + 2),
+            tag="cl_" + str(self.node_ids + 2),
             identifier=self.node_ids + 2,
             parent=node.identifier,
             data=self.calculate_node_data(right_kid_index, self.cluster_color + 1),

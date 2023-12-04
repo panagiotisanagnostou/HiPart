@@ -504,18 +504,20 @@ def make_scatter_n_hist(
 
     Parameters
     ----------
-    bandwidth_scale
-    scaler
     scatter : matplotlib.axes.Axes object
         The Axes for the main plot to be drawn.
     hist : matplotlib.axes.Axes object
         The Axes for the x-axis marginal plot to be drawn.
     splitPoint : int
         The values of the point the data are split for this plot.
+    bandwidth_scale : float
+        The scale of the bandwidth of the KDE.
     PP : numpy.ndarray object
         The projection of the data on the first two Principal Components.
     pr_col : numpy.ndarray object
         An array containing the color of each sample as RGBa tuple.
+    scaler : int or None, optional
+        The number of samples the data were split. The default is None.
 
     Returns
     -------
