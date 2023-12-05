@@ -31,6 +31,7 @@ setuptools.setup(
         "numpy==1.21",
         "scikit-learn==1.0",
         "pandas==1.3",
+        "sphinx_rtd_theme",
     ],
     project_urls={
         "Documentation": "https://hipart.readthedocs.io/en/latest/",
