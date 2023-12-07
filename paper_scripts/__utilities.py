@@ -58,7 +58,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def execute_evaluation(X, y):
+def executor(X, y):
     cluster_number = len(np.unique(y))
     print("cluster_number= {}\n".format(cluster_number))
 
@@ -71,7 +71,7 @@ def execute_evaluation(X, y):
         depddp_time = []
         depddp_mni = []
         depddp_ari = []
-        for i in range(ffolds):
+        for _ in range(ffolds):
             depddp = DePDDP(
                 max_clusters_number=cluster_number,
                 bandwidth_scale=0.5,

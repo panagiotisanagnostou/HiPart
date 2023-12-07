@@ -1546,7 +1546,7 @@ class MDH(Partition):
             )
 
             solutions = []
-            for i in range(0, self.max_iterations):
+            for _ in range(0, self.max_iterations):
                 # Generate a random vector in the space of the node's data and
                 # normalize it to unit length
                 # v_n_b: vector v and point b

@@ -43,7 +43,7 @@ warnings.filterwarnings("ignore")
 def evaluate(X, y, name):
     print(X.shape)
 
-    results = util.execute_evaluation(X=X, y=y)
+    results = util.executor(X=X, y=y)
 
     with open("result_dict.dump", "rb") as ind:
         all_results = pickle.load(ind)
