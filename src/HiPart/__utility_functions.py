@@ -210,10 +210,10 @@ def initialize_b(x0, X, depth_init=True):
         depth = np.inf
         p = None
         for i in np.arange(len(maxima) - 1):
-            pos = maxima[i] + np.argmin(y[maxima[i] : maxima[i + 1]])
+            pos = maxima[i] + np.argmin(y[maxima[i]: maxima[i + 1]])
             # inverse of depth (to avoid numerical difficulties)
             tmp_depth = (
-                np.amin([np.amax(y[maxima[: i + 1]]), np.amax(y[maxima[i + 1 :]])])
+                np.amin([np.amax(y[maxima[: i + 1]]), np.amax(y[maxima[(i + 1):]])])
                 - y[pos]
             )
             # No divisions by zero
@@ -235,7 +235,7 @@ def initialize_b(x0, X, depth_init=True):
 
     else:
         # Find the lowest minimum between any peaks
-        pos = maxima[0] + np.argmin(y[maxima[0] : maxima[-1] + 1])
+        pos = maxima[0] + np.argmin(y[maxima[0]: maxima[-1] + 1])
         return x_ticks[pos]
 
 

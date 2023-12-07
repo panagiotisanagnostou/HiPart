@@ -37,7 +37,7 @@ def test_depddp_return_type(datadir):
         data_import = pickle.load(inf)
 
     new_obj = DePDDP(max_clusters_number=3).fit(data_import["data"])
-    assert  isinstance(new_obj, DePDDP)
+    assert isinstance(new_obj, DePDDP)
 
 
 def test_ipddp_return_type(datadir):
