@@ -116,7 +116,6 @@ class Partition:
             algorithm's analysis.
 
         """
-        pass
 
     def fit_predict(self, X):
         """

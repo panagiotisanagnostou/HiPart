@@ -231,9 +231,12 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
                 for j in hists:
                     j.set_ylim(current_ylim)
 
-            hist.title.set_text(
-                "Original data with 1st split"
-            ) if i == 0 else hist.title.set_text("Split no. " + str(i + 1))
+            if i == 0:
+                hist.title.set_text(
+                    "Original data with 1st split"
+                ) 
+            else:
+                hist.title.set_text("Split no. " + str(i + 1))
 
         elif with_marginal_scatter:
             principal_projections = dictionary_of_nodes[internal_nodes[i]].data[
@@ -259,9 +262,12 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
                 centers=centers,
             )
 
-            marginal_scatter.title.set_text(
-                "Original data with 1st split"
-            ) if i == 0 else marginal_scatter.title.set_text("Split no. " + str(i + 1))
+            if i == 0:
+                marginal_scatter.title.set_text(
+                    "Original data with 1st split"
+                )
+            else:
+                marginal_scatter.title.set_text("Split no. " + str(i + 1))
 
         else:
             # Bisecting k-Means doesn't execute PCA, so we execute it here for
@@ -301,10 +307,13 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
                 show_split=show_split,
             )
 
-            # title the subplot
-            ax.title.set_text(
-                "Original data with 1st split"
-            ) if i == 0 else ax.title.set_text("Split no. " + str(i + 1))
+            if i == 0:
+                # title the subplot
+                ax.title.set_text(
+                    "Original data with 1st split"
+                )
+            else:
+                ax.title.set_text("Split no. " + str(i + 1))
 
     plt.subplots_adjust(wspace=0.2, hspace=0.6)
     return plt
