@@ -26,7 +26,7 @@ dist_matrix = distance_matrix(X, X)
 # %% dePDDP algorithm execution
 # timer for the execution time in the form of tic-toc
 tic = time.perf_counter()
-depddp = DePDDP(
+model = DePDDP(
     decomposition_method="mds",
     max_clusters_number=clusters,
     bandwidth_scale=0.5,
@@ -37,11 +37,11 @@ depddp = DePDDP(
 toc = time.perf_counter()
 
 # results evaluation in terms of execution time, MNI and ARI metrics
-print("depddp_time= {val:.5f}".format(val=toc - tic))
-print("depddp_mni= {val:.5f}".format(val=nmi(y, depddp.labels_)))
-print("depddp_ari= {val:.5f}\n".format(val=ari(y, depddp.labels_)))
+print("execution_time= {val:.5f}".format(val=toc - tic))
+print("mni= {val:.5f}".format(val=nmi(y, model.labels_)))
+print("ari= {val:.5f}\n".format(val=ari(y, model.labels_)))
 
 # scatter visualization
-viz.split_visualization(depddp).show()
+viz.split_visualization(model).show()
 # interactive visualization
-iviz.main(depddp)
+iviz.main(model)
