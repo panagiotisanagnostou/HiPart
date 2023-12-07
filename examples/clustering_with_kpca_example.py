@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_manafolds(X, y, vals, gamma, title):
+def plot_manafolds(kpca, X, y, vals, gamma, title):
     """
     2D plot for the generation of a scatter plot with the same meshgrid as the
     one used by the KernelPCA method.
@@ -70,6 +70,7 @@ if __name__ == "__main__":
 
     # visualize the data on the original space
     plot_manafolds(
+        kpca,
         X=X,
         y=y,
         vals=[0, 1],
@@ -98,6 +99,7 @@ if __name__ == "__main__":
     # Clustered data visulization
     out_y = outObj.labels_
     plot_manafolds(
+        kpca,
         X=X,
         y=out_y,
         vals=[1, 2],

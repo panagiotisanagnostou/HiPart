@@ -200,7 +200,7 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
             ]
             splitPoint = dictionary_of_nodes[internal_nodes[i]].data["splitpoint"]
 
-            scatter = plt.subplot(gs[row_from + 1 : row_to, col_from:col_to])
+            scatter = plt.subplot(gs[(row_from + 1): row_to, col_from:col_to])
             if i == 0:
                 total_elements = (
                     hipart_object.tree.get_node(internal_nodes[i])
@@ -209,7 +209,7 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
                 )
 
             hist = plt.subplot(
-                gs[row_from : row_to - 3, col_from:col_to],
+                gs[row_from: row_to - 3, col_from:col_to],
                 sharex=scatter,
             )
             hists.append(hist)
@@ -241,9 +241,9 @@ def split_visualization(hipart_object, color_map="tab20", mdh_split_plot=True):
             ]
             splitPoint = dictionary_of_nodes[internal_nodes[i]].data["splitpoint"]
 
-            scatter = plt.subplot(gs[row_from + 1 : row_to, col_from:col_to])
+            scatter = plt.subplot(gs[(row_from + 1): row_to, col_from:col_to])
             marginal_scatter = plt.subplot(
-                gs[row_from : row_to - 3, col_from:col_to], sharex=scatter
+                gs[row_from: row_to - 3, col_from:col_to], sharex=scatter
             )
             centers = (
                 dictionary_of_nodes[internal_nodes[i]].data["centers"]
