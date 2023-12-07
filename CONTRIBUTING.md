@@ -191,9 +191,12 @@ classes, along with an essential base class:
     tree node. The data includes:
 
     -   `indexes`: These are the indices of the samples each node contains.
+
     -   `split_point`: This is the point at which the subspace is divided.
+  
     -   `split_criterion` value: Depending on the algorithm's criterion, this value
         is either minimized or maximized.
+
     -   Utility data: Essential for the algorithms' proper execution and for
         visualization purposes.
 
@@ -202,6 +205,7 @@ classes, along with an essential base class:
     leaves of the tree for each algorithm. It involves:
 
     -   Collecting values of the `split_criterion`.
+
     -   Returning the node that either maximizes or minimizes this criterion based
         on the algorithm's need.
 
