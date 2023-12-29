@@ -102,7 +102,7 @@ if __name__ == "__main__":
         kpca,
         X=X,
         y=out_y,
-        vals=[1, 2],
+        vals=[0, 1],
         gamma=1.5,
         title="Clusterd data",
     ).show()
