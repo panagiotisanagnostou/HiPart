@@ -345,28 +345,26 @@ class Partition:
         nd_dict = self.tree.nodes
         output_matrix = [np.zeros(np.size(self.X, 0))]
 
-        # the dictionary of nodes contains the created node from the DePDDP
-        # algorithm sorted from the root to the last split
-        for i in nd_dict:
-            # For the output matrix we don't want the leaves of the tree. Each
-            # level of the output matrix represents a split the split exist in
-            # the internal nodes of the tree. Only by checking the children of
-            # those nodes we can extract the data for the current split.
-            if not nd_dict[i].is_leaf():
-                # create output cluster splitting matrix
-                tmp = np.copy(output_matrix[-1])
-                # Left child according to the tree creation process
-                tmp[self.tree.children(i)[0].data["indices"]] = self.tree.children(i)[
-                    0
-                ].identifier
-                # Right child according to the tree creation process
-                tmp[self.tree.children(i)[1].data["indices"]] = self.tree.children(i)[
-                    1
-                ].identifier
+        # the dictionary of nodes contains the created node from the
+        # Hierarchical Divisive Clustering algorithms sorted from the first
+        # split of the root to the last split.
+        # By progressing through the dictionary 2 steps at a time we can create
+        # the output matrix exactly in the order the splits of the tree where
+        # conducted.
+        for i in range(1, len(nd_dict), 2):
+            # Each level of the output matrix represents a split the split exist
+            # in the internal nodes of the tree.
 
-                # The output_matrix is created transposed
-                output_matrix.append(tmp)
-        # the first row contains only zeros
+            # Create output cluster splitting matrix
+            tmp = np.copy(output_matrix[-1])
+            # Left child of the split according to the tree creation process
+            tmp[nd_dict[i].data["indices"]] = nd_dict[i].identifier
+            # Right child of the split according to the tree creation process
+            tmp[nd_dict[i + 1].data["indices"]] = nd_dict[i + 1].identifier
+
+            # The output_matrix is created transposed
+            output_matrix.append(tmp)
+        # the first row contains only zeros (or the root node)
         del output_matrix[0]
 
         # transpose the output_matrix to be extracted
