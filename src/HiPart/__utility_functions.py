@@ -803,8 +803,11 @@ def create_linkage(tree_in):
                     cluster_linkage,
                     tree.get_node(i).data,
                     dendrogram_counts,
-                ) = linkage_data_maestro(tree.get_node(i), dendrogram_counts,
-                                         0.2)
+                ) = linkage_data_maestro(
+                    tree.get_node(i),
+                    dendrogram_counts,
+                    0.2 + 0.5 * (max_distance - _get_node_depth(path_to_leaves, i)) / max_distance,
+                )
                 dendrogram_counts += 1
                 Z = np.vstack((Z, cluster_linkage))
         else:
@@ -816,8 +819,8 @@ def create_linkage(tree_in):
                     [
                         Z,
                         [
-                            children[-1].data["unlinked_nodes"][0],
                             children[-2].data["unlinked_nodes"][0],
+                            children[-1].data["unlinked_nodes"][0],
                             max_distance - _get_node_depth(path_to_leaves, i),
                             children[-1].data["counts"] + children[-2].data["counts"],
                         ],

@@ -502,6 +502,12 @@ def dendrogram_visualization(hipart_object, cmap="viridis", **dendrogram_paramet
     represents the distance of each node from the base of the tree, also known
     as leaves.
 
+    !! Important Note !!
+    The "count_sort" parameter is set to True by default to preserve the
+    hierarchical split structure of the tree. If the "count_sort" parameter is
+    set to False, the dendrogram colors will not be assigned to the correct
+    clusters.
+
     Parameters
     ----------
     hipart_object : DePDDP or IPDDP or KMPDDP or PDDP or MDH or BisectingKmeans
@@ -550,11 +556,16 @@ def dendrogram_visualization(hipart_object, cmap="viridis", **dendrogram_paramet
             clusters but only their hierarchy."""
         )
 
+    if "count_sort" not in dendrogram_parameters:
+        dendrogram_parameters["count_sort"] = True
+
     Z = util.create_linkage(hipart_object.tree)
     color_map = matplotlib.cm.get_cmap(cmap, hipart_object.max_clusters_number)
+    colors = np.array([util.rgba_to_hex(color_map(i)) for i in range(hipart_object.max_clusters_number)])
 
-    hierarchy.set_link_color_palette([util.rgba_to_hex(color_map(i)) for i in range(hipart_object.max_clusters_number)])
-    dn = hierarchy.dendrogram(Z, color_threshold=0.3, count_sort=True, **dendrogram_parameters)
+    keys = np.array([i.data["color_key"] for i in hipart_object.tree.leaves()])
+    hierarchy.set_link_color_palette(list(colors[keys]))
+    dn = hierarchy.dendrogram(Z, color_threshold=1, **dendrogram_parameters)
 
     return dn
 
