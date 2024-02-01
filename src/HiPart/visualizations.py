@@ -24,10 +24,8 @@ in the HiPart package.
 @author: Panagiotis Anagnostou
 @author: Nicos Pavlidis
 """
-from typing import List, Tuple
 
 import matplotlib
-
 import HiPart.__utility_functions as util
 import math
 import matplotlib.gridspec as gridspec
@@ -237,7 +235,7 @@ def split_visualization(hipart_object, color_map="viridis", mdh_split_plot=True)
             if i == 0:
                 hist.title.set_text(
                     "Original data with 1st split"
-                ) 
+                )
             else:
                 hist.title.set_text("Split no. " + str(i + 1))
 
@@ -494,7 +492,7 @@ def mdh_visualization(mdh_obj, color_map="viridis"):
     return plt
 
 
-def dendrogram_visualization(hipart_object, cmap="viridis", **dendrogram_parameters):
+def dendrogram_visualization(hipart_object, cmap="viridis", default_coloring=True, **dendrogram_parameters):
     """
     Create a dendrogram visualization of the divisive clustering based on the
     HiPart`s algorithm execution. The characteristic of this dendrogram is that
@@ -516,7 +514,13 @@ def dendrogram_visualization(hipart_object, cmap="viridis", **dendrogram_paramet
     cmap : string
         The name of the matplotlib color map to be used for the data
         visualization.
-    **dendrogram_parameters : dict
+    default_coloring : bool, optional
+        If True, the dendrogram will be colored according to the default HiPart
+        tree coloring, based on the clustering implemented by the package. If
+        False, the dendrogram will be colored according to the default
+        methodology used by the `scipy.cluster.hierarchy.dendrogram` function.
+        Note that either way the "color_threshold" parameter can be changed.
+    **dendrogram_parameters : optional
         All the parameters the scipy.cluster.hierarchy.dendrogram function can
         take except the color_threshold parameter. Except for the
         "color_threshold" parameter. This parameter takes a default threshold
@@ -556,16 +560,32 @@ def dendrogram_visualization(hipart_object, cmap="viridis", **dendrogram_paramet
             clusters but only their hierarchy."""
         )
 
-    if "count_sort" not in dendrogram_parameters:
-        dendrogram_parameters["count_sort"] = True
+    if "above_threshold_color" not in dendrogram_parameters:
+        default = "C0"
+    else:
+        default = dendrogram_parameters["above_threshold_color"]
 
-    Z = util.create_linkage(hipart_object.tree)
+    # Initialize the color map based on the number of clusters
     color_map = matplotlib.cm.get_cmap(cmap, hipart_object.max_clusters_number)
-    colors = np.array([util.rgba_to_hex(color_map(i)) for i in range(hipart_object.max_clusters_number)])
 
-    keys = np.array([i.data["color_key"] for i in hipart_object.tree.leaves()])
-    hierarchy.set_link_color_palette(list(colors[keys]))
-    dn = hierarchy.dendrogram(Z, color_threshold=1, **dendrogram_parameters)
+    # Create the linkage and the color keys for the dendrogram
+    Z, link_keys = util.create_linkage(hipart_object.tree, color_keys=True)
+
+    # Create the dendrogram
+    if default_coloring:
+        # Create the default coloring link color function for the dendrogram
+        dn = hierarchy.dendrogram(
+            Z,
+            link_color_func=lambda x: util.search_dict(link_keys, x, color_map, default),
+            **dendrogram_parameters
+        )
+    else:
+        # Create the default colors for the dendrogram function
+        colors = np.array([util.rgba_to_hex(color_map(i)) for i in range(hipart_object.max_clusters_number)])
+        # keys = np.array([i.data["color_key"] for i in hipart_object.tree.leaves()])
+        # list(colors[keys]))
+        hierarchy.set_link_color_palette(list(colors))
+        dn = hierarchy.dendrogram(Z, color_threshold=0.3, **dendrogram_parameters)
 
     return dn
 

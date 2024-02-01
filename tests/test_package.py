@@ -900,19 +900,43 @@ def test_split_visualization_valueerror_2(datadir):
 def test_dendrogram_visualization(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
+    success_score = 0
 
     clustering = DePDDP(max_clusters_number=3).fit(data_import["data"])
+
     new_plot = viz.dendrogram_visualization(clustering)
+    if isinstance(new_plot, dict):
+        success_score += 1
 
-    assert isinstance(new_plot, dict)
+    new_plot = viz.dendrogram_visualization(clustering, above_threshold_color="C1")
+    if isinstance(new_plot, dict):
+        success_score += 1
 
+    new_plot = viz.dendrogram_visualization(clustering, default_coloring=False)
+    if isinstance(new_plot, dict):
+        success_score += 1
+
+    assert success_score == 3
 
 def test_dendrogram_visualization_typeerror(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+
+    clustering = IPDDP(max_clusters_number=3).fit(data_import["data"])
+
+    success_score = 0
+
     try:
         viz.dendrogram_visualization(np.array([1, 2, 3]))
-        assert False
     except Exception:
-        assert True
+        success_score += 1
+
+    try:
+        viz.dendrogram_visualization(clustering, color_threshold=0.5)
+    except Exception:
+        success_score += 1
+
+    assert success_score == 2
 
 
 def test_linkage(datadir):
@@ -923,6 +947,22 @@ def test_linkage(datadir):
     links = viz.linkage(clustering)
 
     assert isinstance(links, np.ndarray)
+
+
+def test_create_linkage(datadir):
+    with open(datadir.join('test_data.dump'), "rb") as inf:
+        data_import = pickle.load(inf)
+    success_score = 0
+
+    clustering = DePDDP(max_clusters_number=3).fit(data_import["data"])
+    _, _, multiples, seq_check = uf.create_linkage(tree_in=clustering.tree, color_keys=True, debug=True)
+    if multiples == 0:
+        success_score += 1
+
+    if seq_check:
+        success_score += 1
+
+    assert success_score == 2
 
 
 def test_linkage_typeerror(datadir):

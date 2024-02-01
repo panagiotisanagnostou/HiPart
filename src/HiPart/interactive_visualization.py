@@ -22,6 +22,7 @@ Interactive visualization module for the algorithms members of the HiPart
 package that utilise one decomposition method to one dimension to split the
 data.
 
+@author: Panagiotis Anagnostou
 """
 
 from dash import dcc
