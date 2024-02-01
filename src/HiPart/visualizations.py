@@ -24,10 +24,8 @@ in the HiPart package.
 @author: Panagiotis Anagnostou
 @author: Nicos Pavlidis
 """
-from typing import List, Tuple
 
 import matplotlib
-
 import HiPart.__utility_functions as util
 import math
 import matplotlib.gridspec as gridspec
@@ -237,7 +235,7 @@ def split_visualization(hipart_object, color_map="viridis", mdh_split_plot=True)
             if i == 0:
                 hist.title.set_text(
                     "Original data with 1st split"
-                ) 
+                )
             else:
                 hist.title.set_text("Split no. " + str(i + 1))
 
@@ -563,7 +561,7 @@ def dendrogram_visualization(hipart_object, cmap="viridis", default_coloring=Tru
         )
 
     if "above_threshold_color" not in dendrogram_parameters:
-        default =  "C0"
+        default = "C0"
     else:
         default = dendrogram_parameters["above_threshold_color"]
 
@@ -576,8 +574,11 @@ def dendrogram_visualization(hipart_object, cmap="viridis", default_coloring=Tru
     # Create the dendrogram
     if default_coloring:
         # Create the default coloring link color function for the dendrogram
-        color_function = lambda x: util.search_dict(link_keys, x, color_map, default)
-        dn = hierarchy.dendrogram(Z, link_color_func=color_function, **dendrogram_parameters)
+        dn = hierarchy.dendrogram(
+            Z,
+            link_color_func=lambda x: util.search_dict(link_keys, x, color_map, default),
+            **dendrogram_parameters
+        )
     else:
         # Create the default colors for the dendrogram function
         colors = np.array([util.rgba_to_hex(color_map(i)) for i in range(hipart_object.max_clusters_number)])

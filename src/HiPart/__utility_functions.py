@@ -845,8 +845,7 @@ def create_linkage(tree_in, color_keys=False, debug=False):
                 tree.get_node(i).data[
                     "dendromgram_indicator"] = dendrogram_counts
                 tree.get_node(i).data["counts"] = (
-                        children[-1].data["counts"] + children[-2].data[
-                    "counts"]
+                    children[-1].data["counts"] + children[-2].data["counts"]
                 )
                 tree.get_node(i).data["unlinked_nodes"] = [dendrogram_counts]
                 dendrogram_counts += 1
