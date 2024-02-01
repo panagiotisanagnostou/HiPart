@@ -714,12 +714,12 @@ def grid_position(current, rows, splits, with_marginal=True):
             col_from = curCol * num_of_subgrid_elements
             col_to = (curCol * num_of_subgrid_elements) + num_of_subgrid_elements
 
-        else: # splits % rows != 0:
-            position_corection = (rows - 1) / (splits % rows) * sub_grid_size
+        else:  # splits % rows != 0:
+            position_correction = (rows - 1) / (splits % rows) * sub_grid_size
             col_from = int(
-                (curCol * num_of_subgrid_elements) + position_corection)
+                (curCol * num_of_subgrid_elements) + position_correction)
             col_to = int(
-                (curCol * num_of_subgrid_elements) + position_corection) + num_of_subgrid_elements
+                (curCol * num_of_subgrid_elements) + position_correction) + num_of_subgrid_elements
 
     return row_from, row_to, col_from, col_to
 
@@ -751,7 +751,7 @@ def _get_node_depth(path_to_leaves, i):
     return depth
 
 
-def create_linkage(tree_in):
+def create_linkage(tree_in, color_keys=False, debug=False):
     """
     Create the linkage matrix for the encoding of the divisive clustering tree
     created by the member algorithms of the HiPart package.
@@ -781,6 +781,12 @@ def create_linkage(tree_in):
     # The indicator for the next free node of the linkage tree we are creating
     dendrogram_counts = samples_number
 
+    if color_keys:
+        # Initialize the dictionary of the color keys for the clusters
+        dict_keys = {
+            tree.get_node(i[-1]).data["color_key"]: tree.get_node(i[-1]).data[
+                "indices"] for i in path_to_leaves}
+
     # Initialize the linkage matrix
     Z = np.array([[0, 0, 0, 0]])
     # Loop through the nodes of the algorithm`s execution tree and do the
@@ -797,6 +803,7 @@ def create_linkage(tree_in):
                 tree.get_node(i).data["unlinked_nodes"] = tree.get_node(i).data[
                     "indices"
                 ]
+                start = dendrogram_counts
                 # Create the dendrogram`s subtree and update the algorithm tree
                 # node`s data and the index for the next free node
                 (
@@ -806,10 +813,18 @@ def create_linkage(tree_in):
                 ) = linkage_data_maestro(
                     tree.get_node(i),
                     dendrogram_counts,
-                    0.2 + 0.5 * (max_distance - _get_node_depth(path_to_leaves, i)) / max_distance,
+                    0.2,
                 )
                 dendrogram_counts += 1
                 Z = np.vstack((Z, cluster_linkage))
+
+                if color_keys:
+                    # Include under the key of the cluster exept of all the
+                    # samples also their connections until we reach the root of
+                    # the cluster's subtree
+                    key = tree.get_node(i).data["color_key"]
+                    dict_keys[key] = np.hstack(
+                        (dict_keys[key], np.arange(start, dendrogram_counts)))
         else:
             if not tree.get_node(i).data["dendrogram_check"]:
                 # Connect the children of the algorithm tree internal node to
@@ -840,7 +855,23 @@ def create_linkage(tree_in):
     # initialization`s row of zeros
     Z = Z[1:, :]
 
-    return Z
+    if color_keys:
+        if debug:
+            list_of_connections = []
+            for i in dict_keys:
+                list_of_connections = np.hstack(
+                    (list_of_connections, dict_keys[i]))
+            multiples = np.sum(np.unique(list_of_connections, return_counts=True)[1] > 1)
+            print("Number of multiple appearances of one connection: {}".format(multiples))
+
+            sequence = np.arange(0, list_of_connections.shape[0])
+            seq_check = np.sum([i in sequence for i in list_of_connections]) == list_of_connections.shape[0]
+            print("The list of connections is a sequence from 0 to the max "
+                  "number of connections: {}".format(seq_check))
+            return Z, dict_keys, multiples, seq_check
+        return Z, dict_keys
+    else:
+        return Z
 
 
 def linkage_data_maestro(node, dendrogram_counts, distance):
@@ -1021,3 +1052,34 @@ def rgba_to_hex(rgba):
 
     # Format it into a hex string
     return '#{:02x}{:02x}{:02x}{:02x}'.format(r, g, b, int(a * 255))
+
+
+def search_dict(d, v, c, default="C0"):
+    """
+    Search for the key of a value in a dictionary and the return the color of
+    the key. If the value is not found in the dictionary the default color is
+    returned.
+
+    Parameters
+    ----------
+    d : dictionary
+        The dictionary to search.
+    v : int
+        The value to search for.
+    c : function
+        The function to use for the color creation.
+    default : str, optional
+        The default color to return if the value is not found. The default is
+        "C0".
+
+    Returns
+    -------
+    color : str
+        The color of the key that the value was found in hexadecimal form.
+
+    """
+
+    for k in d:
+        if v in d[k]:
+            return rgba_to_hex(c(k))
+    return default
