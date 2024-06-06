@@ -497,7 +497,7 @@ def _Splitpoint_Manipulation(object_path):
     category_order = {"cluster": [str(i) for i in np.unique(data_matrix["cluster"])]}
 
     # generate the colors to be used
-    color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
+    color_map = matplotlib.colormaps["tab20"].resampled(number_of_nodes)
     colList = {str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)}
 
     with open(object_path, "rb") as obj_file:
@@ -904,7 +904,7 @@ def _Cluster_Scatter_Plot(object_path):
     ) = _data_preparation(object_path, 0)
 
     # create scatter plot with the split-point shape
-    color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
+    color_map = matplotlib.colormaps["tab20"].resampled(number_of_nodes)
     colList = {str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)}
     category_order = {
         "cluster": [str(i) for i in range(len(np.unique(data_matrix["cluster"])))]
