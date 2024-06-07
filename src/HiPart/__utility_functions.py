@@ -639,8 +639,7 @@ def visualization_preparation(hipart_object, color_map):
     dictionary_of_nodes = hipart_object.tree.nodes
 
     # get colormap
-    color_map = matplotlib.cm.get_cmap(
-        color_map,
+    color_map = matplotlib.colormaps[color_map].resampled(
         max(hipart_object.tree.leaves(), key=lambda x: x.data["color_key"]).data["color_key"] + 1
     )
     color_list = [color_map(i) for i in range(color_map.N)]

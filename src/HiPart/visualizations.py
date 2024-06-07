@@ -566,7 +566,7 @@ def dendrogram_visualization(hipart_object, cmap="viridis", default_coloring=Tru
         default = dendrogram_parameters["above_threshold_color"]
 
     # Initialize the color map based on the number of clusters
-    color_map = matplotlib.cm.get_cmap(cmap, hipart_object.max_clusters_number)
+    color_map = matplotlib.colormaps[cmap].resampled(hipart_object.max_clusters_number)
 
     # Create the linkage and the color keys for the dendrogram
     Z, link_keys = util.create_linkage(hipart_object.tree, color_keys=True)
