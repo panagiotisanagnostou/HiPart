@@ -4,6 +4,8 @@
 name: Platform Support Check
 
 on:
+  schedule:
+    - cron:  '* * * * 1'
   push:
     branches: [ main ]
   pull_request:
