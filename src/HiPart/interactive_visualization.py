@@ -347,7 +347,7 @@ def Splitpoint_Manipulation_Callback(
         category_order = {
             "cluster": [str(i) for i in range(len(np.unique(data_matrix["cluster"])))]
         }
-        color_map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
+        color_map = matplotlib.colormaps["tab20"].resampled(number_of_nodes)
         colList = {str(i): _convert_to_hex(color_map(i)) for i in range(color_map.N)}
 
         with open(data["new_input_object"], "rb") as cls_file:
@@ -420,7 +420,8 @@ def Splitpoint_Manipulation_Callback(
         order = {
             "cluster": [str(i) for i in range(len(np.unique(data_matrix["cluster"])))]
         }
-        map = matplotlib.cm.get_cmap("tab20", number_of_nodes)
+
+        map = matplotlib.colormaps["tab20"].resampled(number_of_nodes)
         color_list = {str(i): _convert_to_hex(map(i)) for i in range(map.N)}
 
         with open(data["new_input_object"], "rb") as obj_file:
