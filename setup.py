@@ -3,7 +3,7 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 
 setuptools.setup(
     name="HiPart",
@@ -23,7 +23,7 @@ setuptools.setup(
     install_requires=[
         "numpy",
         "treelib>=1.6",
-        "scipy==1.15",
+        "scipy==1.15.3",
         "scikit-learn",
         "statsmodels>=0.13",
         "kdepy",
