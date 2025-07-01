@@ -23,7 +23,7 @@ setuptools.setup(
     install_requires=[
         "numpy",
         "treelib>=1.6",
-        "scipy",
+        "scipy==1.15",
         "scikit-learn",
         "statsmodels>=0.13",
         "kdepy",
