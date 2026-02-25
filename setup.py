@@ -3,7 +3,7 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-__version__ = "1.0.5"
+__version__ = "1.1.0"
 
 setuptools.setup(
     name="HiPart",
@@ -23,7 +23,7 @@ setuptools.setup(
     install_requires=[
         "numpy",
         "treelib>=1.6",
-        "scipy<=1.15.3",
+        "scipy",
         "scikit-learn",
         "statsmodels>=0.13",
         "kdepy",
@@ -51,6 +51,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Documentation :: Sphinx",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Software Development :: Libraries :: Python Modules",
