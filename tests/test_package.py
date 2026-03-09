@@ -816,6 +816,7 @@ def test_dendrogram_visualization(datadir):
 
     assert success_score == 3
 
+
 def test_dendrogram_visualization_type_error(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
