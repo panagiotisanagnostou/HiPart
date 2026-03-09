@@ -64,7 +64,7 @@ def test_pddp_return_type(datadir):
     assert isinstance(new_obj, PDDP)
 
 
-def test_bicecting_kmeans_return_type(datadir):
+def test_bisecting_kmeans_return_type(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -181,7 +181,7 @@ def test_pddp_parameter_errors(datadir):
     assert success_score == 13
 
 
-def test_bicecting_kmeans_parameter_errors():
+def test_bisecting_kmeans_parameter_errors():
     success_score = 0
 
     algorithm = BisectingKmeans(random_state=5)
@@ -256,7 +256,7 @@ def test_pddp_labels__return_type_and_form(datadir):
     assert isinstance(results, np.ndarray) and results.ndim == 1
 
 
-def test_bicecting_kmeans_labels_return_type_and_form(datadir):
+def test_bisecting_kmeans_labels_return_type_and_form(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -755,7 +755,7 @@ def test_split_visualization_plot_9(datadir):
         assert False
 
 
-def test_split_visualization_typeerror(datadir):
+def test_split_visualization_type_error():
     try:
         viz.split_visualization(np.array([1, 2, 3]))
         assert False
@@ -763,7 +763,7 @@ def test_split_visualization_typeerror(datadir):
         assert True
 
 
-def test_split_visualization_valueerror_1(datadir):
+def test_split_visualization_value_error_1(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -779,7 +779,7 @@ def test_split_visualization_valueerror_1(datadir):
         assert True
 
 
-def test_split_visualization_valueerror_2(datadir):
+def test_split_visualization_value_error_2(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -816,7 +816,7 @@ def test_dendrogram_visualization(datadir):
 
     assert success_score == 3
 
-def test_dendrogram_visualization_typeerror(datadir):
+def test_dendrogram_visualization_type_error(datadir):
     with open(datadir.join('test_data.dump'), "rb") as inf:
         data_import = pickle.load(inf)
 
@@ -863,7 +863,7 @@ def test_create_linkage(datadir):
     assert success_score == 2
 
 
-def test_linkage_typeerror(datadir):
+def test_linkage_type_error():
     try:
         viz.linkage(np.array([1, 2, 3]))
         assert False
