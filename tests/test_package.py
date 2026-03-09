@@ -612,7 +612,7 @@ def test_ipddp_tsne_results(datadir):
         data_import = pickle.load(inf)
 
     try:
-        out_matrix = IPDDP(
+        _ = IPDDP(
             decomposition_method="tsne",
             max_clusters_number=3,
             random_state=0,
