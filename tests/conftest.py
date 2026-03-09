@@ -8,4 +8,3 @@ def pytest_configure():
 
     if matplotlib.get_backend().lower() != "agg":
         matplotlib.use("Agg", force=True)
-
